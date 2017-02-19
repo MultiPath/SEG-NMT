@@ -2,15 +2,16 @@ from nmt import train
 from pprint import pprint
 
 def setup():
-    home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    # home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    home   = '/scratch/jg5223/exp/TMNMT'
     config = {
-        'saveto': home + '/.model/baseline_fren.npz',
-        'datasets': [home + '/.dataset/train.fr.tok.shuf',
-                     home + '/.dataset/train.en.tok.shuf'],
-        'valid_datasets': [home + '/.dataset/devset.fr.tok',
-                           home + '/.dataset/devset.en.tok'],
-        'dictionaries': [home + '/.dataset/train.fr.tok.pkl',
-                         home + '/.dataset/train.en.tok.pkl'],
+        'saveto': home + '/.model/baseline_enfr.bs64.npz',
+        'datasets': [home + '/.dataset/train.en.tok.shuf',
+                     home + '/.dataset/train.fr.tok.shuf'],
+        'valid_datasets': [home + '/.dataset/devset.en.tok',
+                           home + '/.dataset/devset.fr.tok'],
+        'dictionaries': [home + '/.dataset/train.en.tok.pkl',
+                         home + '/.dataset/train.fr.tok.pkl'],
 
         'dim_word': 512,
         'dim': 1024,
@@ -22,11 +23,11 @@ def setup():
         'clip_c': 1.,
         'use_dropout': False,
 
-        'lrate': 0.00002,
+        'lrate': 0.0001,
 
         'patience':1000,
         'maxlen': 50,
-        'batch_size':32,
+        'batch_size':64,
         'valid_batch_size':32,
         'validFreq':100,
         'dispFreq':10,
