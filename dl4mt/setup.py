@@ -21,6 +21,30 @@ def setup_fren():
 
     return config
 
+def setup_enfr():
+    # home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    home   = '/scratch/jg5223/exp/TMNMT'
+    config = {
+        # train
+        'saveto': home + '/.model/baseline_enfr.bs64.npz',
+        'datasets': [home + '/.dataset/train.en.tok.shuf',
+                     home + '/.dataset/train.fr.tok.shuf'],
+        'valid_datasets': [home + '/.dataset/devset.en.tok',
+                           home + '/.dataset/devset.fr.tok'],
+        'dictionaries': [home + '/.dataset/train.en.tok.pkl',
+                         home + '/.dataset/train.fr.tok.pkl'],
+
+        # test
+        'trans_from': home + '/.dataset/devset.en.tok',
+        'trans_ref':  home + '/.dataset/devset.fr.tok',
+        'trans_to':   home + '/translate/baseline_enfr.valid'
+        }
+
+    return config
+
+
+
+
 def setup(pair='fren'):
     # basic setting
     config = {
