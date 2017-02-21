@@ -4,6 +4,7 @@ def setup_fren():
     home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
+        # train
         'saveto': home + '/.model/baseline_fren.npz',
         'datasets': [home + '/.dataset/train.fr.tok.shuf',
                      home + '/.dataset/train.en.tok.shuf'],
@@ -12,7 +13,10 @@ def setup_fren():
         'dictionaries': [home + '/.dataset/train.fr.tok.pkl',
                          home + '/.dataset/train.en.tok.pkl'],
 
-        'trans_to': home + '/.translate/baseline_fren.valid'
+        # test
+        'trans_from': home + '/.dataset/devset.fr.tok',
+        'trans_ref':  home + '/.dataset/devset.en.tok',
+        'trans_to':   home + '/.translate/baseline_fren.valid'
         }
 
     return config

@@ -123,7 +123,7 @@ if __name__ == "__main__":
     main(config['saveto'],
          config['dictionaries'][0],
          config['dictionaries'][1],
-         config['valid_datasets'][0],
+         config['trans_from'],
          config['trans_to'],
          config['beamsize'],
          config['normalize'], False)
