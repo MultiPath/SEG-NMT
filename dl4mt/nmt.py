@@ -1018,7 +1018,8 @@ def train(dim_word=100,  # word vector dimensionality
               '/data/lisatmp3/chokyun/europarl/europarl-v7.fr-en.fr.tok.pkl'],
           use_dropout=False,
           reload_=False,
-          overwrite=False):
+          overwrite=False,
+          *args, **kwargs):
 
     # Model options
     model_options = locals().copy()
