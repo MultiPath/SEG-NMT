@@ -1,6 +1,7 @@
 from nmt import *
 from pprint import pprint
 from setup import setup
+from threading import Thread
 
 import argparse
 
@@ -44,6 +45,7 @@ def train(dim_word=100,  # word vector dimensionality
           use_dropout=False,
           reload_=False,
           overwrite=False,
+          run_BLEU=False,
           *args, **kwargs):
 
     # Model options
@@ -167,6 +169,10 @@ def train(dim_word=100,  # word vector dimensionality
         saveFreq = len(train[0])/batch_size
     if sampleFreq == -1:
         sampleFreq = len(train[0])/batch_size
+
+    # ***** special **** #
+    BleuFreq  = 2000
+    #BleuPoint = 20000
 
     for eidx in xrange(max_epochs):
         n_samples = 0
@@ -294,6 +300,13 @@ def train(dim_word=100,  # word vector dimensionality
                     ipdb.set_trace()
 
                 print 'Valid ', valid_err
+
+
+            # validate model with BLEU
+            pass
+
+
+
 
             # finish after this many updates
             if uidx >= finish_after:
