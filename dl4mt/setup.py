@@ -5,18 +5,18 @@ def setup_fren():
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train
-        'saveto': home + '/.model/baseline_fren.npz',
-        'datasets': [home + '/.dataset/train.fr.tok.shuf',
-                     home + '/.dataset/train.en.tok.shuf'],
-        'valid_datasets': [home + '/.dataset/devset.fr.tok',
-                           home + '/.dataset/devset.en.tok'],
-        'dictionaries': [home + '/.dataset/train.fr.tok.pkl',
-                         home + '/.dataset/train.en.tok.pkl'],
+        'saveto': home + '/.model/baseline_fren.bpe.npz',
+        'datasets': [home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',
+                     home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf'],
+        'valid_datasets': [home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
+                           home + '/.dataset/fren.bpe/devset.en.tok.bpe'],
+        'dictionaries': [home + '/.dataset/fren.bpe/train.fr.tok.bpe.pkl',
+                         home + '/.dataset/fren.bpe/train.en.tok.bpe.pkl'],
 
         # test
-        'trans_from': home + '/.dataset/devset.fr.tok',
-        'trans_ref':  home + '/.dataset/devset.en.tok',
-        'trans_to':   home + '/.translate/baseline_fren.valid'
+        'trans_from': home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
+        'trans_ref':  home + '/.dataset/fren/devset.en.tok',
+        'trans_to':   home + '/.translate/baseline_fren.bpe.valid'
         }
 
     return config
@@ -60,11 +60,11 @@ def setup(pair='fren'):
         'decay_c': 0.,
         'clip_c': 1.,
         'use_dropout': False,
-        'lrate': 0.0001,
+        'lrate': 0.00002,
         'patience':1000,
 
-        'maxlen': 50,
-        'batch_size':64,
+        'maxlen': 80,
+        'batch_size':32,
         'valid_batch_size':32,
         'validFreq':100,
         'dispFreq':10,
