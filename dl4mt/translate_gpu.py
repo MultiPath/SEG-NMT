@@ -14,7 +14,7 @@ from setup import setup
 from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 trng = RandomStreams(19920206)
 
-def translate_model(queue, model, options, k, normalize):
+def translate_model(queue, model, options, k, normalize, d_maxlen=200):
 
     use_noise = theano.shared(numpy.float32(0.))
 
@@ -32,7 +32,7 @@ def translate_model(queue, model, options, k, normalize):
         # sample given an input sequence and obtain scores
         sample, score = gen_sample(tparams, f_init, f_next,
                                    numpy.array(seq).reshape([len(seq), 1]),
-                                   options, trng=trng, k=k, maxlen=200,
+                                   options, trng=trng, k=k, maxlen=d_maxlen,
                                    stochastic=False, argmax=False)
 
         # normalize scores according to sequence lengths
@@ -53,7 +53,7 @@ def translate_model(queue, model, options, k, normalize):
 
 
 def main(model, dictionary, dictionary_target, source_file, saveto, k=5,
-         normalize=False,chr_level=False, *args, **kwargs):
+         normalize=False,chr_level=False, d_maxlen=200, *args, **kwargs):
 
     # load model model_options
     with open('%s.pkl' % model, 'rb') as f:
@@ -107,7 +107,7 @@ def main(model, dictionary, dictionary_target, source_file, saveto, k=5,
 
     print 'Translating ', source_file, '...'
     queue = _send_jobs(source_file)
-    trans = _seqs2words(translate_model(queue, model, options, k, normalize))
+    trans = _seqs2words(translate_model(queue, model, options, k, normalize, d_maxlen))
     with open(saveto, 'w') as f:
         print >>f, '\n'.join(trans)
     print 'Done'
@@ -126,6 +126,7 @@ if __name__ == "__main__":
          config['trans_from'],
          config['trans_to'],
          config['beamsize'],
-         config['normalize'], False)
+         config['normalize'], False,
+         config['d_maxlen'])
 
     print 'all done'

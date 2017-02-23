@@ -22,22 +22,22 @@ def setup_fren():
     return config
 
 def setup_enfr():
-    home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
-    #home   = '/scratch/jg5223/exp/TMNMT'
+    #home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train
-        'saveto': home + '/.model/baseline_enfr.bpe.npz',
-        'datasets': [home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf',
-                     home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf'],
-        'valid_datasets': [home + '/.dataset/fren.bpe/devset.en.tok.bpe',
-                           home + '/.dataset/fren.bpe/devset.fr.tok.bpe'],
-        'dictionaries': [home + '/.dataset/fren.bpe/train.en.tok.bpe.pkl',
-                         home + '/.dataset/fren.bpe/train.fr.tok.bpe.pkl'],
+        'saveto': home + '/.model/baseline_enfr.bs64.npz',
+        'datasets': [home + '/.dataset/fren/train.en.tok.shuf',
+                     home + '/.dataset/fren/train.fr.tok.shuf'],
+        'valid_datasets': [home + '/.dataset/fren/devset.en.tok',
+                           home + '/.dataset/fren/devset.fr.tok'],
+        'dictionaries': [home + '/.dataset/fren/train.en.tok.pkl',
+                         home + '/.dataset/fren/train.fr.tok.pkl'],
 
         # test
-        'trans_from': home + '/.dataset/fren.bpe/devset.en.tok.bpe',
-        'trans_ref':  home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
-        'trans_to':   home + '/translate/baseline_enfr.bpe.valid'
+        'trans_from': home + '/.dataset/fren/devset.en.tok',
+        'trans_ref':  home + '/.dataset/fren/devset.fr.tok',
+        'trans_to':   home + '/translate/baseline_enfr.valid2'
         }
 
     return config
@@ -76,7 +76,8 @@ def setup(pair='fren'):
 
         # testing details
         'beamsize': 5,
-        'normalize': False
+        'normalize': False,
+        'd_maxlen': 200
         }
 
     # get dataset info
