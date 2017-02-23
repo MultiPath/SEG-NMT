@@ -1,6 +1,6 @@
 # setup the training and testing details in this file
 
-def setup_fren():
+def setup_fren_bpe():
     home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
@@ -20,6 +20,29 @@ def setup_fren():
         }
 
     return config
+
+
+def setup_enfr_bpe():
+    home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    # home   = '/scratch/jg5223/exp/TMNMT'
+    config = {
+        # train
+        'saveto': home + '/.model/baseline_enfr.bpe.npz',
+        'datasets': [home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf',
+                     home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf'],
+        'valid_datasets': [home + '/.dataset/fren.bpe/devset.en.tok.bpe',
+                           home + '/.dataset/fren.bpe/devset.fr.tok.bpe'],
+        'dictionaries': [home + '/.dataset/fren.bpe/train.en.tok.bpe.pkl',
+                         home + '/.dataset/fren.bpe/train.fr.tok.bpe.pkl'],
+
+        # test
+        'trans_from': home + '/.dataset/fren.bpe/devset.en.tok.bpe',
+        'trans_ref':  home + '/.dataset/fren/devset.fr.tok',
+        'trans_to':   home + '/.translate/baseline_enfr.bpe.valid'
+        }
+
+    return config
+
 
 def setup_enfr():
     #home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
