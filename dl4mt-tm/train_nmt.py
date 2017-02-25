@@ -12,6 +12,7 @@ args = parser.parse_args()
 config = setup(args.m)
 pprint(config)
 
+
 def train(dim_word=100,  # word vector dimensionality
           dim=1000,  # the number of LSTM units
           encoder='gru',
@@ -24,24 +25,20 @@ def train(dim_word=100,  # word vector dimensionality
           alpha_c=0.,  # alignment regularization
           clip_c=-1.,  # gradient clipping threshold
           lrate=0.01,  # learning rate
-          n_words_src=100000,  # source vocabulary size
-          n_words=100000,  # target vocabulary size
           maxlen=100,  # maximum length of the description
           optimizer='rmsprop',
           batch_size=16,
           valid_batch_size=16,
           saveto='model.npz',
           validFreq=1000,
-          saveFreq=1000,   # save the parameters after every saveFreq updates
-          sampleFreq=100,   # generate some samples after every sampleFreq
-          datasets=[
-              '/data/lisatmp3/chokyun/europarl/europarl-v7.fr-en.en.tok',
-              '/data/lisatmp3/chokyun/europarl/europarl-v7.fr-en.fr.tok'],
-          valid_datasets=['../data/dev/newstest2011.en.tok',
-                          '../data/dev/newstest2011.fr.tok'],
-          dictionaries=[
-              '/data/lisatmp3/chokyun/europarl/europarl-v7.fr-en.en.tok.pkl',
-              '/data/lisatmp3/chokyun/europarl/europarl-v7.fr-en.fr.tok.pkl'],
+          saveFreq=1000,  # save the parameters after every saveFreq updates
+          sampleFreq=100,  # generate some samples after every sampleFreq
+
+          datasets=None,
+          valid_datasets=None,
+          dictionaries=None,
+          voc_sizes=None,
+
           use_dropout=False,
           reload_=False,
           overwrite=False,
@@ -54,10 +51,8 @@ def train(dim_word=100,  # word vector dimensionality
     # add random seed
     model_options['trng'] = RandomStreams(19920206)
 
-
-
     # load dictionaries and invert them
-    worddicts = [None] * len(dictionaries)
+    worddicts   = [None] * len(dictionaries)
     worddicts_r = [None] * len(dictionaries)
     for ii, dd in enumerate(dictionaries):
         with open(dd, 'rb') as f:
@@ -73,16 +68,10 @@ def train(dim_word=100,  # word vector dimensionality
             model_options = pkl.load(f)
 
     print 'Loading data'
-    train = TextIterator(datasets[0], datasets[1],
-                         dictionaries[0], dictionaries[1],
-                         n_words_source=n_words_src, n_words_target=n_words,
-                         batch_size=batch_size,
-                         maxlen=maxlen)
-    valid = TextIterator(valid_datasets[0], valid_datasets[1],
-                         dictionaries[0], dictionaries[1],
-                         n_words_source=n_words_src, n_words_target=n_words,
-                         batch_size=valid_batch_size,
-                         maxlen=maxlen)
+    train = TextIterator(datasets, dictionaries, voc_sizes, batch_size=batch_size, maxlen=maxlen)
+    valid = TextIterator(valid_datasets, dictionaries,voc_sizes, batch_size=valid_batch_size, maxlen=200)
+
+    print '..upto here.'
 
     print 'Building model'
     params = init_params(model_options)
@@ -94,9 +83,9 @@ def train(dim_word=100,  # word vector dimensionality
     tparams = init_tparams(params)
 
     trng, use_noise, \
-        x, x_mask, y, y_mask, \
-        opt_ret, \
-        cost = \
+    x, x_mask, y, y_mask, \
+    opt_ret, \
+    cost = \
         build_model(tparams, model_options)
     inps = [x, x_mask, y, y_mask]
 
@@ -123,8 +112,8 @@ def train(dim_word=100,  # word vector dimensionality
     if alpha_c > 0. and not model_options['decoder'].endswith('simple'):
         alpha_c = theano.shared(numpy.float32(alpha_c), name='alpha_c')
         alpha_reg = alpha_c * (
-            (tensor.cast(y_mask.sum(0)//x_mask.sum(0), 'float32')[:, None] -
-             opt_ret['dec_alphas'].sum(0))**2).sum(1).mean()
+            (tensor.cast(y_mask.sum(0) // x_mask.sum(0), 'float32')[:, None] -
+             opt_ret['dec_alphas'].sum(0)) ** 2).sum(1).mean()
         cost += alpha_reg
 
     # after all regularizers - compile the computational graph for cost
@@ -140,10 +129,10 @@ def train(dim_word=100,  # word vector dimensionality
     if clip_c > 0.:
         g2 = 0.
         for g in grads:
-            g2 += (g**2).sum()
+            g2 += (g ** 2).sum()
         new_grads = []
         for g in grads:
-            new_grads.append(tensor.switch(g2 > (clip_c**2),
+            new_grads.append(tensor.switch(g2 > (clip_c ** 2),
                                            g / tensor.sqrt(g2) * clip_c,
                                            g))
         grads = new_grads
@@ -169,15 +158,15 @@ def train(dim_word=100,  # word vector dimensionality
             uidx = rmodel['uidx']
 
     if validFreq == -1:
-        validFreq = len(train[0])/batch_size
+        validFreq = len(train[0]) / batch_size
     if saveFreq == -1:
-        saveFreq = len(train[0])/batch_size
+        saveFreq = len(train[0]) / batch_size
     if sampleFreq == -1:
-        sampleFreq = len(train[0])/batch_size
+        sampleFreq = len(train[0]) / batch_size
 
     # ***** special **** #
-    BleuFreq  = 2000
-    #BleuPoint = 20000
+    BleuFreq = 2000
+    # BleuPoint = 20000
 
     for eidx in xrange(max_epochs):
         n_samples = 0
@@ -236,7 +225,6 @@ def train(dim_word=100,  # word vector dimensionality
                     numpy.savez(saveto_uidx, history_errs=history_errs,
                                 uidx=uidx, **unzip(tparams))
                     print 'Done'
-
 
             # generate some samples with the model and display them
             if numpy.mod(uidx, sampleFreq) == 0:
@@ -306,12 +294,8 @@ def train(dim_word=100,  # word vector dimensionality
 
                 print 'Valid ', valid_err
 
-
             # validate model with BLEU
             pass
-
-
-
 
             # finish after this many updates
             if uidx >= finish_after:
