@@ -429,7 +429,8 @@ def gru_cond_layer(tparams, state_below, options, prefix='gru',
         alpha = tensor.exp(alpha)
         if context_mask:
             alpha = alpha * context_mask
-        alpha = alpha / alpha.sum(0, keepdims=True)
+        alpha_sum = alpha.sum(axis=0)
+        alpha = alpha / alpha_sum
         ctx_ = (cc_ * alpha[:, :, None]).sum(0)  # current context
 
         preact2 = tensor.dot(h1, U_nl)+b_nl
@@ -448,10 +449,9 @@ def gru_cond_layer(tparams, state_below, options, prefix='gru',
         h2 = u2 * h1 + (1. - u2) * h2
         h2 = m_[:, None] * h2 + (1. - m_)[:, None] * h1
 
-        return h2, ctx_, alpha.T  # pstate_, preact, preactx, r, u
+        return h2, ctx_, alpha.T, alpha_sum  # pstate_, preact, preactx, r, u
 
     seqs = [mask, state_below_, state_belowx]
-    #seqs = [mask, state_below_, state_belowx, state_belowc]
     _step = _step_slice
 
     shared_vars = [tparams[_p(prefix, 'U')],
@@ -467,7 +467,7 @@ def gru_cond_layer(tparams, state_below, options, prefix='gru',
                    tparams[_p(prefix, 'bx_nl')]]
 
     if one_step:
-        rval = _step(*(seqs + [init_state, None, None, pctx_, context] +
+        rval = _step(*(seqs + [init_state, None, None, None, pctx_, context] +
                        shared_vars))
     else:
         rval, updates = theano.scan(_step,
@@ -476,7 +476,8 @@ def gru_cond_layer(tparams, state_below, options, prefix='gru',
                                                   tensor.alloc(0., n_samples,
                                                                context.shape[2]),
                                                   tensor.alloc(0., n_samples,
-                                                               context.shape[0])],
+                                                               context.shape[0]),
+                                                  tensor.alloc(0., n_samples)],
                                     non_sequences=[pctx_, context]+shared_vars,
                                     name=_p(prefix, '_layers'),
                                     n_steps=nsteps,

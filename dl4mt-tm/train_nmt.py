@@ -120,6 +120,7 @@ def train(dim_word=100,  # word vector dimensionality
 
     print 'build attention-propagation'
 
+    @Timeit
     def build_prop(atten_ef, atten_fe):
         atten_ef = atten_ef.dimshuffle(1, 0, 2)
         atten_fe = atten_fe.dimshuffle(1, 0, 2)
@@ -130,6 +131,13 @@ def train(dim_word=100,  # word vector dimensionality
     att_ef21 = build_prop(ret_ef21['attention'], ret_fe11['attention'])
     att_fe12 = build_prop(ret_fe12['attention'], ret_ef22['attention'])
     att_fe21 = build_prop(ret_fe21['attention'], ret_ef11['attention'])
+
+    print 'build loss function (w/o gate)'
+
+    # we first try the simplest version: use a natural attention-gate.
+
+
+
 
     print 'up to here...'
     import sys; sys.exit(123)

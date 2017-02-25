@@ -128,6 +128,7 @@ def build_model(tparams, inps, options, pix=''):
     opt_ret['prev_emb']  = emb
     opt_ret['ctxs'] = ctxs
     opt_ret['attention'] = proj[2]
+    opt_ret['att_sum'] = proj[3]
 
     # compute word probabilities
     logit_lstm = get_layer('ff')[1](tparams, proj_h, options,
@@ -175,14 +176,16 @@ def build_attender(tparams, inps, options, pix=''):
                                                 init_state=hid)
         ctxs = proj[1]
         atts = proj[2]
-        return ctxs, atts
+        att_sum = proj[3]
+        return ctxs, atts, att_sum
 
     ret, _ = theano.scan(recurrence, sequences=[prev_hids, prev_emb],
                          non_sequences=[ctx, x_mask])
 
     # weights (alignment matrix)
-    opt_ret['ctxs'] = ret[0]
+    opt_ret['ctxs']      = ret[0]
     opt_ret['attention'] = ret[1]
+    opt_ret['att_sum']   = ret[2]
     return opt_ret
 
 
