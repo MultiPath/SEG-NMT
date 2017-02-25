@@ -97,15 +97,30 @@ def train(dim_word=100,  # word vector dimensionality
     y2 = tensor.matrix('y2', dtype='int64')
     y2_mask = tensor.matrix('y2_mask', dtype='float32')
 
-    # build forward model
-    ret_11, cost_11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], model_options, 'ef')
-    ret_22, cost_22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], model_options, 'fe')
+    # build forward model: E->F, F->E, training 4 model simultaneously.
+    ret_ef11, cost_ef11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], model_options, 'ef')  # E->F curr
+    ret_fe11, cost_fe11 = build_model(tparams_fe, [y1, y1_mask, x1, x1_mask], model_options, 'fe')  # F->E curr
+    ret_ef22, cost_ef22 = build_model(tparams_ef, [x2, x2_mask, y2, y2_mask], model_options, 'ef')  # E->F tm
+    ret_fe22, cost_fe22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], model_options, 'fe')  # F->E tm
 
     # build cross-attention model
-    ret_11, cost_11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], model_options, 'ef')
-    ret_22, cost_22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], model_options, 'fe')
+    ref_ef12 = build_attender(tparams_ef,
+                              [ret_ef11['pre_hids'], ret_ef11['pre_emb'], ret_ef22['ctx'], x2_mask],
+                              model_options, 'ef')  # E->F curr
+    ref_ef21 = build_attender(tparams_ef,
+                              [ret_ef22['pre_hids'], ret_ef22['pre_emb'], ret_ef11['ctx'], x1_mask],
+                              model_options, 'ef')  # E->F tm
+    ref_fe12 = build_attender(tparams_fe,
+                              [ret_fe11['pre_hids'], ret_fe11['pre_emb'], ret_fe22['ctx'], y2_mask],
+                              model_options, 'fe')  # F->E curr
+    ref_fe21 = build_attender(tparams_fe,
+                              [ret_fe22['pre_hids'], ret_fe22['pre_emb'], ret_fe11['ctx'], y1_mask],
+                              model_options, 'fe')  # F->E tm
 
-    inps = [x, x_mask, y, y_mask]
+
+
+    print 'up to here...'
+    import sys; sys.exit(123)
 
     print 'Building sampler'
     f_init, f_next = build_sampler(tparams, model_options, trng, use_noise)

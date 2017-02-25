@@ -124,6 +124,7 @@ def build_model(tparams, inps, options, pix=''):
 
     # weights (alignment matrix)
     opt_ret['prev_hids'] = concatenate([init_state[None, :, :], proj_h[:-1, :, :]], axis=0)
+    opt_ret['prev_emb']  = emb
     opt_ret['ctxs'] = ctxs
     opt_ret['attention'] = proj[2]
 
@@ -153,6 +154,34 @@ def build_model(tparams, inps, options, pix=''):
     cost = (cost * y_mask).sum(0)
 
     return opt_ret, cost
+
+
+# build an attender
+# build a training model
+def build_attender(tparams, inps, options, pix=''):
+    opt_ret = dict()
+
+    # deal with the input
+    prev_hids, prev_emb, ctx, x_mask = inps
+
+    def recurrence(hid, emb, ctx, x_mask):
+        proj = get_layer(options['decoder'])[1](tparams, emb, options,
+                                                prefix=pix+'decoder',
+                                                context=ctx,
+                                                context_mask=x_mask,
+                                                one_step=True,
+                                                init_state=hid)
+        ctxs = proj[1]
+        atts = proj[2]
+        return ctxs, atts
+
+    ret, _ = theano.scan(recurrence, sequences=[prev_hids, prev_emb],
+                         non_sequences=[ctx, x_mask])
+
+    # weights (alignment matrix)
+    opt_ret['ctxs'] = ret[0]
+    opt_ret['attention'] = ret[1]
+    return opt_ret
 
 
 # build a sampler
