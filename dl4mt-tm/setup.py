@@ -1,71 +1,72 @@
 # setup the training and testing details in this file
+def setup_fren():
+    home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    # home   = '/scratch/jg5223/exp/TMNMT'
+    config = {
+        # train phase
+        'saveto': home + '/.model/baseline_fren.npz',
+        'datasets': [home + '/.dataset/fren/train.fr.tok.shuf',  # source
+                     home + '/.dataset/fren/train.en.tok.shuf',  # target
+                     home + '/.dataset/fren/train.fr.tok.shuf',  # source-TM
+                     home + '/.dataset/fren/train.en.tok.shuf'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/fren/devset.fr.tok',
+                           home + '/.dataset/fren/devset.en.tok',
+                           home + '/.dataset/fren/devset.fr.tok',
+                           home + '/.dataset/fren/devset.en.tok'
+                           ],
+
+        'dictionaries': [home + '/.dataset/fren/train.fr.tok.pkl',
+                         home + '/.dataset/fren/train.en.tok.pkl',
+                         home + '/.dataset/fren/train.fr.tok.pkl',
+                         home + '/.dataset/fren/train.en.tok.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+
+        # TODO: test phase is not ready
+        # test phase
+        'trans_from': home + '/.dataset/fren/devset.fr.tok',
+        'trans_ref': home + '/.dataset/fren/devset.en.tok',
+        'trans_to': home + '/.translate/baseline_fren.valid'
+    }
+    return config
+
 
 def setup_fren_bpe():
-    home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
-        # train
+        # train phase
         'saveto': home + '/.model/baseline_fren.bpe.npz',
-        'datasets': [home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',
-                     home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf'],
+        'datasets': [home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',  # source
+                     home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf',  # target
+                     home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',  # source-TM
+                     home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf'   # target-TM
+                     ],
+
         'valid_datasets': [home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
-                           home + '/.dataset/fren.bpe/devset.en.tok.bpe'],
+                           home + '/.dataset/fren.bpe/devset.en.tok.bpe',
+                           home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
+                           home + '/.dataset/fren.bpe/devset.en.tok.bpe'
+                           ],
+
         'dictionaries': [home + '/.dataset/fren.bpe/train.fr.tok.bpe.pkl',
-                         home + '/.dataset/fren.bpe/train.en.tok.bpe.pkl'],
+                         home + '/.dataset/fren.bpe/train.en.tok.bpe.pkl',
+                         home + '/.dataset/fren.bpe/train.fr.tok.bpe.pkl',
+                         home + '/.dataset/fren.bpe/train.en.tok.bpe.pkl'
+                         ],
 
-        # test
+        'voc_sizes': [20000, 20000, 20000, 20000],
+
+        # TODO: test phase is not ready
+        # test phase
         'trans_from': home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
-        'trans_ref':  home + '/.dataset/fren/devset.en.tok',
-        'trans_to':   home + '/.translate/baseline_fren.bpe.valid'
-        }
-
+        'trans_ref': home + '/.dataset/fren/devset.en.tok',
+        'trans_to': home + '/.translate/baseline_fren.bpe.valid'
+    }
     return config
-
-
-def setup_enfr_bpe():
-    home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
-    # home   = '/scratch/jg5223/exp/TMNMT'
-    config = {
-        # train
-        'saveto': home + '/.model/baseline_enfr.bpe1.npz',
-        'datasets': [home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf',
-                     home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf'],
-        'valid_datasets': [home + '/.dataset/fren.bpe/devset.en.tok.bpe',
-                           home + '/.dataset/fren.bpe/devset.fr.tok.bpe'],
-        'dictionaries': [home + '/.dataset/fren.bpe/train.en.tok.bpe.pkl',
-                         home + '/.dataset/fren.bpe/train.fr.tok.bpe.pkl'],
-
-        # test
-        'trans_from': home + '/.dataset/fren.bpe/devset.en.tok.bpe',
-        'trans_ref':  home + '/.dataset/fren/devset.fr.tok',
-        'trans_to':   home + '/.translate/baseline_enfr.bpe.valid'
-        }
-
-    return config
-
-
-def setup_enfr():
-    #home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
-    home   = '/scratch/jg5223/exp/TMNMT'
-    config = {
-        # train
-        'saveto': home + '/.model/baseline_enfr.bs64.npz',
-        'datasets': [home + '/.dataset/fren/train.en.tok.shuf',
-                     home + '/.dataset/fren/train.fr.tok.shuf'],
-        'valid_datasets': [home + '/.dataset/fren/devset.en.tok',
-                           home + '/.dataset/fren/devset.fr.tok'],
-        'dictionaries': [home + '/.dataset/fren/train.en.tok.pkl',
-                         home + '/.dataset/fren/train.fr.tok.pkl'],
-
-        # test
-        'trans_from': home + '/.dataset/fren/devset.en.tok',
-        'trans_ref':  home + '/.dataset/fren/devset.fr.tok',
-        'trans_to':   home + '/translate/baseline_enfr.valid2'
-        }
-
-    return config
-
-
 
 
 def setup(pair='fren'):
@@ -75,8 +76,6 @@ def setup(pair='fren'):
         # model details
         'dim_word': 512,
         'dim': 1024,
-        'n_words':     20000,
-        'n_words_src': 20000,
 
         # training details
         'optimizer': 'adam',
@@ -84,15 +83,15 @@ def setup(pair='fren'):
         'clip_c': 1.,
         'use_dropout': False,
         'lrate': 0.0001,
-        'patience':1000,
+        'patience': 1000,
 
         'maxlen': 80,
-        'batch_size':64,
-        'valid_batch_size':32,
-        'validFreq':100,
-        'dispFreq':10,
-        'saveFreq':100,
-        'sampleFreq':100,
+        'batch_size': 64,
+        'valid_batch_size': 32,
+        'validFreq': 100,
+        'dispFreq': 10,
+        'saveFreq': 100,
+        'sampleFreq': 100,
 
         'overwrite': False,
         'reload_': True,
@@ -101,10 +100,8 @@ def setup(pair='fren'):
         'beamsize': 5,
         'normalize': False,
         'd_maxlen': 200
-        }
+    }
 
     # get dataset info
     config.update(eval('setup_{}'.format(pair))())
     return config
-
-

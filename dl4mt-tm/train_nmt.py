@@ -71,7 +71,8 @@ def train(dim_word=100,  # word vector dimensionality
     train = TextIterator(datasets, dictionaries, voc_sizes, batch_size=batch_size, maxlen=maxlen)
     valid = TextIterator(valid_datasets, dictionaries,voc_sizes, batch_size=valid_batch_size, maxlen=200)
 
-    print '..upto here.'
+    print '..Upto here.'
+
 
     print 'Building model'
     params = init_params(model_options)
