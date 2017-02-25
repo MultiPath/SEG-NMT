@@ -7,47 +7,48 @@ import theano.tensor as tensor
 from layer import *
 from optimizer import *
 
+
 # initialize all parameters
-def init_encdec_params(options):
+def init_params(options, pix=''):
     params = OrderedDict()
 
     # embedding
-    params['Wemb'] = norm_weight(options['n_words_src'], options['dim_word'])
-    params['Wemb_dec'] = norm_weight(options['n_words'], options['dim_word'])
+    params[pix+'Wemb'] = norm_weight(options['n_words_src'], options['dim_word'])
+    params[pix+'Wemb_dec'] = norm_weight(options['n_words'], options['dim_word'])
 
     # encoder: bidirectional RNN
     # ==> we have two encoder-decoder in one model
 
     params = get_layer(options['encoder'])[0](options, params,
-                                              prefix='encoder',
+                                              prefix=pix+'encoder',
                                               nin=options['dim_word'],
                                               dim=options['dim'])
     params = get_layer(options['encoder'])[0](options, params,
-                                              prefix='encoder_r',
+                                              prefix=pix+'encoder_r',
                                               nin=options['dim_word'],
                                               dim=options['dim'])
     ctxdim = 2 * options['dim']
 
     # init_state, init_cell
-    params = get_layer('ff')[0](options, params, prefix='ff_state',
+    params = get_layer('ff')[0](options, params, prefix=pix+'ff_state',
                                 nin=ctxdim, nout=options['dim'])
     # decoder
     params = get_layer(options['decoder'])[0](options, params,
-                                              prefix='decoder',
+                                              prefix=pix+'decoder',
                                               nin=options['dim_word'],
                                               dim=options['dim'],
                                               dimctx=ctxdim)
     # readout
-    params = get_layer('ff')[0](options, params, prefix='ff_logit_lstm',
+    params = get_layer('ff')[0](options, params, prefix=pix+'ff_logit_lstm',
                                 nin=options['dim'], nout=options['dim_word'],
                                 ortho=False)
-    params = get_layer('ff')[0](options, params, prefix='ff_logit_prev',
+    params = get_layer('ff')[0](options, params, prefix=pix+'ff_logit_prev',
                                 nin=options['dim_word'],
                                 nout=options['dim_word'], ortho=False)
-    params = get_layer('ff')[0](options, params, prefix='ff_logit_ctx',
+    params = get_layer('ff')[0](options, params, prefix=pix+'ff_logit_ctx',
                                 nin=ctxdim, nout=options['dim_word'],
                                 ortho=False)
-    params = get_layer('ff')[0](options, params, prefix='ff_logit',
+    params = get_layer('ff')[0](options, params, prefix=pix+'ff_logit',
                                 nin=options['dim_word'],
                                 nout=options['n_words'])
 
@@ -55,17 +56,8 @@ def init_encdec_params(options):
 
 
 # build a training model
-def build_model(tparams, options):
+def build_model(tparams, options, pix=''):
     opt_ret = dict()
-
-    trng = oprions['trng'] #RandomStreams(19920206)
-    use_noise = theano.shared(numpy.float32(0.))
-
-
-
-    def build_encdec(tparams):
-        pass
-
 
     # description string: #words x #samples
     x = tensor.matrix('x', dtype='int64')
@@ -82,16 +74,16 @@ def build_model(tparams, options):
     n_samples = x.shape[1]
 
     # word embedding for forward rnn (source)
-    emb = tparams['Wemb'][x.flatten()]
+    emb = tparams[pix+'Wemb'][x.flatten()]
     emb = emb.reshape([n_timesteps, n_samples, options['dim_word']])
     proj = get_layer(options['encoder'])[1](tparams, emb, options,
-                                            prefix='encoder',
+                                            prefix=pix+'encoder',
                                             mask=x_mask)
     # word embedding for backward rnn (source)
-    embr = tparams['Wemb'][xr.flatten()]
+    embr = tparams[pix+'Wemb'][xr.flatten()]
     embr = embr.reshape([n_timesteps, n_samples, options['dim_word']])
     projr = get_layer(options['encoder'])[1](tparams, embr, options,
-                                             prefix='encoder_r',
+                                             prefix=pix+'encoder_r',
                                              mask=xr_mask)
 
     # context will be the concatenation of forward and backward rnns
@@ -105,13 +97,13 @@ def build_model(tparams, options):
 
     # initial decoder state
     init_state = get_layer('ff')[1](tparams, ctx_mean, options,
-                                    prefix='ff_state', activ='tanh')
+                                    prefix=pix+'ff_state', activ='tanh')
 
     # word embedding (target), we will shift the target sequence one time step
     # to the right. This is done because of the bi-gram connections in the
     # readout and decoder rnn. The first target will be all zeros and we will
     # not condition on the last output.
-    emb = tparams['Wemb_dec'][y.flatten()]
+    emb = tparams[pix+'Wemb_dec'][y.flatten()]
     emb = emb.reshape([n_timesteps_trg, n_samples, options['dim_word']])
     emb_shifted = tensor.zeros_like(emb)
     emb_shifted = tensor.set_subtensor(emb_shifted[1:], emb[:-1])
@@ -119,7 +111,7 @@ def build_model(tparams, options):
 
     # decoder - pass through the decoder conditional gru with attention
     proj = get_layer(options['decoder'])[1](tparams, emb, options,
-                                            prefix='decoder',
+                                            prefix=pix+'decoder',
                                             mask=y_mask, context=ctx,
                                             context_mask=x_mask,
                                             one_step=False,
@@ -135,16 +127,15 @@ def build_model(tparams, options):
 
     # compute word probabilities
     logit_lstm = get_layer('ff')[1](tparams, proj_h, options,
-                                    prefix='ff_logit_lstm', activ='linear')
+                                    prefix=pix+'ff_logit_lstm', activ='linear')
     logit_prev = get_layer('ff')[1](tparams, emb, options,
-                                    prefix='ff_logit_prev', activ='linear')
-    logit_ctx = get_layer('ff')[1](tparams, ctxs, options,
-                                   prefix='ff_logit_ctx', activ='linear')
+                                    prefix=pix+'ff_logit_prev', activ='linear')
+    logit_ctx  = get_layer('ff')[1](tparams, ctxs, options,
+                                    prefix=pix+'ff_logit_ctx',  activ='linear')
+
     logit = tensor.tanh(logit_lstm+logit_prev+logit_ctx)
-    if options['use_dropout']:
-        logit = dropout_layer(logit, use_noise, trng)
     logit = get_layer('ff')[1](tparams, logit, options,
-                               prefix='ff_logit', activ='linear')
+                               prefix=pix+'ff_logit', activ='linear')
     logit_shp = logit.shape
     probs = tensor.nnet.softmax(logit.reshape([logit_shp[0]*logit_shp[1],
                                                logit_shp[2]]))
@@ -156,7 +147,7 @@ def build_model(tparams, options):
     cost = cost.reshape([y.shape[0], y.shape[1]])
     cost = (cost * y_mask).sum(0)
 
-    return trng, use_noise, x, x_mask, y, y_mask, opt_ret, cost
+    return x, x_mask, y, y_mask, opt_ret, cost
 
 
 # build a sampler

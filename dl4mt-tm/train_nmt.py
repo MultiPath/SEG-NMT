@@ -49,6 +49,8 @@ def train(dim_word=100,  # word vector dimensionality
 
     # add random seed
     model_options['trng'] = RandomStreams(19920206)
+    model_options['n_words_src'] = model_options['voc_sizes'][0]
+    model_options['n_words'] = model_options['voc_sizes'][1]
 
     # load dictionaries and invert them
     worddicts   = [None] * len(dictionaries)
@@ -70,24 +72,30 @@ def train(dim_word=100,  # word vector dimensionality
     train = TextIterator(datasets, dictionaries, voc_sizes, batch_size=batch_size, maxlen=maxlen)
     valid = TextIterator(valid_datasets, dictionaries,voc_sizes, batch_size=valid_batch_size, maxlen=200)
 
-    print '..Upto here.'
-    import sys
-    sys.exit(321)
-
     print 'Building model: current model & reference model'
-    params = init_encdec_params(model_options)
+
+    params_ef = init_params(model_options, 'ef_')
+    params_fe = init_params(model_options, 'fe_')
+
     # reload parameters
     if reload_ and os.path.exists(saveto):
         print 'Reloading model parameters'
-        params = load_params(saveto, params)
+        params_ef = load_params(saveto, params_ef)
+        params_fe = load_params(saveto, params_fe)
 
-    tparams = init_tparams(params)
+    tparams_ef = init_tparams(params_ef)
+    tparams_fe = init_tparams(params_fe)
 
-    trng, use_noise, \
-    x, x_mask, y, y_mask, \
-    opt_ret, \
-    cost = \
-        build_model(tparams, model_options)
+    # build basic encoder-decoder
+    xe, xe_mask, yf, yf_mask, ret_ef, cost_ef = build_model(tparams_ef, model_options, 'ef')
+    xf, xf_mask, ye, ye_mask, ret_fe, cost_fe = build_model(tparams_fe, model_options, 'fe')
+
+    #
+
+
+
+
+
     inps = [x, x_mask, y, y_mask]
 
     print 'Building sampler'
@@ -97,6 +105,11 @@ def train(dim_word=100,  # word vector dimensionality
     print 'Building f_log_probs...',
     f_log_probs = theano.function(inps, cost, profile=profile)
     print 'Done'
+
+
+    print '..Upto here.'
+    import sys
+    sys.exit(321)
 
     cost = cost.mean()
 
