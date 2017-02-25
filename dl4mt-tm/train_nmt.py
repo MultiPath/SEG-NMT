@@ -105,26 +105,37 @@ def train(dim_word=100,  # word vector dimensionality
     ret_fe22, cost_fe22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], model_options, 'fe_')  # F->E tm
 
     print 'build cross-attention models'
-    ref_ef12 = build_attender(tparams_ef,
+    ret_ef12 = build_attender(tparams_ef,
                               [ret_ef11['prev_hids'], ret_ef11['prev_emb'], ret_ef22['ctx'], x2_mask],
                               model_options, 'ef_')  # E->F curr
-    ref_ef21 = build_attender(tparams_ef,
+    ret_ef21 = build_attender(tparams_ef,
                               [ret_ef22['prev_hids'], ret_ef22['prev_emb'], ret_ef11['ctx'], x1_mask],
                               model_options, 'ef_')  # E->F tm
-    ref_fe12 = build_attender(tparams_fe,
+    ret_fe12 = build_attender(tparams_fe,
                               [ret_fe11['prev_hids'], ret_fe11['prev_emb'], ret_fe22['ctx'], y2_mask],
                               model_options, 'fe_')  # F->E curr
-    ref_fe21 = build_attender(tparams_fe,
+    ret_fe21 = build_attender(tparams_fe,
                               [ret_fe22['prev_hids'], ret_fe22['prev_emb'], ret_fe11['ctx'], y1_mask],
                               model_options, 'fe_')  # F->E tm
 
+    print 'build attention-propagation'
 
+    def build_prop(atten_ef, atten_fe):
+        atten_ef = atten_ef.dimshuffle(1, 0, 2)
+        atten_fe = atten_fe.dimshuffle(1, 0, 2)
+        attention = tensor.batched_dot(atten_ef, atten_fe).dimshuffle(1, 0, 2)
+        return attention
+
+    att_ef12 = build_prop(ret_ef12['attention'], ret_fe22['attention'])
+    att_ef21 = build_prop(ret_ef21['attention'], ret_fe11['attention'])
+    att_fe12 = build_prop(ret_fe12['attention'], ret_ef22['attention'])
+    att_fe21 = build_prop(ret_fe21['attention'], ret_ef11['attention'])
 
     print 'up to here...'
     import sys; sys.exit(123)
 
-    print 'Building sampler'
-    f_init, f_next = build_sampler(tparams, model_options, trng, use_noise)
+    # print 'Building sampler'
+    # f_init, f_next = build_sampler(tparams, model_options, trng, use_noise)
 
     # before any regularizer
     print 'Building f_log_probs...',
