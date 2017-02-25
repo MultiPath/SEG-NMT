@@ -12,7 +12,9 @@ def fopen(filename, mode='r'):
 
 class TextIterator:
     """Simple Bitext iterator."""
-    def __init__(self, source, target,
+    def __init__(self,
+                 source, target,
+                 source_tm, target_tm,
                  source_dict, target_dict,
                  batch_size=128,
                  maxlen=100,
