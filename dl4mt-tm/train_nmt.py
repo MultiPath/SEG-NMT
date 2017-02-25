@@ -71,6 +71,8 @@ def train(dim_word=100,  # word vector dimensionality
     valid = TextIterator(valid_datasets, dictionaries,voc_sizes, batch_size=valid_batch_size, maxlen=200)
 
     print '..Upto here.'
+    import sys
+    sys.exit(321)
 
     print 'Building model: current model & reference model'
     params = init_encdec_params(model_options)

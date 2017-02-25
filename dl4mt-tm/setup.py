@@ -35,7 +35,8 @@ def setup_fren():
 
 
 def setup_fren_bpe():
-    home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    home = '/home/thoma/work/TMNMT'
+    # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase

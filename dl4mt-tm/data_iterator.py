@@ -20,7 +20,7 @@ class TextIterator:
                  batch_size=128,
                  maxlen=100):
 
-        self.datasets  = [fopen(dataset, 'r') for data in dataset]
+        self.datasets  = [fopen(data, 'r') for data in dataset]
         self.dicts     = [pkl.load(open(dic, 'rb')) for dic in dicts]
         self.voc_sizes = voc_sizes
         self.buffers   = [[] for _ in self.datasets]

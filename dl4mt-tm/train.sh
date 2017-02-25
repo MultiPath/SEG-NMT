@@ -1,6 +1,6 @@
 #!/bin/bash
-export THEANO_FLAGS=device=gpu1,floatX=float32
-python ./train_nmt.py -m enfr_bpe
+export THEANO_FLAGS=device=gpu0,floatX=float32
+python ./train_nmt.py -m fren_bpe
 
 
 
