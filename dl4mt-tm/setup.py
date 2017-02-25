@@ -40,7 +40,7 @@ def setup_fren_bpe():
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
-        'saveto': home + '/.model/baseline_fren.bpe.npz',
+        'saveto': home + '/.model/tmv1_fren.bpe.npz',
         'datasets': [home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',  # source
                      home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf',  # target
                      home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',  # source-TM

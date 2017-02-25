@@ -76,6 +76,7 @@ def train(dim_word=100,  # word vector dimensionality
     print 'Building model: E -> F & F -> E model'
     params_ef = init_params(model_options, 'ef_')
     params_fe = init_params(model_options, 'fe_')
+    print 'Done.'
 
     # reload parameters
     if reload_ and os.path.exists(saveto):
@@ -105,16 +106,16 @@ def train(dim_word=100,  # word vector dimensionality
 
     print 'build cross-attention models'
     ref_ef12 = build_attender(tparams_ef,
-                              [ret_ef11['pre_hids'], ret_ef11['pre_emb'], ret_ef22['ctx'], x2_mask],
+                              [ret_ef11['prev_hids'], ret_ef11['prev_emb'], ret_ef22['ctx'], x2_mask],
                               model_options, 'ef_')  # E->F curr
     ref_ef21 = build_attender(tparams_ef,
-                              [ret_ef22['pre_hids'], ret_ef22['pre_emb'], ret_ef11['ctx'], x1_mask],
+                              [ret_ef22['prev_hids'], ret_ef22['prev_emb'], ret_ef11['ctx'], x1_mask],
                               model_options, 'ef_')  # E->F tm
     ref_fe12 = build_attender(tparams_fe,
-                              [ret_fe11['pre_hids'], ret_fe11['pre_emb'], ret_fe22['ctx'], y2_mask],
+                              [ret_fe11['prev_hids'], ret_fe11['prev_emb'], ret_fe22['ctx'], y2_mask],
                               model_options, 'fe_')  # F->E curr
     ref_fe21 = build_attender(tparams_fe,
-                              [ret_fe22['pre_hids'], ret_fe22['pre_emb'], ret_fe11['ctx'], y1_mask],
+                              [ret_fe22['prev_hids'], ret_fe22['prev_emb'], ret_fe11['ctx'], y1_mask],
                               model_options, 'fe_')  # F->E tm
 
 
