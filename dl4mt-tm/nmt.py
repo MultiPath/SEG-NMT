@@ -56,14 +56,11 @@ def init_params(options, pix=''):
 
 
 # build a training model
-def build_model(tparams, options, pix=''):
+def build_model(tparams, inps, options, pix=''):
     opt_ret = dict()
 
-    # description string: #words x #samples
-    x = tensor.matrix('x', dtype='int64')
-    x_mask = tensor.matrix('x_mask', dtype='float32')
-    y = tensor.matrix('y', dtype='int64')
-    y_mask = tensor.matrix('y_mask', dtype='float32')
+    # deal with the input
+    x, x_mask, y, y_mask = inps
 
     # for the backward rnn, we just need to invert x and x_mask
     xr = x[::-1]
@@ -91,6 +88,9 @@ def build_model(tparams, options, pix=''):
 
     # mean of the context (across time) will be used to initialize decoder rnn
     ctx_mean = (ctx * x_mask[:, :, None]).sum(0) / x_mask.sum(0)[:, None]
+
+    # save the contexts
+    opt_ret['ctx'] = ctx
 
     # or you can use the last state of forward + backward encoder rnns
     # ctx_mean = concatenate([proj[0][-1], projr[0][-1]], axis=proj[0].ndim-2)
@@ -123,7 +123,9 @@ def build_model(tparams, options, pix=''):
     ctxs = proj[1]
 
     # weights (alignment matrix)
-    opt_ret['dec_alphas'] = proj[2]
+    opt_ret['prev_hids'] = concatenate([init_state[None, :, :], proj_h[:-1, :, :]], axis=0)
+    opt_ret['ctxs'] = ctxs
+    opt_ret['attention'] = proj[2]
 
     # compute word probabilities
     logit_lstm = get_layer('ff')[1](tparams, proj_h, options,
@@ -140,6 +142,9 @@ def build_model(tparams, options, pix=''):
     probs = tensor.nnet.softmax(logit.reshape([logit_shp[0]*logit_shp[1],
                                                logit_shp[2]]))
 
+    opt_ret['logit'] = logit
+    opt_ret['probs'] = probs
+
     # cost
     y_flat = y.flatten()
     y_flat_idx = tensor.arange(y_flat.shape[0]) * options['n_words'] + y_flat
@@ -147,7 +152,7 @@ def build_model(tparams, options, pix=''):
     cost = cost.reshape([y.shape[0], y.shape[1]])
     cost = (cost * y_mask).sum(0)
 
-    return x, x_mask, y, y_mask, opt_ret, cost
+    return opt_ret, cost
 
 
 # build a sampler
@@ -391,8 +396,8 @@ def pred_probs(f_log_probs, prepare_data, options, iterator, verbose=False):
         for pp in pprobs:
             probs.append(pp)
 
-        if numpy.isnan(numpy.mean(probs)):
-            ipdb.set_trace()
+        # if numpy.isnan(numpy.mean(probs)):
+        #     ipdb.set_trace()
 
         if verbose:
             print >>sys.stderr, '%d samples computed' % (n_done)

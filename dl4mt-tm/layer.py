@@ -18,7 +18,7 @@ import time
 
 from collections import OrderedDict
 
-from data_iterator import TextIterator
+
 profile = False
 
 

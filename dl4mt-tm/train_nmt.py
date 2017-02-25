@@ -1,6 +1,7 @@
 from nmt import *
 from pprint import pprint
 from setup import setup
+from data_iterator import TextIterator
 
 import argparse
 
@@ -72,8 +73,7 @@ def train(dim_word=100,  # word vector dimensionality
     train = TextIterator(datasets, dictionaries, voc_sizes, batch_size=batch_size, maxlen=maxlen)
     valid = TextIterator(valid_datasets, dictionaries,voc_sizes, batch_size=valid_batch_size, maxlen=200)
 
-    print 'Building model: current model & reference model'
-
+    print 'Building model: E -> F & F -> E model'
     params_ef = init_params(model_options, 'ef_')
     params_fe = init_params(model_options, 'fe_')
 
@@ -86,15 +86,24 @@ def train(dim_word=100,  # word vector dimensionality
     tparams_ef = init_tparams(params_ef)
     tparams_fe = init_tparams(params_fe)
 
-    # build basic encoder-decoder
-    xe, xe_mask, yf, yf_mask, ret_ef, cost_ef = build_model(tparams_ef, model_options, 'ef')
-    xf, xf_mask, ye, ye_mask, ret_fe, cost_fe = build_model(tparams_fe, model_options, 'fe')
+    # inputs of the model (x1, y1, x2, y2)
+    x1 = tensor.matrix('x1', dtype='int64')
+    x1_mask = tensor.matrix('x1_mask', dtype='float32')
+    y1 = tensor.matrix('y1', dtype='int64')
+    y1_mask = tensor.matrix('y1_mask', dtype='float32')
 
-    #
+    x2 = tensor.matrix('x2', dtype='int64')
+    x2_mask = tensor.matrix('x2_mask', dtype='float32')
+    y2 = tensor.matrix('y2', dtype='int64')
+    y2_mask = tensor.matrix('y2_mask', dtype='float32')
 
+    # build forward model
+    ret_11, cost_11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], model_options, 'ef')
+    ret_22, cost_22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], model_options, 'fe')
 
-
-
+    # build cross-attention model
+    ret_11, cost_11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], model_options, 'ef')
+    ret_22, cost_22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], model_options, 'fe')
 
     inps = [x, x_mask, y, y_mask]
 
