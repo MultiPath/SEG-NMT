@@ -22,6 +22,18 @@ from collections import OrderedDict
 profile = False
 
 
+class Timeit(object):
+    def __init__(self, func):
+        self._wrapped = func
+
+    def __call__(self, *args, **kws):
+        start_t = time.time()
+        result = self._wrapped(*args, **kws)
+        print '{}: elapsed {:.4f} secs.'.format(self._wrapped.__name__,
+                                                time.time() - start_t)
+        return result
+
+
 # push parameters to Theano shared variables
 def zipp(params, tparams):
     for kk, vv in params.iteritems():

@@ -56,6 +56,7 @@ def init_params(options, pix=''):
 
 
 # build a training model
+@Timeit
 def build_model(tparams, inps, options, pix=''):
     opt_ret = dict()
 
@@ -158,6 +159,7 @@ def build_model(tparams, inps, options, pix=''):
 
 # build an attender
 # build a training model
+@Timeit
 def build_attender(tparams, inps, options, pix=''):
     opt_ret = dict()
 
