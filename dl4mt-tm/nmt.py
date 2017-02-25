@@ -1,13 +1,14 @@
 '''
 Build a neural machine translation model with soft attention
 '''
+import theano
+import theano.tensor as tensor
 
-from collections import OrderedDict
 from layer import *
 from optimizer import *
 
 # initialize all parameters
-def init_params(options):
+def init_encdec_params(options):
     params = OrderedDict()
 
     # embedding

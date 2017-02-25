@@ -1,7 +1,6 @@
 from nmt import *
 from pprint import pprint
 from setup import setup
-from threading import Thread
 
 import argparse
 
@@ -73,9 +72,8 @@ def train(dim_word=100,  # word vector dimensionality
 
     print '..Upto here.'
 
-
-    print 'Building model'
-    params = init_params(model_options)
+    print 'Building model: current model & reference model'
+    params = init_encdec_params(model_options)
     # reload parameters
     if reload_ and os.path.exists(saveto):
         print 'Reloading model parameters'
