@@ -11,46 +11,32 @@ def fopen(filename, mode='r'):
 
 
 class TextIterator:
-    """Simple Bitext iterator."""
+    """a general text iterator."""
+
     def __init__(self,
                  dataset,
-                 source_dict, target_dict,
+                 dicts,
+                 voc_sizes,
                  batch_size=128,
-                 maxlen=100,
-                 n_words_source=-1,
-                 n_words_target=-1):
-        self.source    = fopen(dataset[0], 'r')
-        self.target    = fopen(dataset[1], 'r')
-        self.source_tm = fopen(dataset[0], 'r')
-        self.target_tm = fopen(dataset[1], 'r')
+                 maxlen=100):
 
-        with open(source_dict, 'rb') as f:
-            self.source_dict = pkl.load(f)
-        with open(target_dict, 'rb') as f:
-            self.target_dict = pkl.load(f)
+        self.datasets  = [fopen(dataset, 'r') for data in dataset]
+        self.dicts     = [pkl.load(open(dic, 'rb')) for dic in dicts]
+        self.voc_sizes = voc_sizes
+        self.buffers   = [[] for _ in self.datasets]
 
         self.batch_size = batch_size
-        self.maxlen     = maxlen
-
-        self.n_words_source = n_words_source
-        self.n_words_target = n_words_target
-
-        self.source_buffer = []
-        self.target_buffer = []
-        self.source_tm_buffer = []
-        self.target_tm_buffer = []
+        self.maxlen = maxlen
+        self.nums = len(self.datasets)
         self.k = batch_size * 20  # cache=20
-
         self.end_of_data = False
 
     def __iter__(self):
         return self
 
     def reset(self):
-        self.source.seek(0)
-        self.target.seek(0)
-        self.source_tm.seek(0)
-        self.target_tm.seek(0)
+        for i in range(self.nums):
+            self.datasets[i].seek(0)
 
     def next(self):
         if self.end_of_data:
@@ -58,35 +44,37 @@ class TextIterator:
             self.reset()
             raise StopIteration
 
-        source = []
-        target = []
+        datasets = [[] for _ in self.datasets]
 
         # fill buffer, if it's empty
-        assert len(self.source_buffer) == len(self.target_buffer), 'Buffer size mismatch!'
+        assert len(self.buffers[0]) == len(self.buffers[1]), 'Buffer size mismatch!'
 
-        if len(self.source_buffer) == 0:
+        if len(self.buffers[0]) == 0:
             for k_ in xrange(self.k):
-                ss = self.source.readline()
-                if ss == "":
+
+                lines = [self.datasets[i].readline() for i in range(self.nums)]
+
+                flag  = False
+                for line in lines:
+                    if line == "":
+                        flag = True
+                if flag:
                     break
-                tt = self.target.readline()
-                if tt == "":
-                    break
 
-                self.source_buffer.append(ss.strip().split())
-                self.target_buffer.append(tt.strip().split())
+                for ia in range(self.nums):
+                    self.buffers[ia].append(lines[ia].strip().split())
 
-            # sort by target buffer
-            tlen = numpy.array([len(t) for t in self.target_buffer])
-            tidx = tlen.argsort()
+            # sort by target buffer --- dafult setting:  source, target, tm-source, tm-target
+            tidx = numpy.array([len(t) for t in self.buffers[1]]).argsort()
+            for ib in range(self.nums):
+                self.buffers[ib] = [self.buffers[ib][j] for j in tidx]
 
-            _sbuf = [self.source_buffer[i] for i in tidx]
-            _tbuf = [self.target_buffer[i] for i in tidx]
+        flag2 = False
+        for ic in range(self.nums):
+            if len(self.buffers[ic]) == 0:
+                flag2 = True
 
-            self.source_buffer = _sbuf
-            self.target_buffer = _tbuf
-
-        if len(self.source_buffer) == 0 or len(self.target_buffer) == 0:
+        if flag2:
             self.end_of_data = False
             self.reset()
             raise StopIteration
@@ -94,40 +82,48 @@ class TextIterator:
         try:
 
             # actual work here
+            _samples = 0
             while True:
 
-                # read from source file and map to word index
-                try:
-                    ss = self.source_buffer.pop()
-                except IndexError:
-                    break
-                ss = [self.source_dict[w] if w in self.source_dict else 1
-                      for w in ss]
-                if self.n_words_source > 0:
-                    ss = [w if w < self.n_words_source else 1 for w in ss]
+                # read from dataset file and map to word index
+                _lines = []
+                for id in range(self.nums):
+                    try:
+                        line = self.buffers[id].pop()
+                    except IndexError:
+                        break
 
-                # read from source file and map to word index
-                tt = self.target_buffer.pop()
-                tt = [self.target_dict[w] if w in self.target_dict else 1
-                      for w in tt]
-                if self.n_words_target > 0:
-                    tt = [w if w < self.n_words_target else 1 for w in tt]
+                    line = [self.dicts[id][w] if w in self.dicts[id] else 1 for w in line]
+                    if self.voc_sizes[id] > 0:
+                        line = [w if w < self.voc_sizes[id] else 1 for w in line]
+                    _lines.append(line)
 
-                if len(ss) > self.maxlen and len(tt) > self.maxlen:
+                flag3 = True
+                for line in _lines:
+                    if len(line) > self.maxlen:
+                        flag3 *= True
+
+                if flag3:
                     continue
 
-                source.append(ss)
-                target.append(tt)
+                for ie in range(self.nums):
+                    datasets[ie].append(_lines[ie])
+                _samples += 1
 
-                if len(source) >= self.batch_size or \
-                        len(target) >= self.batch_size:
+                if _samples >= self.batch_size:
                     break
+
         except IOError:
             self.end_of_data = True
 
-        if len(source) <= 0 or len(target) <= 0:
+        flag4 = False
+        for ig in range(self.nums):
+            if len(datasets[ig]) <= 0:
+                flag4 = True
+
+        if flag4:
             self.end_of_data = False
             self.reset()
             raise StopIteration
 
-        return source, target
+        return datasets
