@@ -13,29 +13,33 @@ def fopen(filename, mode='r'):
 class TextIterator:
     """Simple Bitext iterator."""
     def __init__(self,
-                 source, target,
-                 source_tm, target_tm,
+                 dataset,
                  source_dict, target_dict,
                  batch_size=128,
                  maxlen=100,
                  n_words_source=-1,
                  n_words_target=-1):
-        self.source = fopen(source, 'r')
-        self.target = fopen(target, 'r')
+        self.source    = fopen(dataset[0], 'r')
+        self.target    = fopen(dataset[1], 'r')
+        self.source_tm = fopen(dataset[0], 'r')
+        self.target_tm = fopen(dataset[1], 'r')
+
         with open(source_dict, 'rb') as f:
             self.source_dict = pkl.load(f)
         with open(target_dict, 'rb') as f:
             self.target_dict = pkl.load(f)
 
         self.batch_size = batch_size
-        self.maxlen = maxlen
+        self.maxlen     = maxlen
 
         self.n_words_source = n_words_source
         self.n_words_target = n_words_target
 
         self.source_buffer = []
         self.target_buffer = []
-        self.k = batch_size * 20
+        self.source_tm_buffer = []
+        self.target_tm_buffer = []
+        self.k = batch_size * 20  # cache=20
 
         self.end_of_data = False
 
@@ -45,6 +49,8 @@ class TextIterator:
     def reset(self):
         self.source.seek(0)
         self.target.seek(0)
+        self.source_tm.seek(0)
+        self.target_tm.seek(0)
 
     def next(self):
         if self.end_of_data:
