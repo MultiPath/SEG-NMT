@@ -92,17 +92,26 @@ def train(dim_word=100,  # word vector dimensionality
     x1_mask = tensor.matrix('x1_mask', dtype='float32')
     y1 = tensor.matrix('y1', dtype='int64')
     y1_mask = tensor.matrix('y1_mask', dtype='float32')
-
     x2 = tensor.matrix('x2', dtype='int64')
     x2_mask = tensor.matrix('x2_mask', dtype='float32')
     y2 = tensor.matrix('y2', dtype='int64')
     y2_mask = tensor.matrix('y2_mask', dtype='float32')
 
+    # TM reference index
+    tef12 = tensor.matrix('ef12', dtype='int64')
+    tef12_mask = tensor.matrix('ef12_mask', dtype='float32')
+    tef21 = tensor.matrix('ef21', dtype='int64')
+    tef21_mask = tensor.matrix('ef21_mask', dtype='float32')
+    tfe12 = tensor.matrix('fe12', dtype='int64')
+    tfe12_mask = tensor.matrix('fe12_mask', dtype='float32')
+    tfe21 = tensor.matrix('fe21', dtype='int64')
+    tfe21_mask = tensor.matrix('fe21_mask', dtype='float32')
+
     print 'build forward-attention models (4 models simultaneously)'
-    ret_ef11, cost_ef11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], model_options, 'ef_')  # E->F curr
-    ret_fe11, cost_fe11 = build_model(tparams_fe, [y1, y1_mask, x1, x1_mask], model_options, 'fe_')  # F->E curr
-    ret_ef22, cost_ef22 = build_model(tparams_ef, [x2, x2_mask, y2, y2_mask], model_options, 'ef_')  # E->F tm
-    ret_fe22, cost_fe22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], model_options, 'fe_')  # F->E tm
+    ret_ef11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], model_options, 'ef_', False)  # E->F curr
+    ret_fe11 = build_model(tparams_fe, [y1, y1_mask, x1, x1_mask], model_options, 'fe_', False)  # F->E curr
+    ret_ef22 = build_model(tparams_ef, [x2, x2_mask, y2, y2_mask], model_options, 'ef_', False)  # E->F tm
+    ret_fe22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], model_options, 'fe_', False)  # F->E tm
 
     print 'build cross-attention models'
     ret_ef12 = build_attender(tparams_ef,
@@ -135,12 +144,30 @@ def train(dim_word=100,  # word vector dimensionality
     print 'build loss function (w/o gate)'
 
     # we first try the simplest version: use a natural attention-gate.
+    # TODO: make it as a Neural Gate
+    gate_ef12 = ret_ef11['att_sum'] / (ret_ef11['att_sum'] + ret_ef12['att_sum'])
+    gate_ef21 = ret_ef22['att_sum'] / (ret_ef22['att_sum'] + ret_ef21['att_sum'])
+    gate_fe12 = ret_fe11['att_sum'] / (ret_fe11['att_sum'] + ret_fe12['att_sum'])
+    gate_fe21 = ret_fe22['att_sum'] / (ret_fe22['att_sum'] + ret_fe21['att_sum'])
+
+    # get the loss function
+    @Timeit
+    def compute_loss(probs1, att2, y, y_mask, t, t_mask, g):
+
+        # compute the loss for the vocabulary-selection side
+        y_flat = y.flatten()
+        y_flat_idx = tensor.arange(y_flat.shape[0]) * model_options['n_words'] + y_flat
+        prob_w = probs1.flatten()[y_flat_idx]
 
 
+
+
+        pass
 
 
     print 'up to here...'
-    import sys; sys.exit(123)
+    import sys;
+    sys.exit(123)
 
     # print 'Building sampler'
     # f_init, f_next = build_sampler(tparams, model_options, trng, use_noise)

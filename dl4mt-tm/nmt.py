@@ -57,7 +57,7 @@ def init_params(options, pix=''):
 
 # build a training model
 @Timeit
-def build_model(tparams, inps, options, pix=''):
+def build_model(tparams, inps, options, pix='', return_cost=True):
     opt_ret = dict()
 
     # deal with the input
@@ -149,14 +149,16 @@ def build_model(tparams, inps, options, pix=''):
     opt_ret['probs'] = probs
 
     # cost
-    y_flat = y.flatten()
-    y_flat_idx = tensor.arange(y_flat.shape[0]) * options['n_words'] + y_flat
-    cost = -tensor.log(probs.flatten()[y_flat_idx])
-    cost = cost.reshape([y.shape[0], y.shape[1]])
-    cost = (cost * y_mask).sum(0)
+    if return_cost:
+        y_flat = y.flatten()
+        y_flat_idx = tensor.arange(y_flat.shape[0]) * options['n_words'] + y_flat
+        cost = -tensor.log(probs.flatten()[y_flat_idx])
+        cost = cost.reshape([y.shape[0], y.shape[1]])
+        cost = (cost * y_mask).sum(0)
 
-    return opt_ret, cost
+        return opt_ret, cost
 
+    return opt_ret
 
 # build an attender
 # build a training model
