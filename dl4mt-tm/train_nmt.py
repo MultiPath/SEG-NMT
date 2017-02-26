@@ -127,9 +127,8 @@ def train(dim_word=100,  # word vector dimensionality
                               [ret_fe22['prev_hids'], ret_fe22['prev_emb'], ret_fe11['ctx'], y1_mask],
                               model_options, 'fe_')  # F->E tm
 
-    print 'build attention-propagation'
+    print 'build attentions (forward, cross-propagation)'
 
-    @Timeit
     def build_prop(atten_ef, atten_fe):
         atten_ef = atten_ef.dimshuffle(1, 0, 2)
         atten_fe = atten_fe.dimshuffle(1, 0, 2)
@@ -145,36 +144,52 @@ def train(dim_word=100,  # word vector dimensionality
 
     # we first try the simplest version: use a natural attention-gate.
     # TODO: make it as a Neural Gate
-    gate_ef12 = ret_ef11['att_sum'] / (ret_ef11['att_sum'] + ret_ef12['att_sum'])
-    gate_ef21 = ret_ef22['att_sum'] / (ret_ef22['att_sum'] + ret_ef21['att_sum'])
-    gate_fe12 = ret_fe11['att_sum'] / (ret_fe11['att_sum'] + ret_fe12['att_sum'])
-    gate_fe21 = ret_fe22['att_sum'] / (ret_fe22['att_sum'] + ret_fe21['att_sum'])
+    gate_ef1 = ret_ef11['att_sum'] / (ret_ef11['att_sum'] + ret_ef12['att_sum'])
+    gate_ef2 = ret_ef22['att_sum'] / (ret_ef22['att_sum'] + ret_ef21['att_sum'])
+    gate_fe1 = ret_fe11['att_sum'] / (ret_fe11['att_sum'] + ret_fe12['att_sum'])
+    gate_fe2 = ret_fe22['att_sum'] / (ret_fe22['att_sum'] + ret_fe21['att_sum'])
 
     # get the loss function
-    @Timeit
-    def compute_loss(probs1, att2, y, y_mask, t, t_mask, g):
+    def compute_prob(probs, y, y_mask):
 
         # compute the loss for the vocabulary-selection side
         y_flat = y.flatten()
         y_flat_idx = tensor.arange(y_flat.shape[0]) * model_options['n_words'] + y_flat
-        prob_w = probs1.flatten()[y_flat_idx]
+        probw = probs.flatten()[y_flat_idx]
+        probw = probw.reshape([y.shape[0], y.shape[1]]) * y_mask
+        return probw
 
+    prob_ef11 = ret_ef11['probs']
+    prob_ef22 = ret_ef22['probs']
+    prob_fe11 = ret_fe11['probs']
+    prob_fe22 = ret_fe22['probs']
 
+    # get cost
+    cost_ef1 = (-tensor.log(compute_prob(prob_ef11, y1, y1_mask) * gate_ef1 +
+                            compute_prob(att_ef12, tef12, tef12_mask) * (1 - gate_ef1)
+                            + 1e-8) * (1 - (1 - y1_mask) * (1 - tef12_mask))).sum(0)
+    cost_ef2 = (-tensor.log(compute_prob(prob_ef22, y2, y2_mask) * gate_ef2 +
+                            compute_prob(att_ef21, tef21, tef21_mask) * (1 - gate_ef2)
+                            + 1e-8) * (1 - (1 - y2_mask) * (1 - tef21_mask))).sum(0)
+    cost_fe1 = (-tensor.log(compute_prob(prob_fe11, x1, x1_mask) * gate_fe1 +
+                            compute_prob(att_fe12, tfe12, tfe12_mask) * (1 - gate_fe1)
+                            + 1e-8) * (1 - (1 - x1_mask) * (1 - tfe12_mask))).sum(0)
+    cost_fe2 = (-tensor.log(compute_prob(prob_fe22, x2, x2_mask) * gate_fe2 +
+                            compute_prob(att_fe21, tfe21, tfe21_mask) * (1 - gate_fe2)
+                            + 1e-8) * (1 - (1 - x2_mask) * (1 - tfe21_mask))).sum(0)
 
-
-        pass
-
-
-    print 'up to here...'
-    import sys;
-    sys.exit(123)
+    cost = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
 
     # print 'Building sampler'
     # f_init, f_next = build_sampler(tparams, model_options, trng, use_noise)
 
     # before any regularizer
-    print 'Building f_log_probs...',
-    f_log_probs = theano.function(inps, cost, profile=profile)
+    print 'Building Cost Function...',
+    inputs = [x1, x1_mask, y1, y1_mask, x2, x2_mask, y2, y2_mask,
+              tef12, tef12_mask, tfe21, tfe21_mask,
+              tfe12, tfe12_mask, tfe21, tfe21_mask]
+
+    f_cost = theano.function(inputs, cost, profile=profile)
     print 'Done'
 
 
