@@ -35,7 +35,8 @@ def setup_fren():
 
 
 def setup_fren_bpe():
-    home = '/home/thoma/work/TMNMT'
+    home = '/root/workspace/TMNMT'
+    # home = '/home/thoma/work/TMNMT'
     # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
@@ -75,6 +76,8 @@ def setup(pair='fren'):
     config = {
 
         # model details
+        'encoder': 'gru',
+        'decoder': 'gru_cond',
         'dim_word': 512,
         'dim': 1024,
 
@@ -83,16 +86,17 @@ def setup(pair='fren'):
         'decay_c': 0.,
         'clip_c': 1.,
         'use_dropout': False,
-        'lrate': 0.0001,
+        'lrate': 0.00002,
         'patience': 1000,
 
         'maxlen': 80,
-        'batch_size': 64,
+        'batch_size': 32,
         'valid_batch_size': 32,
         'validFreq': 100,
         'dispFreq': 10,
         'saveFreq': 100,
         'sampleFreq': 100,
+        'patience': 10,
 
         'overwrite': False,
         'reload_': True,
