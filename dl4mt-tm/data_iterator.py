@@ -158,3 +158,26 @@ def prepare_data(seqs_x, maxlen=None, n_words=30000):
         x[:lengths_x[idx], idx] = s_x
         x_mask[:lengths_x[idx]+1, idx] = 1.
     return x, x_mask
+
+
+def prepare_cross(seqs_x1, seqs_x2, maxlen_x1):
+    n_samples = len(seqs_x1)
+    t = numpy.zeros((maxlen_x1, n_samples)).astype('int64')
+    t_mask = numpy.zeros((maxlen_x1, n_samples)).astype('float32')
+
+    for idx, (x1, x2) in enumerate(zip(seqs_x1, seqs_x2)):
+
+        match = [[(i, abs(i - j))
+                  for i, xx2 in enumerate(x2) if xx1 == xx2]
+                 for j, xx1 in enumerate(x1)]
+
+        for jdx, m in enumerate(match):
+            if len(m) > 0:
+                if len(m) == 1:
+                    t[jdx, idx] = m[0][0]
+                else:
+                    t[jdx, idx] = sorted(m, key=lambda a: a[1])[0][0]
+
+                t_mask[jdx, idx] = 1.
+
+    return t, t_mask
