@@ -38,6 +38,28 @@ class TextIterator:
         for i in range(self.nums):
             self.datasets[i].seek(0)
 
+    def fill(self):
+        for i in range(self.nums):
+            self.buffers[i] = []  # clean the buffers
+        
+        for _ in range(self.k):
+            lines = [self.datasets[i].readline() for i in range(self.nums)]
+
+            flag  = False
+            for line in lines:
+                if line == "":
+                    flag = True
+            if flag:
+                break
+
+            for ia in range(self.nums):
+                self.buffers[ia].append(lines[ia].strip().split())
+
+        # sort by target buffer --- dafult setting:  source, target, tm-source, tm-target
+        tidx = numpy.array([len(t) for t in self.buffers[1]]).argsort()
+        for ib in range(self.nums):
+            self.buffers[ib] = [self.buffers[ib][j] for j in tidx]
+            
     def next(self):
         if self.end_of_data:
             self.end_of_data = False
@@ -47,28 +69,14 @@ class TextIterator:
         datasets = [[] for _ in self.datasets]
 
         # fill buffer, if it's empty
+        for v in self.buffers:
+            print len(v),
+        print ''
         assert len(self.buffers[0]) == len(self.buffers[1]), 'Buffer size mismatch!'
 
         if len(self.buffers[0]) == 0:
-            for k_ in xrange(self.k):
-
-                lines = [self.datasets[i].readline() for i in range(self.nums)]
-
-                flag  = False
-                for line in lines:
-                    if line == "":
-                        flag = True
-                if flag:
-                    break
-
-                for ia in range(self.nums):
-                    self.buffers[ia].append(lines[ia].strip().split())
-
-            # sort by target buffer --- dafult setting:  source, target, tm-source, tm-target
-            tidx = numpy.array([len(t) for t in self.buffers[1]]).argsort()
-            for ib in range(self.nums):
-                self.buffers[ib] = [self.buffers[ib][j] for j in tidx]
-
+            self.fill()
+            
         flag2 = False
         for ic in range(self.nums):
             if len(self.buffers[ic]) == 0:
@@ -80,7 +88,7 @@ class TextIterator:
             raise StopIteration
 
         try:
-
+            
             # actual work here
             _samples = 0
             while True:
@@ -88,10 +96,13 @@ class TextIterator:
                 # read from dataset file and map to word index
                 # print _samples
                 _lines = []
+                flagx = False
                 for id in range(self.nums):
                     try:
                         line = self.buffers[id].pop()
                     except IndexError:
+                        self.fill()
+                        flagx = True
                         break
 
                     line = [self.dicts[id][w] if w in self.dicts[id] else 1 for w in line]
@@ -99,10 +110,14 @@ class TextIterator:
                         line = [w if w < self.voc_sizes[id] else 1 for w in line]
                     _lines.append(line)
 
-                flag3 = True
+                if flagx:
+                    continue
+                    
+                    
+                flag3 = False
                 for line in _lines:
-                    if len(line) <= self.maxlen:
-                        flag3 *= False
+                    if len(line) > self.maxlen:
+                        flag3 = True
 
                 if flag3:
                     continue
@@ -139,7 +154,7 @@ def prepare_data(seqs_x, maxlen=None, n_words=30000):
         new_seqs_x = []
         new_lengths_x = []
         for l_x, s_x in zip(lengths_x, seqs_x):
-            if l_x < maxlen:
+            if l_x <= maxlen:
                 new_seqs_x.append(s_x)
                 new_lengths_x.append(l_x)
 
