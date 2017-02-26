@@ -1,7 +1,7 @@
 from nmt import *
 from pprint import pprint
 from setup import setup
-from data_iterator import TextIterator
+from data_iterator import TextIterator, prepare_data
 
 import argparse
 
@@ -215,13 +215,7 @@ def train(dim_word=100,  # word vector dimensionality
         print 'Done'
         return funcs
 
-    funcs = build_networks(model_options)
-
-    print '..Upto here.'
-    import sys
-    sys.exit(321)
-
-
+    # funcs = build_networks(model_options)
 
     print 'Optimization'
 
@@ -248,13 +242,21 @@ def train(dim_word=100,  # word vector dimensionality
     BleuFreq = 2000
     # BleuPoint = 20000
 
+    print '..Upto here.'
+    import sys
+    sys.exit(321)
+
+
+
+
     for eidx in xrange(max_epochs):
         n_samples = 0
 
         for x, y in train:
             n_samples += len(x)
             uidx += 1
-            use_noise.set_value(1.)
+
+
 
             x, x_mask, y, y_mask = prepare_data(x, y, maxlen=maxlen,
                                                 n_words_src=n_words_src,
