@@ -73,175 +73,155 @@ def train(dim_word=100,  # word vector dimensionality
     train = TextIterator(datasets, dictionaries, voc_sizes, batch_size=batch_size, maxlen=maxlen)
     valid = TextIterator(valid_datasets, dictionaries,voc_sizes, batch_size=valid_batch_size, maxlen=200)
 
-    print 'Building model: E -> F & F -> E model'
-    params_ef = init_params(model_options, 'ef_')
-    params_fe = init_params(model_options, 'fe_')
-    print 'Done.'
+    @Timeit
+    def build_networks(options):
+        funcs = dict()
 
-    # reload parameters
-    if reload_ and os.path.exists(saveto):
-        print 'Reloading model parameters'
-        params_ef = load_params(saveto, params_ef)
-        params_fe = load_params(saveto, params_fe)
+        print 'Building model: E -> F & F -> E model'
+        params_ef = init_params(options, 'ef_')
+        params_fe = init_params(options, 'fe_')
+        print 'Done.'
 
-    tparams_ef = init_tparams(params_ef)
-    tparams_fe = init_tparams(params_fe)
+        # reload parameters
+        if reload_ and os.path.exists(saveto):
+            print 'Reloading model parameters'
+            params_ef = load_params(saveto, params_ef)
+            params_fe = load_params(saveto, params_fe)
 
-    # inputs of the model (x1, y1, x2, y2)
-    x1 = tensor.matrix('x1', dtype='int64')
-    x1_mask = tensor.matrix('x1_mask', dtype='float32')
-    y1 = tensor.matrix('y1', dtype='int64')
-    y1_mask = tensor.matrix('y1_mask', dtype='float32')
-    x2 = tensor.matrix('x2', dtype='int64')
-    x2_mask = tensor.matrix('x2_mask', dtype='float32')
-    y2 = tensor.matrix('y2', dtype='int64')
-    y2_mask = tensor.matrix('y2_mask', dtype='float32')
+        tparams_ef = init_tparams(params_ef)
+        tparams_fe = init_tparams(params_fe)
 
-    # TM reference index
-    tef12 = tensor.matrix('ef12', dtype='int64')
-    tef12_mask = tensor.matrix('ef12_mask', dtype='float32')
-    tef21 = tensor.matrix('ef21', dtype='int64')
-    tef21_mask = tensor.matrix('ef21_mask', dtype='float32')
-    tfe12 = tensor.matrix('fe12', dtype='int64')
-    tfe12_mask = tensor.matrix('fe12_mask', dtype='float32')
-    tfe21 = tensor.matrix('fe21', dtype='int64')
-    tfe21_mask = tensor.matrix('fe21_mask', dtype='float32')
+        # inputs of the model (x1, y1, x2, y2)
+        x1 = tensor.matrix('x1', dtype='int64')
+        x1_mask = tensor.matrix('x1_mask', dtype='float32')
+        y1 = tensor.matrix('y1', dtype='int64')
+        y1_mask = tensor.matrix('y1_mask', dtype='float32')
+        x2 = tensor.matrix('x2', dtype='int64')
+        x2_mask = tensor.matrix('x2_mask', dtype='float32')
+        y2 = tensor.matrix('y2', dtype='int64')
+        y2_mask = tensor.matrix('y2_mask', dtype='float32')
 
-    print 'build forward-attention models (4 models simultaneously)'
-    ret_ef11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], model_options, 'ef_', False)  # E->F curr
-    ret_fe11 = build_model(tparams_fe, [y1, y1_mask, x1, x1_mask], model_options, 'fe_', False)  # F->E curr
-    ret_ef22 = build_model(tparams_ef, [x2, x2_mask, y2, y2_mask], model_options, 'ef_', False)  # E->F tm
-    ret_fe22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], model_options, 'fe_', False)  # F->E tm
+        # TM reference index
+        tef12 = tensor.matrix('ef12', dtype='int64')
+        tef12_mask = tensor.matrix('ef12_mask', dtype='float32')
+        tef21 = tensor.matrix('ef21', dtype='int64')
+        tef21_mask = tensor.matrix('ef21_mask', dtype='float32')
+        tfe12 = tensor.matrix('fe12', dtype='int64')
+        tfe12_mask = tensor.matrix('fe12_mask', dtype='float32')
+        tfe21 = tensor.matrix('fe21', dtype='int64')
+        tfe21_mask = tensor.matrix('fe21_mask', dtype='float32')
 
-    print 'build cross-attention models'
-    ret_ef12 = build_attender(tparams_ef,
-                              [ret_ef11['prev_hids'], ret_ef11['prev_emb'], ret_ef22['ctx'], x2_mask],
-                              model_options, 'ef_')  # E->F curr
-    ret_ef21 = build_attender(tparams_ef,
-                              [ret_ef22['prev_hids'], ret_ef22['prev_emb'], ret_ef11['ctx'], x1_mask],
-                              model_options, 'ef_')  # E->F tm
-    ret_fe12 = build_attender(tparams_fe,
-                              [ret_fe11['prev_hids'], ret_fe11['prev_emb'], ret_fe22['ctx'], y2_mask],
-                              model_options, 'fe_')  # F->E curr
-    ret_fe21 = build_attender(tparams_fe,
-                              [ret_fe22['prev_hids'], ret_fe22['prev_emb'], ret_fe11['ctx'], y1_mask],
-                              model_options, 'fe_')  # F->E tm
+        print 'build forward-attention models (4 models simultaneously)'
+        ret_ef11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], options, 'ef_', False)  # E->F curr
+        ret_fe11 = build_model(tparams_fe, [y1, y1_mask, x1, x1_mask], options, 'fe_', False)  # F->E curr
+        ret_ef22 = build_model(tparams_ef, [x2, x2_mask, y2, y2_mask], options, 'ef_', False)  # E->F tm
+        ret_fe22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], options, 'fe_', False)  # F->E tm
 
-    print 'build attentions (forward, cross-propagation)'
+        print 'build cross-attention models'
+        ret_ef12 = build_attender(tparams_ef,
+                                  [ret_ef11['prev_hids'], ret_ef11['prev_emb'], ret_ef22['ctx'], x2_mask],
+                                  options, 'ef_')  # E->F curr
+        ret_ef21 = build_attender(tparams_ef,
+                                  [ret_ef22['prev_hids'], ret_ef22['prev_emb'], ret_ef11['ctx'], x1_mask],
+                                  options, 'ef_')  # E->F tm
+        ret_fe12 = build_attender(tparams_fe,
+                                  [ret_fe11['prev_hids'], ret_fe11['prev_emb'], ret_fe22['ctx'], y2_mask],
+                                  options, 'fe_')  # F->E curr
+        ret_fe21 = build_attender(tparams_fe,
+                                  [ret_fe22['prev_hids'], ret_fe22['prev_emb'], ret_fe11['ctx'], y1_mask],
+                                  options, 'fe_')  # F->E tm
 
-    def build_prop(atten_ef, atten_fe):
-        atten_ef = atten_ef.dimshuffle(1, 0, 2)
-        atten_fe = atten_fe.dimshuffle(1, 0, 2)
-        attention = tensor.batched_dot(atten_ef, atten_fe).dimshuffle(1, 0, 2)
-        return attention
+        print 'build attentions (forward, cross-propagation)'
 
-    att_ef12 = build_prop(ret_ef12['attention'], ret_fe22['attention'])
-    att_ef21 = build_prop(ret_ef21['attention'], ret_fe11['attention'])
-    att_fe12 = build_prop(ret_fe12['attention'], ret_ef22['attention'])
-    att_fe21 = build_prop(ret_fe21['attention'], ret_ef11['attention'])
+        def build_prop(atten_ef, atten_fe):
+            atten_ef = atten_ef.dimshuffle(1, 0, 2)
+            atten_fe = atten_fe.dimshuffle(1, 0, 2)
+            attention = tensor.batched_dot(atten_ef, atten_fe).dimshuffle(1, 0, 2)
+            return attention
 
-    print 'build loss function (w/o gate)'
+        att_ef12 = build_prop(ret_ef12['attention'], ret_fe22['attention'])
+        att_ef21 = build_prop(ret_ef21['attention'], ret_fe11['attention'])
+        att_fe12 = build_prop(ret_fe12['attention'], ret_ef22['attention'])
+        att_fe21 = build_prop(ret_fe21['attention'], ret_ef11['attention'])
 
-    # we first try the simplest version: use a natural attention-gate.
-    # TODO: make it as a Neural Gate
-    gate_ef1 = ret_ef11['att_sum'] / (ret_ef11['att_sum'] + ret_ef12['att_sum'])
-    gate_ef2 = ret_ef22['att_sum'] / (ret_ef22['att_sum'] + ret_ef21['att_sum'])
-    gate_fe1 = ret_fe11['att_sum'] / (ret_fe11['att_sum'] + ret_fe12['att_sum'])
-    gate_fe2 = ret_fe22['att_sum'] / (ret_fe22['att_sum'] + ret_fe21['att_sum'])
+        print 'build loss function (w/o gate)'
 
-    # get the loss function
-    def compute_prob(probs, y, y_mask):
+        # we first try the simplest version: use a natural attention-gate.
+        # TODO: make it as a Neural Gate
+        gate_ef1 = ret_ef11['att_sum'] / (ret_ef11['att_sum'] + ret_ef12['att_sum'])
+        gate_ef2 = ret_ef22['att_sum'] / (ret_ef22['att_sum'] + ret_ef21['att_sum'])
+        gate_fe1 = ret_fe11['att_sum'] / (ret_fe11['att_sum'] + ret_fe12['att_sum'])
+        gate_fe2 = ret_fe22['att_sum'] / (ret_fe22['att_sum'] + ret_fe21['att_sum'])
 
-        # compute the loss for the vocabulary-selection side
-        y_flat = y.flatten()
-        y_flat_idx = tensor.arange(y_flat.shape[0]) * model_options['n_words'] + y_flat
-        probw = probs.flatten()[y_flat_idx]
-        probw = probw.reshape([y.shape[0], y.shape[1]]) * y_mask
-        return probw
+        # get the loss function
+        def compute_prob(probs, y, y_mask):
 
-    prob_ef11 = ret_ef11['probs']
-    prob_ef22 = ret_ef22['probs']
-    prob_fe11 = ret_fe11['probs']
-    prob_fe22 = ret_fe22['probs']
+            # compute the loss for the vocabulary-selection side
+            y_flat = y.flatten()
+            y_flat_idx = tensor.arange(y_flat.shape[0]) * options['n_words'] + y_flat
+            probw = probs.flatten()[y_flat_idx]
+            probw = probw.reshape([y.shape[0], y.shape[1]]) * y_mask
+            return probw
 
-    # get cost
-    cost_ef1 = (-tensor.log(compute_prob(prob_ef11, y1, y1_mask) * gate_ef1 +
-                            compute_prob(att_ef12, tef12, tef12_mask) * (1 - gate_ef1)
-                            + 1e-8) * (1 - (1 - y1_mask) * (1 - tef12_mask))).sum(0)
-    cost_ef2 = (-tensor.log(compute_prob(prob_ef22, y2, y2_mask) * gate_ef2 +
-                            compute_prob(att_ef21, tef21, tef21_mask) * (1 - gate_ef2)
-                            + 1e-8) * (1 - (1 - y2_mask) * (1 - tef21_mask))).sum(0)
-    cost_fe1 = (-tensor.log(compute_prob(prob_fe11, x1, x1_mask) * gate_fe1 +
-                            compute_prob(att_fe12, tfe12, tfe12_mask) * (1 - gate_fe1)
-                            + 1e-8) * (1 - (1 - x1_mask) * (1 - tfe12_mask))).sum(0)
-    cost_fe2 = (-tensor.log(compute_prob(prob_fe22, x2, x2_mask) * gate_fe2 +
-                            compute_prob(att_fe21, tfe21, tfe21_mask) * (1 - gate_fe2)
-                            + 1e-8) * (1 - (1 - x2_mask) * (1 - tfe21_mask))).sum(0)
+        prob_ef11 = ret_ef11['probs']
+        prob_ef22 = ret_ef22['probs']
+        prob_fe11 = ret_fe11['probs']
+        prob_fe22 = ret_fe22['probs']
 
-    cost = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
+        # get cost
+        cost_ef1 = (-tensor.log(compute_prob(prob_ef11, y1, y1_mask) * gate_ef1 +
+                                compute_prob(att_ef12, tef12, tef12_mask) * (1 - gate_ef1)
+                                + 1e-8) * (1 - (1 - y1_mask) * (1 - tef12_mask))).sum(0)
+        cost_ef2 = (-tensor.log(compute_prob(prob_ef22, y2, y2_mask) * gate_ef2 +
+                                compute_prob(att_ef21, tef21, tef21_mask) * (1 - gate_ef2)
+                                + 1e-8) * (1 - (1 - y2_mask) * (1 - tef21_mask))).sum(0)
+        cost_fe1 = (-tensor.log(compute_prob(prob_fe11, x1, x1_mask) * gate_fe1 +
+                                compute_prob(att_fe12, tfe12, tfe12_mask) * (1 - gate_fe1)
+                                + 1e-8) * (1 - (1 - x1_mask) * (1 - tfe12_mask))).sum(0)
+        cost_fe2 = (-tensor.log(compute_prob(prob_fe22, x2, x2_mask) * gate_fe2 +
+                                compute_prob(att_fe21, tfe21, tfe21_mask) * (1 - gate_fe2)
+                                + 1e-8) * (1 - (1 - x2_mask) * (1 - tfe21_mask))).sum(0)
 
-    # print 'Building sampler'
-    # f_init, f_next = build_sampler(tparams, model_options, trng, use_noise)
+        cost = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
 
-    # before any regularizer
-    print 'Building Cost Function...',
-    inputs = [x1, x1_mask, y1, y1_mask, x2, x2_mask, y2, y2_mask,
-              tef12, tef12_mask, tfe21, tfe21_mask,
-              tfe12, tfe12_mask, tfe21, tfe21_mask]
+        # print 'Building sampler'
+        # f_init, f_next = build_sampler(tparams, options, trng, use_noise)
 
-    f_cost = theano.function(inputs, cost, profile=profile)
-    print 'Done'
+        # before any regularizer
+        print 'Building Cost Function...',
+        inputs = [x1, x1_mask, y1, y1_mask, x2, x2_mask, y2, y2_mask,
+                  tef12, tef12_mask, tef21, tef21_mask,
+                  tfe12, tfe12_mask, tfe21, tfe21_mask]
 
+        # f_cost = theano.function(inputs, cost, profile=profile)
+        # print 'Done'
+
+        cost = cost.mean()
+
+        print 'Build Gradient (backward)...',
+
+        tparams = dict(tparams_ef.items() + tparams_fe.items())
+        grads   = clip(tensor.grad(cost, wrt=itemlist(tparams)), clip_c)
+        print 'Done'
+
+        # compile the optimizer, the actual computational graph is compiled here
+        lr = tensor.scalar(name='lr')
+        print 'Building Optimizers...',
+        f_cost, f_update = eval(optimizer)(lr, tparams, grads, inputs, cost)
+
+        funcs['cost']   = f_cost
+        funcs['update'] = f_update
+
+        print 'Done'
+        return funcs
+
+    funcs = build_networks(model_options)
 
     print '..Upto here.'
     import sys
     sys.exit(321)
 
-    cost = cost.mean()
 
-    # apply L2 regularization on weights
-    if decay_c > 0.:
-        decay_c = theano.shared(numpy.float32(decay_c), name='decay_c')
-        weight_decay = 0.
-        for kk, vv in tparams.iteritems():
-            weight_decay += (vv ** 2).sum()
-        weight_decay *= decay_c
-        cost += weight_decay
-
-    # regularize the alpha weights
-    if alpha_c > 0. and not model_options['decoder'].endswith('simple'):
-        alpha_c = theano.shared(numpy.float32(alpha_c), name='alpha_c')
-        alpha_reg = alpha_c * (
-            (tensor.cast(y_mask.sum(0) // x_mask.sum(0), 'float32')[:, None] -
-             opt_ret['dec_alphas'].sum(0)) ** 2).sum(1).mean()
-        cost += alpha_reg
-
-    # after all regularizers - compile the computational graph for cost
-    print 'Building f_cost...',
-    f_cost = theano.function(inps, cost, profile=profile)
-    print 'Done'
-
-    print 'Computing gradient...',
-    grads = tensor.grad(cost, wrt=itemlist(tparams))
-    print 'Done'
-
-    # apply gradient clipping here
-    if clip_c > 0.:
-        g2 = 0.
-        for g in grads:
-            g2 += (g ** 2).sum()
-        new_grads = []
-        for g in grads:
-            new_grads.append(tensor.switch(g2 > (clip_c ** 2),
-                                           g / tensor.sqrt(g2) * clip_c,
-                                           g))
-        grads = new_grads
-
-    # compile the optimizer, the actual computational graph is compiled here
-    lr = tensor.scalar(name='lr')
-    print 'Building optimizers...',
-    f_grad_shared, f_update = eval(optimizer)(lr, tparams, grads, inps, cost)
-    print 'Done'
 
     print 'Optimization'
 

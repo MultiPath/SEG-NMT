@@ -7,6 +7,22 @@ import theano.tensor as tensor
 import numpy
 profile = False
 
+
+# apply gradient clipping here
+def clip(grads, clip_c=0):
+    if clip_c > 0.:
+        g2 = 0.
+        for g in grads:
+            g2 += (g ** 2).sum()
+        new_grads = []
+        for g in grads:
+            new_grads.append(tensor.switch(g2 > (clip_c ** 2),
+                                           g / tensor.sqrt(g2) * clip_c,
+                                           g))
+        grads = new_grads
+    return grads
+
+
 # name(hyperp, tparams, grads, inputs (list), cost) = f_grad_shared, f_update
 def adam(lr, tparams, grads, inp, cost):
     gshared = [theano.shared(p.get_value() * 0.,
