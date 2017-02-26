@@ -86,6 +86,7 @@ class TextIterator:
             while True:
 
                 # read from dataset file and map to word index
+                # print _samples
                 _lines = []
                 for id in range(self.nums):
                     try:
@@ -100,8 +101,8 @@ class TextIterator:
 
                 flag3 = True
                 for line in _lines:
-                    if len(line) > self.maxlen:
-                        flag3 *= True
+                    if len(line) <= self.maxlen:
+                        flag3 *= False
 
                 if flag3:
                     continue
