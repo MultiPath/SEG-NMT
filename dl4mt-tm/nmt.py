@@ -369,29 +369,6 @@ def gen_sample(tparams, f_init, f_next, x, options, trng=None, k=1, maxlen=30,
 
     return sample, sample_score
 
-# calculate the log probablities on a given corpus using translation model
-def pred_probs(f_log_probs, prepare_data, options, iterator, verbose=False):
-    probs = []
 
-    n_done = 0
-
-    for x, y in iterator:
-        n_done += len(x)
-
-        x, x_mask, y, y_mask = prepare_data(x, y,
-                                            n_words_src=options['n_words_src'],
-                                            n_words=options['n_words'])
-
-        pprobs = f_log_probs(x, x_mask, y, y_mask)
-        for pp in pprobs:
-            probs.append(pp)
-
-        # if numpy.isnan(numpy.mean(probs)):
-        #     ipdb.set_trace()
-
-        if verbose:
-            print >>sys.stderr, '%d samples computed' % (n_done)
-
-    return numpy.array(probs)
 
 

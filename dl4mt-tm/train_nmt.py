@@ -105,20 +105,19 @@ def build_networks(options):
     att_fe12 = build_prop(ret_fe12['attention'], ret_ef22['attention'])
     att_fe21 = build_prop(ret_fe21['attention'], ret_ef11['attention'])
 
-
     print 'build gates!'
     params_gate  = OrderedDict()
-    params_gate  = get_layer('bi')[0](options, 2 * options['dim']) # shared parameters for both directions
+    params_gate  = get_layer('bi')[0](options, params_gate, 2 * options['dim']) # shared parameters for both directions
     tparams_gate = init_tparams(params_gate)
 
     # a neural gate which is the relatedness of two attentions.
     def build_gate(ctx1, ctx2):
         return get_layer('bi')[1](tparams_gate, ctx1, ctx2)
 
-    gate_ef1 = build_gate(ret_ef11['ctxs'], ret_ef12['ctxs'])
-    gate_ef2 = build_gate(ret_ef22['ctxs'], ret_ef21['ctxs'])
-    gate_fe1 = build_gate(ret_fe11['ctxs'], ret_fe12['ctxs'])
-    gate_fe2 = build_gate(ret_fe22['ctxs'], ret_fe21['ctxs'])
+    gate_ef1 = 1 - build_gate(ret_ef11['ctxs'], ret_ef12['ctxs'])
+    gate_ef2 = 1 - build_gate(ret_ef22['ctxs'], ret_ef21['ctxs'])
+    gate_fe1 = 1 - build_gate(ret_fe11['ctxs'], ret_fe12['ctxs'])
+    gate_fe2 = 1 - build_gate(ret_fe22['ctxs'], ret_fe21['ctxs'])
 
     # gate_ef1 = ret_ef11['att_sum'] / (ret_ef11['att_sum'] + ret_ef12['att_sum'])
     # gate_ef2 = ret_ef22['att_sum'] / (ret_ef22['att_sum'] + ret_ef21['att_sum'])
@@ -126,12 +125,14 @@ def build_networks(options):
     # gate_fe2 = ret_fe22['att_sum'] / (ret_fe22['att_sum'] + ret_fe21['att_sum'])
 
     print 'build loss function (w/o gate)'
+
     # get the loss function
     def compute_prob(probs, y, y_mask):
 
         # compute the loss for the vocabulary-selection side
-        y_flat = y.flatten()
-        y_flat_idx = tensor.arange(y_flat.shape[0]) * options['n_words'] + y_flat
+        y_flat  = y.flatten()
+        n_words = probs.shape[-1]
+        y_flat_idx = tensor.arange(y_flat.shape[0]) * n_words + y_flat
         probw = probs.flatten()[y_flat_idx]
         probw = probw.reshape([y.shape[0], y.shape[1]]) * y_mask
         return probw
@@ -165,14 +166,10 @@ def build_networks(options):
     inputs = [x1, x1_mask, y1, y1_mask, x2, x2_mask, y2, y2_mask,
               tef12, tef12_mask, tef21, tef21_mask,
               tfe12, tfe12_mask, tfe21, tfe21_mask]
-
-    # f_cost = theano.function(inputs, cost, profile=profile)
-    # print 'Done'
-
-    cost = cost.mean()
+    f_valid = theano.function(inputs, cost, profile=profile)
 
     print 'Build Gradient (backward)...',
-
+    cost    = cost.mean()
     tparams = dict(tparams_ef.items() + tparams_fe.items() + tparams_gate.items())
     grads   = clip(tensor.grad(cost, wrt=itemlist(tparams)), options['clip_c'])
     print 'Done'
@@ -182,13 +179,14 @@ def build_networks(options):
     print 'Building Optimizers...',
     f_cost, f_update = eval(options['optimizer'])(lr, tparams, grads, inputs, cost)
 
+    funcs['valid']  = f_valid
     funcs['cost']   = f_cost
     funcs['update'] = f_update
 
     print 'Build Networks... done!'
-    return funcs
+    return funcs, tparams
 
-funcs = build_networks(model_options)
+funcs, tparams = build_networks(model_options)
 
 
 print '-------------------------------------------- Main-Loop -------------------------------------------------'
@@ -200,13 +198,23 @@ valid = TextIterator(model_options['valid_datasets'], model_options['dictionarie
                      batch_size=model_options['batch_size'], maxlen=200)
 
 
-best_p = None
-bad_counter = 0
-uidx   = 0
-estop  = False
+# ------------------ initlization --------------- #
+best_p       = None
+bad_counter  = 0
+uidx         = 0
+estop        = False
 history_errs = []
 max_epochs   = 100
-lrate  = model_options['lrate']
+finish_after = 10000000
+
+lrate        = model_options['lrate']
+saveFreq     = model_options['saveFreq']
+sampleFreq   = model_options['sampleFreq']
+validFreq    = model_options['validFreq']
+saveto       = model_options['saveto']
+overwrite    = model_options['overwrite']
+
+# ----------------------------------------------- #
 
 # reload history
 if model_options['reload_'] and os.path.exists(model_options['saveto']):
@@ -218,8 +226,8 @@ if model_options['reload_'] and os.path.exists(model_options['saveto']):
 
 # compute-update
 @Timeit
-def execute(inps, lrate):
-
+def execute(inps, lrate, info):
+    eidx, uidx = info
     cost = funcs['cost'](*inps)
 
     # check for bad numbers, usually we remove non-finite elements
@@ -229,12 +237,42 @@ def execute(inps, lrate):
         sys.exit(-1)
 
     funcs['update'](lrate)
-
-
-
-
+    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost,
     return cost
 
+
+@Timeit
+def validate(funcs, options, iterator, verbose=False):
+    probs = []
+
+    n_done = 0
+    for k, (sx1, sy1, sx2, sy2) in enumerate(iterator):
+        x1, x1_mask = prepare_data(sx1, options['maxlen'], options['voc_sizes'][0])
+        y1, y1_mask = prepare_data(sy1, options['maxlen'], options['voc_sizes'][1])
+        x2, x2_mask = prepare_data(sx2, options['maxlen'], options['voc_sizes'][2])
+        y2, y2_mask = prepare_data(sy2, options['maxlen'], options['voc_sizes'][3])
+
+        tx12, tx12_mask = prepare_cross(sx1, sx2, x1.shape[0])
+        tx21, tx21_mask = prepare_cross(sx2, sx1, x2.shape[0])
+        ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
+        ty21, ty21_mask = prepare_cross(sy1, sy2, y2.shape[0])
+
+        inps = [x1, x1_mask, y1, y1_mask,
+                x2, x2_mask, y2, y2_mask,
+                ty12, ty12_mask, ty21, ty21_mask,
+                tx12, tx12_mask, tx21, tx21_mask]
+
+        pprobs = funcs['valid'](*inps)
+        for pp in pprobs:
+            probs.append(pp)
+
+        # if numpy.isnan(numpy.mean(probs)):
+        #     ipdb.set_trace()
+
+        if verbose:
+            print >>sys.stderr, '%d samples computed' % (n_done)
+
+    return numpy.array(probs)
 
 
 # start!!
@@ -262,14 +300,7 @@ for eidx in xrange(max_epochs):
         if k > 200:
             break
 
-
-        cost = execute(inps, lrate)
-
-
-
-        # verbose
-        if numpy.mod(uidx, dispFreq) == 0:
-            print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost, 'UD ', ud
+        execute(inps, lrate, [eidx, uidx])
 
         # save the best model so far, in addition, save the latest model
         # into a separate file with the iteration number for external eval
@@ -292,71 +323,61 @@ for eidx in xrange(max_epochs):
                             uidx=uidx, **unzip(tparams))
                 print 'Done'
 
+        # TODO: sampler is not ready!!
         # generate some samples with the model and display them
-        if numpy.mod(uidx, sampleFreq) == 0:
-            # FIXME: random selection?
-            for jj in xrange(numpy.minimum(5, x.shape[1])):
-                stochastic = True
-                sample, score = gen_sample(tparams, f_init, f_next,
-                                           x[:, jj][:, None],
-                                           model_options, trng=trng, k=1,
-                                           maxlen=30,
-                                           stochastic=stochastic,
-                                           argmax=False)
-                print 'Source ', jj, ': ',
-                for vv in x[:, jj]:
-                    if vv == 0:
-                        break
-                    if vv in worddicts_r[0]:
-                        print worddicts_r[0][vv],
-                    else:
-                        print 'UNK',
-                print
-                print 'Truth ', jj, ' : ',
-                for vv in y[:, jj]:
-                    if vv == 0:
-                        break
-                    if vv in worddicts_r[1]:
-                        print worddicts_r[1][vv],
-                    else:
-                        print 'UNK',
-                print
-                print 'Sample ', jj, ': ',
-                if stochastic:
-                    ss = sample
-                else:
-                    score = score / numpy.array([len(s) for s in sample])
-                    ss = sample[score.argmin()]
-                for vv in ss:
-                    if vv == 0:
-                        break
-                    if vv in worddicts_r[1]:
-                        print worddicts_r[1][vv],
-                    else:
-                        print 'UNK',
-                print
+        # if numpy.mod(uidx, sampleFreq) == 0:
+        #     # FIXME: random selection?
+        #     for jj in xrange(numpy.minimum(5, x.shape[1])):
+        #         stochastic = True
+        #         sample, score = gen_sample(tparams, f_init, f_next,
+        #                                    x[:, jj][:, None],
+        #                                    model_options, trng=trng, k=1,
+        #                                    maxlen=30,
+        #                                    stochastic=stochastic,
+        #                                    argmax=False)
+        #         print 'Source ', jj, ': ',
+        #         for vv in x[:, jj]:
+        #             if vv == 0:
+        #                 break
+        #             if vv in worddicts_r[0]:
+        #                 print worddicts_r[0][vv],
+        #             else:
+        #                 print 'UNK',
+        #         print
+        #         print 'Truth ', jj, ' : ',
+        #         for vv in y[:, jj]:
+        #             if vv == 0:
+        #                 break
+        #             if vv in worddicts_r[1]:
+        #                 print worddicts_r[1][vv],
+        #             else:
+        #                 print 'UNK',
+        #         print
+        #         print 'Sample ', jj, ': ',
+        #         if stochastic:
+        #             ss = sample
+        #         else:
+        #             score = score / numpy.array([len(s) for s in sample])
+        #             ss = sample[score.argmin()]
+        #         for vv in ss:
+        #             if vv == 0:
+        #                 break
+        #             if vv in worddicts_r[1]:
+        #                 print worddicts_r[1][vv],
+        #             else:
+        #                 print 'UNK',
+        #         print
 
         # validate model on validation set and early stop if necessary
         if numpy.mod(uidx, validFreq) == 0:
-            use_noise.set_value(0.)
-            valid_errs = pred_probs(f_log_probs, prepare_data,
-                                    model_options, valid)
-            valid_err = valid_errs.mean()
+            # use_noise.set_value(0.)
+            valid_errs = validate(funcs, model_options, valid, False)
+            valid_err  = valid_errs.mean()
             history_errs.append(valid_err)
 
-            if uidx == 0 or valid_err <= numpy.array(history_errs).min():
-                best_p = unzip(tparams)
-                bad_counter = 0
-            if len(history_errs) > patience and valid_err >= \
-                    numpy.array(history_errs)[:-patience].min():
-                bad_counter += 1
-                if bad_counter > patience:
-                    print 'Early Stop!'
-                    estop = True
-                    break
-
             if numpy.isnan(valid_err):
-                ipdb.set_trace()
+                print 'NaN detected'
+                sys.exit(-1)
 
             print 'Valid ', valid_err
 
@@ -377,10 +398,7 @@ for eidx in xrange(max_epochs):
 if best_p is not None:
     zipp(best_p, tparams)
 
-use_noise.set_value(0.)
-valid_err = pred_probs(f_log_probs, prepare_data,
-                       model_options, valid).mean()
-
+valid_err = validate(funcs, model_options, valid).mean()
 print 'Valid ', valid_err
 
 params = copy.copy(best_p)
