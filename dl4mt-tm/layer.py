@@ -29,7 +29,7 @@ class Timeit(object):
     def __call__(self, *args, **kws):
         start_t = time.time()
         result = self._wrapped(*args, **kws)
-        print '{}: elapsed {:.4f} secs.'.format(self._wrapped.__name__,
+        print '{}: elapsed {:.4f} secs.\n'.format(self._wrapped.__name__,
                                                 time.time() - start_t)
         return result
 
@@ -89,6 +89,7 @@ def load_params(path, params):
 
 # layers: 'name': ('parameter initializer', 'feedforward')
 layers = {'ff': ('param_init_fflayer', 'fflayer'),
+          'bi': ('param_init_bllayer', 'bllayer'),
           'gru': ('param_init_gru', 'gru_layer'),
           'gru_cond': ('param_init_gru_cond', 'gru_cond_layer'),
           }
@@ -119,6 +120,8 @@ def norm_weight(nin, nout=None, scale=0.01, ortho=True):
 def tanh(x):
     return tensor.tanh(x)
 
+def sigmoid(x):
+    return tensor.nnet.sigmoid(x)
 
 def linear(x):
     return x
@@ -169,7 +172,6 @@ def concatenate(tensor_list, axis=0):
     return out
 
 
-
 # feedforward layer: affine transformation + point-wise nonlinearity
 def param_init_fflayer(options, params, prefix='ff', nin=None, nout=None,
                        ortho=True):
@@ -188,6 +190,17 @@ def fflayer(tparams, state_below, options, prefix='rconv',
     return eval(activ)(
         tensor.dot(state_below, tparams[_p(prefix, 'W')]) +
         tparams[_p(prefix, 'b')])
+
+
+# bi-linear layer:
+def param_init_bllayer(options, params, prefix='bi', nin=None):
+    params[_p(prefix, 'M')] = numpy.eye(nin, dtype='float32')
+    return params
+
+
+def bllayer(tparams, input1, input2, prefix='bi',
+            activ='lambda x: tensor.nnet.sigmoid(x)', **kwargs):
+    return eval(activ)(tensor.sum(tensor.dot(input1, tparams[_p(prefix, 'M')]) * input2, axis=-1))
 
 
 # GRU layer

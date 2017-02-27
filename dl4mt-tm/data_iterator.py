@@ -69,9 +69,6 @@ class TextIterator:
         datasets = [[] for _ in self.datasets]
 
         # fill buffer, if it's empty
-        for v in self.buffers:
-            print len(v),
-        print ''
         assert len(self.buffers[0]) == len(self.buffers[1]), 'Buffer size mismatch!'
 
         if len(self.buffers[0]) == 0:
