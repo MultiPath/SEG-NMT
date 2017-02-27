@@ -107,7 +107,7 @@ def build_networks(options):
 
     print 'build gates!'
     params_gate  = OrderedDict()
-    params_gate  = get_layer('bi')[0](options, params_gate, 2 * options['dim']) # shared parameters for both directions
+    params_gate  = get_layer('bi')[0](options, params_gate, nin=2 * options['dim']) # shared parameters for both directions
     tparams_gate = init_tparams(params_gate)
 
     # a neural gate which is the relatedness of two attentions.
