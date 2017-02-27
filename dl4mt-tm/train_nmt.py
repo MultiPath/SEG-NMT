@@ -247,11 +247,12 @@ def validate(funcs, options, iterator, verbose=False):
 
     n_done = 0
     for k, (sx1, sy1, sx2, sy2) in enumerate(iterator):
-        x1, x1_mask = prepare_data(sx1, options['maxlen'], options['voc_sizes'][0])
-        y1, y1_mask = prepare_data(sy1, options['maxlen'], options['voc_sizes'][1])
-        x2, x2_mask = prepare_data(sx2, options['maxlen'], options['voc_sizes'][2])
-        y2, y2_mask = prepare_data(sy2, options['maxlen'], options['voc_sizes'][3])
-
+        x1, x1_mask = prepare_data(sx1, 200, options['voc_sizes'][0])
+        y1, y1_mask = prepare_data(sy1, 200, options['voc_sizes'][1])
+        x2, x2_mask = prepare_data(sx2, 200, options['voc_sizes'][2])
+        y2, y2_mask = prepare_data(sy2, 200, options['voc_sizes'][3])
+        print 'x1:{}, x2:{}, y1:{}, y2:{}'.format(x1.shape, x2.shape, y1.shape, y2.shape)
+        
         tx12, tx12_mask = prepare_cross(sx1, sx2, x1.shape[0])
         tx21, tx21_mask = prepare_cross(sx2, sx1, x2.shape[0])
         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
@@ -304,24 +305,24 @@ for eidx in xrange(max_epochs):
 
         # save the best model so far, in addition, save the latest model
         # into a separate file with the iteration number for external eval
-        if numpy.mod(uidx, saveFreq) == 0:
-            print 'Saving the best model...',
-            if best_p is not None:
-                params = best_p
-            else:
-                params = unzip(tparams)
-            numpy.savez(saveto, history_errs=history_errs, uidx=uidx, **params)
-            pkl.dump(model_options, open('%s.pkl' % saveto, 'wb'))
-            print 'Done'
+        # if numpy.mod(uidx, saveFreq) == 0:
+        #    print 'Saving the best model...',
+        #    if best_p is not None:
+        #        params = best_p
+        #    else:
+        #        params = unzip(tparams)
+        #    numpy.savez(saveto, history_errs=history_errs, uidx=uidx, **params)
+        #    pkl.dump(model_options, open('%s.pkl' % saveto, 'wb'))
+        #    print 'Done'
 
             # save with uidx
-            if not overwrite:
-                print 'Saving the model at iteration {}...'.format(uidx),
-                saveto_uidx = '{}.iter{}.npz'.format(
-                    os.path.splitext(saveto)[0], uidx)
-                numpy.savez(saveto_uidx, history_errs=history_errs,
-                            uidx=uidx, **unzip(tparams))
-                print 'Done'
+        #    if not overwrite:
+        #        print 'Saving the model at iteration {}...'.format(uidx),
+        #        saveto_uidx = '{}.iter{}.npz'.format(
+        #            os.path.splitext(saveto)[0], uidx)
+        #        numpy.savez(saveto_uidx, history_errs=history_errs,
+        #                    uidx=uidx, **unzip(tparams))
+        #        print 'Done'
 
         # TODO: sampler is not ready!!
         # generate some samples with the model and display them
@@ -369,17 +370,17 @@ for eidx in xrange(max_epochs):
         #         print
 
         # validate model on validation set and early stop if necessary
-        if numpy.mod(uidx, validFreq) == 0:
-            # use_noise.set_value(0.)
-            valid_errs = validate(funcs, model_options, valid, False)
-            valid_err  = valid_errs.mean()
-            history_errs.append(valid_err)
+        # if numpy.mod(uidx, validFreq) == 0:
+        #    # use_noise.set_value(0.)
+        #    valid_errs = validate(funcs, model_options, valid, False)
+        #    valid_err  = valid_errs.mean()
+        #    history_errs.append(valid_err)
 
-            if numpy.isnan(valid_err):
-                print 'NaN detected'
-                sys.exit(-1)
+        #    if numpy.isnan(valid_err):
+        #        print 'NaN detected'
+        #        sys.exit(-1)
 
-            print 'Valid ', valid_err
+        #    print 'Valid ', valid_err
 
         # validate model with BLEU
         pass
