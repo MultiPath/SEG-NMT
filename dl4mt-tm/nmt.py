@@ -179,6 +179,7 @@ def build_attender(tparams, inps, options, pix='', one_step=False):
         prev_emb  = tensor.matrix('_p_em', dtype='float32')
         ctx       = tensor.tensor3('_ctx', dtype='float32')
         x_mask    = tensor.matrix('_x_mk', dtype='float32')
+        inps = [prev_hids, prev_emb, ctx, x_mask]
 
     def recurrence(hid, emb, ctx, x_mask):
         proj = get_layer(options['decoder'])[1](tparams, emb, options,

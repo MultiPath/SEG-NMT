@@ -158,22 +158,22 @@ def build_networks(options):
 
     cost = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
 
-    print 'Building sampler (one-step)'
+    print 'build sampler (one-step)'
     f_init_ef, f_next_ef = build_sampler(tparams_ef, options, options['trng'], 'ef_')
     f_init_fe, f_next_fe = build_sampler(tparams_fe, options, options['trng'], 'fe_')
 
-    print 'Building attender (one-step)'
+    print 'build attender (one-step)'
     f_attend_ef = build_attender(tparams_ef, None, options, 'ef_', one_step=True)  # E->F curr
     f_attend_fe = build_attender(tparams_fe, None, options, 'fe_', one_step=True)
 
     # before any regularizer
-    print 'Building Cost Function...',
+    print 'build Cost Function...',
     inputs = [x1, x1_mask, y1, y1_mask, x2, x2_mask, y2, y2_mask,
               tef12, tef12_mask, tef21, tef21_mask,
               tfe12, tfe12_mask, tfe21, tfe21_mask]
     f_valid = theano.function(inputs, cost, profile=profile)
 
-    print 'Build Gradient (backward)...',
+    print 'build Gradient (backward)...',
     cost    = cost.mean()
     tparams = dict(tparams_ef.items() + tparams_fe.items() + tparams_gate.items())
     grads   = clip(tensor.grad(cost, wrt=itemlist(tparams)), options['clip_c'])
@@ -183,6 +183,8 @@ def build_networks(options):
     lr = tensor.scalar(name='lr')
     print 'Building Optimizers...',
     f_cost, f_update = eval(options['optimizer'])(lr, tparams, grads, inputs, cost)
+
+    print 'Done'
 
     # put everything into function lists
     funcs['valid']  = f_valid
