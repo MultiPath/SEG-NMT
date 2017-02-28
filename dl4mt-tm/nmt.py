@@ -159,6 +159,7 @@ def build_model(tparams, inps, options, pix='', return_cost=True):
 
     return opt_ret
 
+
 # build an attender
 # build a training model
 def build_attender(tparams, inps, options, pix=''):
@@ -190,23 +191,23 @@ def build_attender(tparams, inps, options, pix=''):
 
 
 # build a sampler
-def build_sampler(tparams, options, trng, use_noise):
+def build_sampler(tparams, options, trng, pix=''):
     x = tensor.matrix('x', dtype='int64')
     xr = x[::-1]
     n_timesteps = x.shape[0]
     n_samples = x.shape[1]
 
     # word embedding (source), forward and backward
-    emb = tparams['Wemb'][x.flatten()]
-    emb = emb.reshape([n_timesteps, n_samples, options['dim_word']])
-    embr = tparams['Wemb'][xr.flatten()]
+    emb  = tparams[pix+'Wemb'][x.flatten()]
+    emb  = emb.reshape([n_timesteps, n_samples, options['dim_word']])
+    embr = tparams[pix+'Wemb'][xr.flatten()]
     embr = embr.reshape([n_timesteps, n_samples, options['dim_word']])
 
     # encoder
     proj = get_layer(options['encoder'])[1](tparams, emb, options,
-                                            prefix='encoder')
+                                            prefix=pix+'encoder')
     projr = get_layer(options['encoder'])[1](tparams, embr, options,
-                                             prefix='encoder_r')
+                                             prefix=pix+'encoder_r')
 
     # concatenate forward and backward rnn hidden states
     ctx = concatenate([proj[0], projr[0][::-1]], axis=proj[0].ndim-1)
@@ -215,7 +216,7 @@ def build_sampler(tparams, options, trng, use_noise):
     ctx_mean = ctx.mean(0)
     # ctx_mean = concatenate([proj[0][-1],projr[0][-1]], axis=proj[0].ndim-2)
     init_state = get_layer('ff')[1](tparams, ctx_mean, options,
-                                    prefix='ff_state', activ='tanh')
+                                    prefix=pix+'ff_state', activ='tanh')
 
     print 'Building f_init...',
     outs = [init_state, ctx]
@@ -250,8 +251,6 @@ def build_sampler(tparams, options, trng, use_noise):
     logit_ctx = get_layer('ff')[1](tparams, ctxs, options,
                                    prefix='ff_logit_ctx', activ='linear')
     logit = tensor.tanh(logit_lstm+logit_prev+logit_ctx)
-    if options['use_dropout']:
-        logit = dropout_layer(logit, use_noise, trng)
     logit = get_layer('ff')[1](tparams, logit, options,
                                prefix='ff_logit', activ='linear')
 
@@ -263,11 +262,17 @@ def build_sampler(tparams, options, trng, use_noise):
 
     # compile a function to do the whole thing above, next word probability,
     # sampled word for the next target, next hidden state to be used
-    print 'Building f_next..',
+    print 'Building f_next...',
     inps = [y, ctx, init_state]
     outs = [next_probs, next_sample, next_state]
     f_next = theano.function(inps, outs, name='f_next', profile=profile)
     print 'Done'
+
+    # compile cross-attender
+
+
+
+
 
     return f_init, f_next
 
