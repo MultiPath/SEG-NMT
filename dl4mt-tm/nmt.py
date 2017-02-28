@@ -172,13 +172,13 @@ def build_attender(tparams, inps, options, pix='', one_step=False):
     opt_ret = dict()
 
     # deal with the input
-    if inps is not None:
+    if not one_step:
         prev_hids, prev_emb, ctx, x_mask = inps
     else:
-        prev_hids = tensor.matrix('_p_hs', dtype='float32')
-        prev_emb  = tensor.matrix('_p_em', dtype='float32')
-        ctx       = tensor.tensor3('_ctx', dtype='float32')
-        x_mask    = tensor.matrix('_x_mk', dtype='float32')
+        prev_hids = tensor.matrix('onestep_p_hs', dtype='float32')
+        prev_emb  = tensor.matrix('onestep_p_em', dtype='float32')
+        ctx       = tensor.tensor3('onestep_ctx', dtype='float32')
+        x_mask    = tensor.matrix('onestep_x_mk', dtype='float32')
         inps = [prev_hids, prev_emb, ctx, x_mask]
 
     def recurrence(hid, emb, ctx, x_mask):
@@ -195,7 +195,7 @@ def build_attender(tparams, inps, options, pix='', one_step=False):
 
     if not one_step:
         ret, _ = theano.scan(recurrence, sequences=[prev_hids, prev_emb],
-                         non_sequences=[ctx, x_mask])
+                            non_sequences=[ctx, x_mask])
         # weights (alignment matrix)
         opt_ret['ctxs'] = ret[0]
         opt_ret['attention'] = ret[1]
