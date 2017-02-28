@@ -159,8 +159,8 @@ def build_networks(options):
     cost = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
 
     print 'Building sampler (one-step)'
-    f_init_ef, f_next_ef = build_sampler(tparams_ef, options, options['trng'])
-    f_init_fe, f_next_fe = build_sampler(tparams_fe, options, options['trng'])
+    f_init_ef, f_next_ef = build_sampler(tparams_ef, options, options['trng'], 'ef_')
+    f_init_fe, f_next_fe = build_sampler(tparams_fe, options, options['trng'], 'fe_')
 
     print 'Building attender (one-step)'
     f_attend_ef = build_attender(tparams_ef, None, options, 'ef_', one_step=True)  # E->F curr
