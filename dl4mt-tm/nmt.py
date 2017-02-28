@@ -56,7 +56,7 @@ def init_params(options, pix=''):
 
 
 # build a training model
-def build_model(tparams, inps, options, pix='', return_cost=True):
+def build_model(tparams, inps, options, pix='', return_cost=False, with_compile=False):
     opt_ret = dict()
 
     # deal with the input
@@ -154,19 +154,31 @@ def build_model(tparams, inps, options, pix='', return_cost=True):
         cost = -tensor.log(probs.flatten()[y_flat_idx])
         cost = cost.reshape([y.shape[0], y.shape[1]])
         cost = (cost * y_mask).sum(0)
+        opt_ret['cost'] =  cost
 
-        return opt_ret, cost
+    if with_compile:
+        print 'Build f_critic...',
+        f_critic = theano.function(inps, [opt_ret['attention'], opt_ret['logit']], name='f_critic', profile=profile)
+
+        opt_ret['f_critic'] = f_critic
+        print 'Done'
 
     return opt_ret
 
 
 # build an attender
 # build a training model
-def build_attender(tparams, inps, options, pix=''):
+def build_attender(tparams, inps, options, pix='', one_step=False):
     opt_ret = dict()
 
     # deal with the input
-    prev_hids, prev_emb, ctx, x_mask = inps
+    if inps is not None:
+        prev_hids, prev_emb, ctx, x_mask = inps
+    else:
+        prev_hids = tensor.matrix('_p_hs', dtype='float32')
+        prev_emb  = tensor.matrix('_p_em', dtype='float32')
+        ctx       = tensor.tensor3('_ctx', dtype='float32')
+        x_mask    = tensor.matrix('_x_mk', dtype='float32')
 
     def recurrence(hid, emb, ctx, x_mask):
         proj = get_layer(options['decoder'])[1](tparams, emb, options,
@@ -180,17 +192,27 @@ def build_attender(tparams, inps, options, pix=''):
         att_sum = proj[3]
         return ctxs, atts, att_sum
 
-    ret, _ = theano.scan(recurrence, sequences=[prev_hids, prev_emb],
+    if not one_step:
+        ret, _ = theano.scan(recurrence, sequences=[prev_hids, prev_emb],
                          non_sequences=[ctx, x_mask])
+        # weights (alignment matrix)
+        opt_ret['ctxs'] = ret[0]
+        opt_ret['attention'] = ret[1]
+        opt_ret['att_sum'] = ret[2]
+        return opt_ret
 
-    # weights (alignment matrix)
-    opt_ret['ctxs']      = ret[0]
-    opt_ret['attention'] = ret[1]
-    opt_ret['att_sum']   = ret[2]
-    return opt_ret
+    else:
+        ret = recurrence(prev_hids, prev_emb, ctx, x_mask)
+        print 'Build f_attend...',
+
+        f_attend = theano.function(inps, ret, name='f_attend', profile=profile)
+        print 'Done.'
+
+        return f_attend
 
 
 # build a sampler
+# build a sampling model
 def build_sampler(tparams, options, trng, pix=''):
     x = tensor.matrix('x', dtype='int64')
     xr = x[::-1]
@@ -267,12 +289,6 @@ def build_sampler(tparams, options, trng, pix=''):
     outs = [next_probs, next_sample, next_state]
     f_next = theano.function(inps, outs, name='f_next', profile=profile)
     print 'Done'
-
-    # compile cross-attender
-
-
-
-
 
     return f_init, f_next
 

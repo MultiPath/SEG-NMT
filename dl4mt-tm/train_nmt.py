@@ -72,11 +72,11 @@ def build_networks(options):
     tfe21 = tensor.matrix('fe21', dtype='int64')
     tfe21_mask = tensor.matrix('fe21_mask', dtype='float32')
 
-    print 'build forward-attention models (4 models simultaneously)'
-    ret_ef11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], options, 'ef_', False)  # E->F curr
-    ret_fe11 = build_model(tparams_fe, [y1, y1_mask, x1, x1_mask], options, 'fe_', False)  # F->E curr
-    ret_ef22 = build_model(tparams_ef, [x2, x2_mask, y2, y2_mask], options, 'ef_', False)  # E->F tm
-    ret_fe22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], options, 'fe_', False)  # F->E tm
+    print 'build forward-attention models (4 models simultaneously)...'
+    ret_ef11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], options, 'ef_', False, True)   # E->F curr
+    ret_fe11 = build_model(tparams_fe, [y1, y1_mask, x1, x1_mask], options, 'fe_', False, False)  # F->E curr
+    ret_ef22 = build_model(tparams_ef, [x2, x2_mask, y2, y2_mask], options, 'ef_', False, True)   # E->F tm
+    ret_fe22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], options, 'fe_', False, False)  # F->E tm
 
     print 'build cross-attention models'
     ret_ef12 = build_attender(tparams_ef,
@@ -107,7 +107,7 @@ def build_networks(options):
 
     print 'build gates!'
     params_gate  = OrderedDict()
-    params_gate  = get_layer('bi')[0](options, params_gate, nin=2 * options['dim']) # shared parameters for both directions
+    params_gate  = get_layer('bi')[0](options, params_gate, nin=2 * options['dim'])
     tparams_gate = init_tparams(params_gate)
 
     # a neural gate which is the relatedness of two attentions.
@@ -158,8 +158,13 @@ def build_networks(options):
 
     cost = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
 
-    # print 'Building sampler'
-    # f_init, f_next = build_sampler(tparams, options, trng, use_noise)
+    print 'Building sampler (one-step)'
+    f_init_ef, f_next_ef = build_sampler(tparams_ef, options, options['trng'])
+    f_init_fe, f_next_fe = build_sampler(tparams_fe, options, options['trng'])
+
+    print 'Building attender (one-step)'
+    f_attend_ef = build_attender(tparams_ef, None, options, 'ef_', one_step=True)  # E->F curr
+    f_attend_fe = build_attender(tparams_fe, None, options, 'fe_', one_step=True)
 
     # before any regularizer
     print 'Building Cost Function...',
@@ -179,9 +184,21 @@ def build_networks(options):
     print 'Building Optimizers...',
     f_cost, f_update = eval(options['optimizer'])(lr, tparams, grads, inputs, cost)
 
+    # put everything into function lists
     funcs['valid']  = f_valid
     funcs['cost']   = f_cost
     funcs['update'] = f_update
+
+    funcs['init_ef'] = f_init_ef
+    funcs['init_fe'] = f_init_fe
+    funcs['next_ef'] = f_next_ef
+    funcs['next_fe'] = f_next_fe
+
+    funcs['att_ef']  = f_attend_ef
+    funcs['att_fe']  = f_attend_fe
+
+    funcs['crit_ef'] = ret_ef11['f_critic']
+    funcs['crit_fe'] = ret_ef22['f_critic']
 
     print 'Build Networks... done!'
     return funcs, tparams
@@ -190,6 +207,8 @@ funcs, tparams = build_networks(model_options)
 
 
 print '-------------------------------------------- Main-Loop -------------------------------------------------'
+
+sys.exit(123456)
 
 print 'Loading data'
 train = TextIterator(model_options['datasets'], model_options['dictionaries'], model_options['voc_sizes'],
