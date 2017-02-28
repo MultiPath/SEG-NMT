@@ -251,12 +251,12 @@ def build_sampler(tparams, options, trng, pix=''):
 
     # if it's the first word, emb should be all zero and it is indicated by -1
     emb = tensor.switch(y[:, None] < 0,
-                        tensor.alloc(0., 1, tparams['Wemb_dec'].shape[1]),
-                        tparams['Wemb_dec'][y])
+                        tensor.alloc(0., 1, tparams[pix+'Wemb_dec'].shape[1]),
+                        tparams[pix+'Wemb_dec'][y])
 
     # apply one step of conditional gru with attention
     proj = get_layer(options['decoder'])[1](tparams, emb, options,
-                                            prefix='decoder',
+                                            prefix=pix+'decoder',
                                             mask=None, context=ctx,
                                             one_step=True,
                                             init_state=init_state)
@@ -267,14 +267,14 @@ def build_sampler(tparams, options, trng, pix=''):
     ctxs = proj[1]
 
     logit_lstm = get_layer('ff')[1](tparams, next_state, options,
-                                    prefix='ff_logit_lstm', activ='linear')
+                                    prefix=pix+'ff_logit_lstm', activ='linear')
     logit_prev = get_layer('ff')[1](tparams, emb, options,
-                                    prefix='ff_logit_prev', activ='linear')
+                                    prefix=pix+'ff_logit_prev', activ='linear')
     logit_ctx = get_layer('ff')[1](tparams, ctxs, options,
-                                   prefix='ff_logit_ctx', activ='linear')
+                                   prefix=pix+'ff_logit_ctx', activ='linear')
     logit = tensor.tanh(logit_lstm+logit_prev+logit_ctx)
     logit = get_layer('ff')[1](tparams, logit, options,
-                               prefix='ff_logit', activ='linear')
+                               prefix=pix+'ff_logit', activ='linear')
 
     # compute the softmax probability
     next_probs = tensor.nnet.softmax(logit)
