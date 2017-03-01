@@ -62,11 +62,15 @@ def setup_fren_bpe():
 
         'voc_sizes': [20000, 20000, 20000, 20000],
 
+        # baseline models
+        'baseline_fe': home + '/.model/baseline_fren.bpe.npz',
+        'baseline_ef': home + '/.model/baseline_enfr.bpe.npz',
+
         # TODO: test phase is not ready
         # test phase
         'trans_from': home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
         'trans_ref': home + '/.dataset/fren/devset.en.tok',
-        'trans_to': home + '/.translate/baseline_fren.bpe.valid'
+        'trans_to': home + '/.translate/tmv1_fren.bpe.valid'
     }
     return config
 
@@ -99,6 +103,8 @@ def setup(pair='fren'):
 
         'overwrite': False,
         'reload_': True,
+
+        'use_pretrain': False,
 
         # testing details
         'beamsize': 5,

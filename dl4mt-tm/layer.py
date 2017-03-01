@@ -87,6 +87,20 @@ def load_params(path, params):
 
     return params
 
+
+# load parameters-2
+def load_params2(path, params, mode=''):
+    pp = numpy.load(path)
+    for kk, vv in params.iteritems():
+        if kk[:3] == mode:
+            if kk[3:] not in pp:
+                warnings.warn('%s is not in the archive' % kk)
+                continue
+            print 'load ...', kk
+            params[kk] = pp[kk[3:]]
+
+    return params
+
 # layers: 'name': ('parameter initializer', 'feedforward')
 layers = {'ff': ('param_init_fflayer', 'fflayer'),
           'bi': ('param_init_bllayer', 'bllayer'),

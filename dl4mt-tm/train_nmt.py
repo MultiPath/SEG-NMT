@@ -215,10 +215,8 @@ def build_networks(options):
 
 funcs, tparams = build_networks(model_options)
 
+# print 'save the compiled functions/tparams for temperal usage'
 
-print '-------------------------------------------- Main-Loop -------------------------------------------------'
-
-# sys.exit(123456)
 
 print 'Loading data'
 train = TextIterator(model_options['datasets'], model_options['dictionaries'], model_options['voc_sizes'],
@@ -226,6 +224,18 @@ train = TextIterator(model_options['datasets'], model_options['dictionaries'], m
 valid = TextIterator(model_options['valid_datasets'], model_options['dictionaries'], model_options['voc_sizes'],
                      batch_size=model_options['batch_size'], maxlen=200)
 
+if model_options['use_pretrain']:
+    print 'use the pretrained NMT-models...',
+    params = unzip(tparams)
+    params = load_params2(model_options['baseline_ef'], params, mode='ef_')
+    params = load_params2(model_options['baseline_fe'], params, mode='fe_')
+    zipp(params, tparams)
+    print 'Done.'
+
+else:
+    print 'learning from scratch'
+
+print '-------------------------------------------- Main-Loop -------------------------------------------------'
 
 # ------------------ initlization --------------- #
 best_p       = None
@@ -327,35 +337,32 @@ for eidx in xrange(max_epochs):
                 ty12, ty12_mask, ty21, ty21_mask,
                 tx12, tx12_mask, tx21, tx21_mask]
 
-        if k > 200:
-            break
-
-        execute(inps, lrate, [eidx, uidx])
+        execute(inps, lrate, [eidx, uidx]) # train one step.
 
         # save the best model so far, in addition, save the latest model
         # into a separate file with the iteration number for external eval
-        # if numpy.mod(uidx, saveFreq) == 0:
-        #    print 'Saving the best model...',
-        #    if best_p is not None:
-        #        params = best_p
-        #    else:
-        #        params = unzip(tparams)
-        #    numpy.savez(saveto, history_errs=history_errs, uidx=uidx, **params)
-        #    pkl.dump(model_options, open('%s.pkl' % saveto, 'wb'))
-        #    print 'Done'
+        if numpy.mod(uidx, saveFreq) == 0:
+           print 'Saving the best model...',
+           if best_p is not None:
+               params = best_p
+           else:
+               params = unzip(tparams)
 
-        #    save with uidx
-        #    if not overwrite:
-        #        print 'Saving the model at iteration {}...'.format(uidx),
-        #        saveto_uidx = '{}.iter{}.npz'.format(
-        #            os.path.splitext(saveto)[0], uidx)
-        #        numpy.savez(saveto_uidx, history_errs=history_errs,
-        #                    uidx=uidx, **unzip(tparams))
-        #        print 'Done'
+           numpy.savez(saveto, history_errs=history_errs, uidx=uidx, **params)
+           pkl.dump(model_options, open('%s.pkl' % saveto, 'wb'))
+           print 'Done'
+
+           # save with uidx
+           if not overwrite:
+               print 'Saving the model at iteration {}...'.format(uidx),
+               saveto_uidx = '{}.iter{}.npz'.format(
+                   os.path.splitext(saveto)[0], uidx)
+               numpy.savez(saveto_uidx, history_errs=history_errs,
+                           uidx=uidx, **unzip(tparams))
+               print 'Done'
 
         # generate some samples with the model and display them
         if numpy.mod(uidx, sampleFreq) == 0:
-            # FIXME: random selection?
             for jj in xrange(numpy.minimum(5, x1.shape[1])):
                 stochastic = True
                 sample, score = gen_sample(tparams, funcs,
@@ -369,6 +376,7 @@ for eidx in xrange(max_epochs):
                                            maxlen=200,
                                            stochastic=True,
                                            argmax=False)
+
                 print 'Source ', jj, ': ',
                 for vv in x1[:, jj]:
                     if vv == 0:

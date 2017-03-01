@@ -300,19 +300,21 @@ def build_sampler(tparams, options, trng, pix=''):
 
 # generate sample, either with stochastic sampling or beam search. Note that,
 # this function iteratively calls f_init and f_next functions.
+
+# generate sample, either with stochastic sampling or beam search. Note that,
+# this function iteratively calls f_init and f_next functions.
 def gen_sample(tparams,
                funcs,
                x1, x2, y2,
                options,
                rng=None,
                m=0,
-               k=1,         # beam-size
+               k=1,  # beam-size
                maxlen=200,
                stochastic=True,
                argmax=False):
-
     # modes
-    modes   = ['ef', 'fe']
+    modes = ['ef', 'fe']
 
     # masks
     x1_mask = numpy.ones_like(x1, dtype='float32')
@@ -336,31 +338,32 @@ def gen_sample(tparams,
     hyp_states = []
 
     # get initial state of decoder rnn and encoder context for x1
-    ret = funcs['init_'+modes[m]](x1)
-    next_state, ctx0 = ret[0], ret[1]   # init-state, contexts
+    ret = funcs['init_' + modes[m]](x1)
+    next_state, ctx0 = ret[0], ret[1]  # init-state, contexts
     next_w = -1 * numpy.ones((1,)).astype('int64')  # bos indicator
 
     # get translation memory encoder context
-    _, mctx0 = funcs['init_'+modes[m]](x2)
+    _, mctx0 = funcs['init_' + modes[m]](x2)
 
     # get attention propagation for translation memory
-    atts, _ = funcs['crit_'+modes[1-m]](y2, y2_mask, x2, x2_mask)
+    atts, _ = funcs['crit_' + modes[1 - m]](y2, y2_mask, x2, x2_mask)
+    atts = numpy.squeeze(atts)
 
     for ii in xrange(maxlen):
-        ctx  = numpy.tile(ctx0,  [live_k, 1])
+        ctx = numpy.tile(ctx0, [live_k, 1])
         mctx = numpy.tile(mctx0, [live_k, 1])
 
         # --copy mode
-        ret  = funcs['att_'+modes[m]](next_state, next_w, mctx)
+        ret = funcs['att_' + modes[m]](next_state, next_w, mctx)
         mctxs, matt = ret[0], ret[1]    # matt: batchsize x len_x2
         copy_p = numpy.dot(matt, atts)  # batchsize x len_y2
 
         # --generate mode
-        ret = funcs['next_'+modes[m]](next_w, ctx, next_state)
+        ret = funcs['next_' + modes[m]](next_w, ctx, next_state)
         next_p, next_w, next_state, ctxs = ret[0], ret[1], ret[2], ret[3]
 
         # compute gate
-        gates = funcs['gate'](ctxs, mctxs)  # batchsize
+        gates = funcs['gate'](ctxs[None, :, :], mctxs[None, :, :])[0]  # batchsize
 
         # real probabilities
         next_p *= (1 - gates[:, None])
@@ -372,8 +375,9 @@ def gen_sample(tparams,
             for i in range(next_p.shape[0]):
                 for j in range(copy_p.shape[1]):
                     if y2[j] != 1:
-                        temp_p[i, y2[j]] += copy_p[j]
+                        temp_p[i, y2[j]] += copy_p[i, j]
                         temp_p[i, lmax + j] = 0.
+            temp_p -= 1e-8
             return temp_p
 
         merge_p = _merge()
@@ -383,16 +387,17 @@ def gen_sample(tparams,
                 nw = merge_p[0].argmax()
                 next_w[0] = nw
             else:
-                nw = rng.multinomial(pvals=merge_p).argmax(1)
+                nw = rng.multinomial(1, pvals=merge_p[0]).argmax()
 
             sample.append(nw)
             sample_score -= numpy.log(merge_p[0, nw])
             if nw == 0:
                 break
         else:
+            # TODO: beam-search is still not ready.
             cand_scores = hyp_scores[:, None] - numpy.log(next_p)
             cand_flat = cand_scores.flatten()
-            ranks_flat = cand_flat.argsort()[:(k-dead_k)]
+            ranks_flat = cand_flat.argsort()[:(k - dead_k)]
 
             voc_size = next_p.shape[1]
             trans_indices = ranks_flat / voc_size
@@ -400,11 +405,11 @@ def gen_sample(tparams,
             costs = cand_flat[ranks_flat]
 
             new_hyp_samples = []
-            new_hyp_scores = numpy.zeros(k-dead_k).astype('float32')
+            new_hyp_scores = numpy.zeros(k - dead_k).astype('float32')
             new_hyp_states = []
 
             for idx, [ti, wi] in enumerate(zip(trans_indices, word_indices)):
-                new_hyp_samples.append(hyp_samples[ti]+[wi])
+                new_hyp_samples.append(hyp_samples[ti] + [wi])
                 new_hyp_scores[idx] = copy.copy(costs[idx])
                 new_hyp_states.append(copy.copy(next_state[ti]))
 
@@ -443,7 +448,4 @@ def gen_sample(tparams,
                 sample_score.append(hyp_scores[idx])
 
     return sample, sample_score
-
-
-
 
