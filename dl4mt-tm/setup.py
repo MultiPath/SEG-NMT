@@ -94,7 +94,7 @@ def setup(pair='fren'):
         'patience': 1000,
 
         'maxlen': 80,
-        'batch_size': 32,
+        'batch_size': 16,
         'valid_batch_size': 32,
         'validFreq': 100,
         'dispFreq': 10,
