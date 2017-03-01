@@ -35,9 +35,9 @@ def setup_fren():
 
 
 def setup_fren_bpe():
-    # home = '/root/workspace/TMNMT'
+    home = '/root/workspace/TMNMT'
     # home = '/home/thoma/work/TMNMT'
-    home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
@@ -105,6 +105,7 @@ def setup(pair='fren'):
         'reload_': True,
 
         'use_pretrain': False,
+        'stochastic': True,
 
         # testing details
         'beamsize': 5,

@@ -16,7 +16,7 @@ class TextIterator:
     def __init__(self,
                  dataset,
                  dicts,
-                 voc_sizes,
+                 voc_sizes=None,
                  batch_size=128,
                  maxlen=100):
 
@@ -103,7 +103,7 @@ class TextIterator:
                         break
 
                     line = [self.dicts[id][w] if w in self.dicts[id] else 1 for w in line]
-                    if self.voc_sizes[id] > 0:
+                    if self.voc_sizes[id] > 0:  # so I need to input [0 0 0 0]
                         line = [w if w < self.voc_sizes[id] else 1 for w in line]
                     _lines.append(line)
 

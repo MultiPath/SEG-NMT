@@ -219,9 +219,9 @@ funcs, tparams = build_networks(model_options)
 
 
 print 'Loading data'
-train = TextIterator(model_options['datasets'], model_options['dictionaries'], model_options['voc_sizes'],
+train = TextIterator(model_options['datasets'], model_options['dictionaries'], [0, 0, 0, 0],
                      batch_size=model_options['batch_size'], maxlen=model_options['maxlen'])
-valid = TextIterator(model_options['valid_datasets'], model_options['dictionaries'], model_options['voc_sizes'],
+valid = TextIterator(model_options['valid_datasets'], model_options['dictionaries'], [0, 0, 0, 0],
                      batch_size=model_options['batch_size'], maxlen=200)
 
 if model_options['use_pretrain']:
@@ -263,6 +263,24 @@ if model_options['reload_'] and os.path.exists(model_options['saveto']):
         uidx = rmodel['uidx']
 
 
+# voc_size mask
+def voc_mask(seqs, voc_sizes):
+    return [[w if w < voc_sizes[idx] else 1 for w in seqs[idx]] for idx in range(len(voc_sizes))]
+
+
+# idx back to sequences
+def idx2seq(x, ii):
+    seq = []
+    for vv in x:
+        if vv == 0:
+            break
+        if vv in worddicts_r[ii]:
+            seq.append(worddicts_r[ii][vv])
+        else:
+            seq.append('UNK')
+    return ' '.join(seq)
+
+
 # compute-update
 @Timeit
 def execute(inps, lrate, info):
@@ -285,7 +303,9 @@ def validate(funcs, options, iterator, verbose=False):
     probs = []
 
     n_done = 0
-    for k, (sx1, sy1, sx2, sy2) in enumerate(iterator):
+    for k, (ssx1, ssy1, ssx2, ssy2) in enumerate(iterator):
+        sx1, sy1, sx2, sy2 = voc_mask([ssx1, ssy1, ssx2, ssy2], options['voc_sizes'])
+
         x1, x1_mask = prepare_data(sx1, 200, options['voc_sizes'][0])
         y1, y1_mask = prepare_data(sy1, 200, options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, 200, options['voc_sizes'][2])
@@ -319,7 +339,9 @@ def validate(funcs, options, iterator, verbose=False):
 for eidx in xrange(max_epochs):
     n_samples = 0
 
-    for k, (sx1, sy1, sx2, sy2) in enumerate(train):
+    for k, (ssx1, ssy1, ssx2, ssy2) in enumerate(train):
+        sx1, sy1, sx2, sy2 = voc_mask([ssx1, ssy1, ssx2, ssy2], model_options['voc_sizes'])
+
         x1, x1_mask = prepare_data(sx1, model_options['maxlen'], model_options['voc_sizes'][0])
         y1, y1_mask = prepare_data(sy1, model_options['maxlen'], model_options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, model_options['maxlen'], model_options['voc_sizes'][2])
@@ -374,40 +396,31 @@ for eidx in xrange(max_epochs):
                                            m=1,
                                            k=1,
                                            maxlen=200,
-                                           stochastic=True,
+                                           stochastic=model_options['stochastic'],
                                            argmax=False)
 
-                print 'Source ', jj, ': ',
-                for vv in x1[:, jj]:
-                    if vv == 0:
-                        break
-                    if vv in worddicts_r[0]:
-                        print worddicts_r[0][vv],
-                    else:
-                        print 'UNK',
-                print
-                print 'Truth ', jj, ' : ',
-                for vv in y[:, jj]:
-                    if vv == 0:
-                        break
-                    if vv in worddicts_r[1]:
-                        print worddicts_r[1][vv],
-                    else:
-                        print 'UNK',
-                print
-                print 'Sample ', jj, ': ',
-                if stochastic:
+                print 'Source-CR {}: {}'.format(jj, idx2seq(ssx1[jj], 0))
+                print 'Target-CR {}: {}'.format(jj, idx2seq(ssy1[jj], 1))
+                print '-----------------------------'
+                print 'Source-TM {}: {}'.format(jj, idx2seq(ssx2[jj], 2))
+                print 'Target-TM {}: {}'.format(jj, idx2seq(ssy2[jj], 3))
+                print '============================='
+
+                if model_options['stochastic']:
                     ss = sample
                 else:
-                    score = score / numpy.array([len(s) for s in sample])
+                    score /= numpy.array([len(s) for s in sample])
                     ss = sample[score.argmin()]
-                for vv in ss:
-                    if vv == 0:
-                        break
-                    if vv in worddicts_r[1]:
-                        print worddicts_r[1][vv],
+
+                _ss = []
+                for ii, si in enumerate(ss):
+                    if si < model_options['voc_size'][1]:
+                        _ss.append(si)
                     else:
-                        print 'UNK',
+                        offset = si - model_options['voc_size'][1]
+                        _ss.append(ssy2[jj][offset])
+
+                print 'Sample-CR {}: {}'.format(jj, idx2seq(ss))
                 print
 
         # validate model on validation set and early stop if necessary
