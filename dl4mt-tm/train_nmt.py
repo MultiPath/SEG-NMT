@@ -13,7 +13,8 @@ model_options = setup(args.m)
 pprint(model_options)
 
 # add random seed
-model_options['trng'] = RandomStreams(19920206)
+model_options['rng']  = numpy.random.RandomState(seed=19920206)
+model_options['trng'] = RandomStreams(model_options['rng'].randint(0, 2**32-1))
 model_options['n_words_src'] = model_options['voc_sizes'][0]
 model_options['n_words'] = model_options['voc_sizes'][1]
 
@@ -119,6 +120,11 @@ def build_networks(options):
     gate_fe1 = 1 - build_gate(ret_fe11['ctxs'], ret_fe12['ctxs'])
     gate_fe2 = 1 - build_gate(ret_fe22['ctxs'], ret_fe21['ctxs'])
 
+    print 'Building Gate functions, ...',
+    f_gate = theano.function([ret_ef11['ctxs'], ret_ef12['ctxs']],
+                              gate_ef1, profile=profile)
+    print 'Done.'
+
     # gate_ef1 = ret_ef11['att_sum'] / (ret_ef11['att_sum'] + ret_ef12['att_sum'])
     # gate_ef2 = ret_ef22['att_sum'] / (ret_ef22['att_sum'] + ret_ef21['att_sum'])
     # gate_fe1 = ret_fe11['att_sum'] / (ret_fe11['att_sum'] + ret_fe12['att_sum'])
@@ -202,6 +208,8 @@ def build_networks(options):
     funcs['crit_ef'] = ret_ef11['f_critic']
     funcs['crit_fe'] = ret_ef22['f_critic']
 
+    funcs['gate']    = f_gate
+
     print 'Build Networks... done!'
     return funcs, tparams
 
@@ -210,7 +218,7 @@ funcs, tparams = build_networks(model_options)
 
 print '-------------------------------------------- Main-Loop -------------------------------------------------'
 
-sys.exit(123456)
+# sys.exit(123456)
 
 print 'Loading data'
 train = TextIterator(model_options['datasets'], model_options['dictionaries'], model_options['voc_sizes'],
@@ -336,7 +344,7 @@ for eidx in xrange(max_epochs):
         #    pkl.dump(model_options, open('%s.pkl' % saveto, 'wb'))
         #    print 'Done'
 
-            # save with uidx
+        #    save with uidx
         #    if not overwrite:
         #        print 'Saving the model at iteration {}...'.format(uidx),
         #        saveto_uidx = '{}.iter{}.npz'.format(
@@ -345,50 +353,54 @@ for eidx in xrange(max_epochs):
         #                    uidx=uidx, **unzip(tparams))
         #        print 'Done'
 
-        # TODO: sampler is not ready!!
         # generate some samples with the model and display them
-        # if numpy.mod(uidx, sampleFreq) == 0:
-        #     # FIXME: random selection?
-        #     for jj in xrange(numpy.minimum(5, x.shape[1])):
-        #         stochastic = True
-        #         sample, score = gen_sample(tparams, f_init, f_next,
-        #                                    x[:, jj][:, None],
-        #                                    model_options, trng=trng, k=1,
-        #                                    maxlen=30,
-        #                                    stochastic=stochastic,
-        #                                    argmax=False)
-        #         print 'Source ', jj, ': ',
-        #         for vv in x[:, jj]:
-        #             if vv == 0:
-        #                 break
-        #             if vv in worddicts_r[0]:
-        #                 print worddicts_r[0][vv],
-        #             else:
-        #                 print 'UNK',
-        #         print
-        #         print 'Truth ', jj, ' : ',
-        #         for vv in y[:, jj]:
-        #             if vv == 0:
-        #                 break
-        #             if vv in worddicts_r[1]:
-        #                 print worddicts_r[1][vv],
-        #             else:
-        #                 print 'UNK',
-        #         print
-        #         print 'Sample ', jj, ': ',
-        #         if stochastic:
-        #             ss = sample
-        #         else:
-        #             score = score / numpy.array([len(s) for s in sample])
-        #             ss = sample[score.argmin()]
-        #         for vv in ss:
-        #             if vv == 0:
-        #                 break
-        #             if vv in worddicts_r[1]:
-        #                 print worddicts_r[1][vv],
-        #             else:
-        #                 print 'UNK',
-        #         print
+        if numpy.mod(uidx, sampleFreq) == 0:
+            # FIXME: random selection?
+            for jj in xrange(numpy.minimum(5, x1.shape[1])):
+                stochastic = True
+                sample, score = gen_sample(tparams, funcs,
+                                           x1[:, jj][:, None],
+                                           x2[:, jj][:, None],
+                                           y2[:, jj][:, None],
+                                           model_options,
+                                           rng=model_options['rng'],
+                                           m=1,
+                                           k=1,
+                                           maxlen=200,
+                                           stochastic=True,
+                                           argmax=False)
+                print 'Source ', jj, ': ',
+                for vv in x1[:, jj]:
+                    if vv == 0:
+                        break
+                    if vv in worddicts_r[0]:
+                        print worddicts_r[0][vv],
+                    else:
+                        print 'UNK',
+                print
+                print 'Truth ', jj, ' : ',
+                for vv in y[:, jj]:
+                    if vv == 0:
+                        break
+                    if vv in worddicts_r[1]:
+                        print worddicts_r[1][vv],
+                    else:
+                        print 'UNK',
+                print
+                print 'Sample ', jj, ': ',
+                if stochastic:
+                    ss = sample
+                else:
+                    score = score / numpy.array([len(s) for s in sample])
+                    ss = sample[score.argmin()]
+                for vv in ss:
+                    if vv == 0:
+                        break
+                    if vv in worddicts_r[1]:
+                        print worddicts_r[1][vv],
+                    else:
+                        print 'UNK',
+                print
 
         # validate model on validation set and early stop if necessary
         # if numpy.mod(uidx, validFreq) == 0:

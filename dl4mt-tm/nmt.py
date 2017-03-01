@@ -3,7 +3,7 @@ Build a neural machine translation model with soft attention
 '''
 import theano
 import theano.tensor as tensor
-
+import copy
 from layer import *
 from optimizer import *
 
@@ -176,10 +176,14 @@ def build_attender(tparams, inps, options, pix='', one_step=False):
         prev_hids, prev_emb, ctx, x_mask = inps
     else:
         prev_hids = tensor.matrix('onestep_p_hs', dtype='float32')
-        prev_emb  = tensor.matrix('onestep_p_em', dtype='float32')
+        prev_word = tensor.vector('onestep_p_w',  dtype='int64')
+        prev_emb  = tensor.switch(prev_word[:, None] < 0,
+                    tensor.alloc(0., 1, tparams[pix+'Wemb_dec'].shape[1]),
+                    tparams[pix+'Wemb_dec'][prev_word])
+
         ctx       = tensor.tensor3('onestep_ctx', dtype='float32')
-        x_mask    = tensor.matrix('onestep_x_mk', dtype='float32')
-        inps = [prev_hids, prev_emb, ctx, x_mask]
+        x_mask    = None
+        inps = [prev_hids, prev_word, ctx]
 
     def recurrence(hid, emb, ctx, x_mask):
         proj = get_layer(options['decoder'])[1](tparams, emb, options,
@@ -287,7 +291,7 @@ def build_sampler(tparams, options, trng, pix=''):
     # sampled word for the next target, next hidden state to be used
     print 'Building f_next...',
     inps = [y, ctx, init_state]
-    outs = [next_probs, next_sample, next_state]
+    outs = [next_probs, next_sample, next_state, ctxs]
     f_next = theano.function(inps, outs, name='f_next', profile=profile)
     print 'Done'
 
@@ -296,13 +300,28 @@ def build_sampler(tparams, options, trng, pix=''):
 
 # generate sample, either with stochastic sampling or beam search. Note that,
 # this function iteratively calls f_init and f_next functions.
-def gen_sample(tparams, f_init, f_next, x, options, trng=None, k=1, maxlen=30,
-               stochastic=True, argmax=False):
+def gen_sample(tparams,
+               funcs,
+               x1, x2, y2,
+               options,
+               rng=None,
+               m=0,
+               k=1,         # beam-size
+               maxlen=200,
+               stochastic=True,
+               argmax=False):
+
+    # modes
+    modes   = ['ef', 'fe']
+
+    # masks
+    x1_mask = numpy.ones_like(x1, dtype='float32')
+    x2_mask = numpy.ones_like(x2, dtype='float32')
+    y2_mask = numpy.ones_like(y2, dtype='float32')
 
     # k is the beam size we have
     if k > 1:
-        assert not stochastic, \
-            'Beam search does not support stochastic sampling'
+        assert not stochastic, 'Beam search does not support stochastic sampling'
 
     sample = []
     sample_score = []
@@ -316,24 +335,58 @@ def gen_sample(tparams, f_init, f_next, x, options, trng=None, k=1, maxlen=30,
     hyp_scores = numpy.zeros(live_k).astype('float32')
     hyp_states = []
 
-    # get initial state of decoder rnn and encoder context
-    ret = f_init(x)
-    next_state, ctx0 = ret[0], ret[1]
+    # get initial state of decoder rnn and encoder context for x1
+    ret = funcs['init_'+modes[m]](x1)
+    next_state, ctx0 = ret[0], ret[1]   # init-state, contexts
     next_w = -1 * numpy.ones((1,)).astype('int64')  # bos indicator
 
+    # get translation memory encoder context
+    _, mctx0 = funcs['init_'+modes[m]](x2)
+
+    # get attention propagation for translation memory
+    atts, _ = funcs['crit_'+modes[1-m]](y2, y2_mask, x2, x2_mask)
+
     for ii in xrange(maxlen):
-        ctx = numpy.tile(ctx0, [live_k, 1])
-        inps = [next_w, ctx, next_state]
-        ret = f_next(*inps)
-        next_p, next_w, next_state = ret[0], ret[1], ret[2]
+        ctx  = numpy.tile(ctx0,  [live_k, 1])
+        mctx = numpy.tile(mctx0, [live_k, 1])
+
+        # --copy mode
+        ret  = funcs['att_'+modes[m]](next_state, next_w, mctx)
+        mctxs, matt = ret[0], ret[1]    # matt: batchsize x len_x2
+        copy_p = numpy.dot(matt, atts)  # batchsize x len_y2
+
+        # --generate mode
+        ret = funcs['next_'+modes[m]](next_w, ctx, next_state)
+        next_p, next_w, next_state, ctxs = ret[0], ret[1], ret[2], ret[3]
+
+        # compute gate
+        gates = funcs['gate'](ctxs, mctxs)  # batchsize
+
+        # real probabilities
+        next_p *= (1 - gates[:, None])
+        copy_p *= gates[:, None]
+
+        def _merge():
+            temp_p = copy.copy(numpy.concatenate([next_p, copy_p], axis=1))
+            lmax = next_p.shape[1]
+            for i in range(next_p.shape[0]):
+                for j in range(copy_p.shape[1]):
+                    if y2[j] != 1:
+                        temp_p[i, y2[j]] += copy_p[j]
+                        temp_p[i, lmax + j] = 0.
+            return temp_p
+
+        merge_p = _merge()
 
         if stochastic:
             if argmax:
-                nw = next_p[0].argmax()
+                nw = merge_p[0].argmax()
+                next_w[0] = nw
             else:
-                nw = next_w[0]
+                nw = rng.multinomial(pvals=merge_p).argmax(1)
+
             sample.append(nw)
-            sample_score -= numpy.log(next_p[0, nw])
+            sample_score -= numpy.log(merge_p[0, nw])
             if nw == 0:
                 break
         else:
