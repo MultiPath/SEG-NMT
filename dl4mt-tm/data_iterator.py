@@ -167,8 +167,10 @@ def prepare_data(seqs_x, maxlen=None, n_words=30000):
     x = numpy.zeros((maxlen_x, n_samples)).astype('int64')
     x_mask = numpy.zeros((maxlen_x, n_samples)).astype('float32')
     for idx, s_x in enumerate(seqs_x):
+        s_x = [w if w < n_words else 1 for w in s_x]  # voc-size.
         x[:lengths_x[idx], idx] = s_x
         x_mask[:lengths_x[idx]+1, idx] = 1.
+
     return x, x_mask
 
 

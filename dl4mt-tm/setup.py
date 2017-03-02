@@ -104,7 +104,7 @@ def setup(pair='fren'):
         'overwrite': False,
         'reload_': True,
 
-        'use_pretrain': False,
+        'use_pretrain': True,
         'stochastic': True,
 
         # testing details

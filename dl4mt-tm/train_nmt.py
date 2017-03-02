@@ -263,11 +263,6 @@ if model_options['reload_'] and os.path.exists(model_options['saveto']):
         uidx = rmodel['uidx']
 
 
-# voc_size mask
-def voc_mask(seqs, voc_sizes):
-    return [[w if w < voc_sizes[idx] else 1 for w in seqs[idx]] for idx in range(len(voc_sizes))]
-
-
 # idx back to sequences
 def idx2seq(x, ii):
     seq = []
@@ -303,9 +298,7 @@ def validate(funcs, options, iterator, verbose=False):
     probs = []
 
     n_done = 0
-    for k, (ssx1, ssy1, ssx2, ssy2) in enumerate(iterator):
-        sx1, sy1, sx2, sy2 = voc_mask([ssx1, ssy1, ssx2, ssy2], options['voc_sizes'])
-
+    for k, (sx1, sy1, sx2, sy2) in enumerate(iterator):
         x1, x1_mask = prepare_data(sx1, 200, options['voc_sizes'][0])
         y1, y1_mask = prepare_data(sy1, 200, options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, 200, options['voc_sizes'][2])
@@ -339,9 +332,7 @@ def validate(funcs, options, iterator, verbose=False):
 for eidx in xrange(max_epochs):
     n_samples = 0
 
-    for k, (ssx1, ssy1, ssx2, ssy2) in enumerate(train):
-        sx1, sy1, sx2, sy2 = voc_mask([ssx1, ssy1, ssx2, ssy2], model_options['voc_sizes'])
-
+    for k, (sx1, sy1, sx2, sy2) in enumerate(train):
         x1, x1_mask = prepare_data(sx1, model_options['maxlen'], model_options['voc_sizes'][0])
         y1, y1_mask = prepare_data(sy1, model_options['maxlen'], model_options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, model_options['maxlen'], model_options['voc_sizes'][2])
@@ -399,11 +390,11 @@ for eidx in xrange(max_epochs):
                                            stochastic=model_options['stochastic'],
                                            argmax=False)
 
-                print 'Source-CR {}: {}'.format(jj, idx2seq(ssx1[jj], 0))
-                print 'Target-CR {}: {}'.format(jj, idx2seq(ssy1[jj], 1))
+                print 'Source-CR {}: {}'.format(jj, idx2seq(sx1[jj], 0))
+                print 'Target-CR {}: {}'.format(jj, idx2seq(sy1[jj], 1))
                 print '-----------------------------'
-                print 'Source-TM {}: {}'.format(jj, idx2seq(ssx2[jj], 2))
-                print 'Target-TM {}: {}'.format(jj, idx2seq(ssy2[jj], 3))
+                print 'Source-TM {}: {}'.format(jj, idx2seq(sx2[jj], 2))
+                print 'Target-TM {}: {}'.format(jj, idx2seq(sy2[jj], 3))
                 print '============================='
 
                 if model_options['stochastic']:
@@ -418,7 +409,7 @@ for eidx in xrange(max_epochs):
                         _ss.append(si)
                     else:
                         offset = si - model_options['voc_size'][1]
-                        _ss.append(ssy2[jj][offset])
+                        _ss.append(sy2[jj][offset])
 
                 print 'Sample-CR {}: {}'.format(jj, idx2seq(ss))
                 print
