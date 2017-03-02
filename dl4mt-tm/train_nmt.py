@@ -333,6 +333,8 @@ for eidx in xrange(max_epochs):
     n_samples = 0
 
     for k, (sx1, sy1, sx2, sy2) in enumerate(train):
+        uidx += 1
+        
         x1, x1_mask = prepare_data(sx1, model_options['maxlen'], model_options['voc_sizes'][0])
         y1, y1_mask = prepare_data(sy1, model_options['maxlen'], model_options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, model_options['maxlen'], model_options['voc_sizes'][2])
@@ -405,13 +407,14 @@ for eidx in xrange(max_epochs):
 
                 _ss = []
                 for ii, si in enumerate(ss):
-                    if si < model_options['voc_size'][1]:
+                    if si < model_options['voc_sizes'][1]:
                         _ss.append(si)
                     else:
-                        offset = si - model_options['voc_size'][1]
+                        print si
+                        offset = si - model_options['voc_sizes'][1]
                         _ss.append(sy2[jj][offset])
 
-                print 'Sample-CR {}: {}'.format(jj, idx2seq(ss))
+                print 'Sample-CR {}: {}'.format(jj, idx2seq(_ss, 1))
                 print
 
         # validate model on validation set and early stop if necessary

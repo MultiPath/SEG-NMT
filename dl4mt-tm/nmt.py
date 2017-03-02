@@ -317,9 +317,9 @@ def gen_sample(tparams,
     modes = ['ef', 'fe']
 
     # masks
-    x1_mask = numpy.ones_like(x1, dtype='float32')
-    x2_mask = numpy.ones_like(x2, dtype='float32')
-    y2_mask = numpy.ones_like(y2, dtype='float32')
+    x1_mask = numpy.array(x1 > 0, dtype='float32')
+    x2_mask = numpy.array(x2 > 0, dtype='float32')
+    y2_mask = numpy.array(y2 > 0, dtype='float32')
 
     # k is the beam size we have
     if k > 1:
