@@ -35,6 +35,10 @@ if model_options['reload_'] and os.path.exists(model_options['saveto']):
     with open('%s.pkl' % model_options['saveto'], 'rb') as f:
         model_options = pkl.load(f)
 
+        model_options['overwrite']  = False
+        model_options['saveFreq']   = 500
+        model_options['sampleFreq'] = 20
+
 @Timeit
 def build_networks(options):
     funcs = dict()
@@ -233,7 +237,7 @@ if model_options['use_pretrain']:
     print 'Done.'
 
 else:
-    print 'learning from scratch'
+    print 'not loading the pretrained baseline'
 
 print '-------------------------------------------- Main-Loop -------------------------------------------------'
 

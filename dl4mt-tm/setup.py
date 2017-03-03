@@ -1,10 +1,13 @@
 # setup the training and testing details in this file
 def setup_fren():
-    home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    home  = '/root/workspace/TMNMT'
+    model = '/root/disk/scratch/model-tmnmt' 
+    
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
-        'saveto': home + '/.model/baseline_fren.npz',
+        'saveto': model + '/tmv3_',
         'datasets': [home + '/.dataset/fren/train.fr.tok.shuf',  # source
                      home + '/.dataset/fren/train.en.tok.shuf',  # target
                      home + '/.dataset/fren/train.fr.tok.shuf',  # source-TM
@@ -24,24 +27,30 @@ def setup_fren():
                          ],
 
         'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 50,
 
+        # baseline models
+        'baseline_fe': model + '/baseline_fren.npz',
+        'baseline_ef': model + '/baseline_enfr.bs64.npz',
+        
         # TODO: test phase is not ready
         # test phase
         'trans_from': home + '/.dataset/fren/devset.fr.tok',
-        'trans_ref': home + '/.dataset/fren/devset.en.tok',
-        'trans_to': home + '/.translate/baseline_fren.valid'
+        'trans_ref':  home + '/.dataset/fren/devset.en.tok',
+        'trans_to':   home + '/.translate/tmv3_'
     }
     return config
 
 
 def setup_fren_bpe():
-    home = '/root/workspace/TMNMT'
+    home  = '/root/workspace/TMNMT'
+    model = '/root/disk/scratch/model-tmnmt' 
     # home = '/home/thoma/work/TMNMT'
     # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
-        'saveto': home + '/.model/tmv1_fren.bpe.npz',
+        'saveto': model + '/tmv2_',
         'datasets': [home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',  # source
                      home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf',  # target
                      home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',  # source-TM
@@ -61,10 +70,11 @@ def setup_fren_bpe():
                          ],
 
         'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 80,
 
         # baseline models
-        'baseline_fe': home + '/.model/baseline_fren.bpe.npz',
-        'baseline_ef': home + '/.model/baseline_enfr.bpe.npz',
+        'baseline_ef': model + '/baseline_fren.bpe.npz',
+        'baseline_fe': model + '/baseline_enfr.bpe.npz',
 
         # TODO: test phase is not ready
         # test phase
@@ -93,18 +103,17 @@ def setup(pair='fren'):
         'lrate': 0.00002,
         'patience': 1000,
 
-        'maxlen': 80,
         'batch_size': 16,
         'valid_batch_size': 32,
         'validFreq': 100,
         'dispFreq': 10,
-        'saveFreq': 100,
-        'sampleFreq': 100,
+        'saveFreq': 500,
+        'sampleFreq': 20,
 
-        'overwrite': False,
+        'overwrite': True,
         'reload_': True,
 
-        'use_pretrain': False,
+        'use_pretrain': True,
         'stochastic': True,
 
         # testing details
@@ -115,4 +124,11 @@ def setup(pair='fren'):
 
     # get dataset info
     config.update(eval('setup_{}'.format(pair))())
+    
+    # get full model name
+    config['saveto'] += '{}.{}.{}-{}.npz'.format(
+            pair, 'ff' if config['use_pretrain'] else 'ss',
+            config['batch_size'], config['maxlen']
+        )
+    
     return config

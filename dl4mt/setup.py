@@ -1,11 +1,13 @@
 # setup the training and testing details in this file
 
 def setup_fren_bpe():
-    home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    # home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     # home   = '/scratch/jg5223/exp/TMNMT'
+    home  = '/root/workspace/TMNMT'
+    model = '/root/disk/scratch/model-tmnmt/' 
     config = {
         # train
-        'saveto': home + '/.model/baseline_fren.bpe.npz',
+        'saveto': model + 'baseline_fren.bpe.npz',
         'datasets': [home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',
                      home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf'],
         'valid_datasets': [home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
@@ -44,23 +46,25 @@ def setup_enfr_bpe():
     return config
 
 
-def setup_enfr():
-    #home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
-    home   = '/scratch/jg5223/exp/TMNMT'
+def setup_fren():
+    # home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    # home   = '/scratch/jg5223/exp/TMNMT'
+    home  = '/root/workspace/TMNMT'
+    model = '/root/disk/scratch/model-tmnmt/' 
     config = {
         # train
-        'saveto': home + '/.model/baseline_enfr.bs64.npz',
-        'datasets': [home + '/.dataset/fren/train.en.tok.shuf',
-                     home + '/.dataset/fren/train.fr.tok.shuf'],
-        'valid_datasets': [home + '/.dataset/fren/devset.en.tok',
-                           home + '/.dataset/fren/devset.fr.tok'],
-        'dictionaries': [home + '/.dataset/fren/train.en.tok.pkl',
-                         home + '/.dataset/fren/train.fr.tok.pkl'],
+        'saveto': model + 'baseline_fren.npz',
+        'datasets': [home + '/.dataset/fren/train.fr.tok.shuf',
+                     home + '/.dataset/fren/train.en.tok.shuf'],
+        'valid_datasets': [home + '/.dataset/fren/devset.fr.tok',
+                           home + '/.dataset/fren/devset.en.tok'],
+        'dictionaries': [home + '/.dataset/fren/train.fr.tok.pkl',
+                         home + '/.dataset/fren/train.en.tok.pkl'],
 
         # test
-        'trans_from': home + '/.dataset/fren/devset.en.tok',
-        'trans_ref':  home + '/.dataset/fren/devset.fr.tok',
-        'trans_to':   home + '/translate/baseline_enfr.valid2'
+        'trans_from': home + '/.dataset/fren/devset.fr.tok',
+        'trans_ref':  home + '/.dataset/fren/devset.en.tok',
+        'trans_to':   home + '/translate/baseline_fren.valid2'
         }
 
     return config
