@@ -116,23 +116,24 @@ def build_networks(options):
     tparams_gate = init_tparams(params_gate)
 
     # a neural gate which is the relatedness of two attentions.
-    def build_gate(ctx1, ctx2):
-        return get_layer('bi')[1](tparams_gate, ctx1, ctx2)
+    # def build_gate(ctx1, ctx2):
+    #     return get_layer('bi')[1](tparams_gate, ctx1, ctx2)
+    #
+    # gate_ef1 = 1 - build_gate(ret_ef11['ctxs'], ret_ef12['ctxs'])
+    # gate_ef2 = 1 - build_gate(ret_ef22['ctxs'], ret_ef21['ctxs'])
+    # gate_fe1 = 1 - build_gate(ret_fe11['ctxs'], ret_fe12['ctxs'])
+    # gate_fe2 = 1 - build_gate(ret_fe22['ctxs'], ret_fe21['ctxs'])
+    #
+    # print 'Building Gate functions, ...',
+    # f_gate = theano.function([ret_ef11['ctxs'], ret_ef12['ctxs']],
+    #                           gate_ef1, profile=profile)
+    # print 'Done.'
 
-    gate_ef1 = 1 - build_gate(ret_ef11['ctxs'], ret_ef12['ctxs'])
-    gate_ef2 = 1 - build_gate(ret_ef22['ctxs'], ret_ef21['ctxs'])
-    gate_fe1 = 1 - build_gate(ret_fe11['ctxs'], ret_fe12['ctxs'])
-    gate_fe2 = 1 - build_gate(ret_fe22['ctxs'], ret_fe21['ctxs'])
-
-    print 'Building Gate functions, ...',
-    f_gate = theano.function([ret_ef11['ctxs'], ret_ef12['ctxs']],
-                              gate_ef1, profile=profile)
-    print 'Done.'
-
-    # gate_ef1 = ret_ef11['att_sum'] / (ret_ef11['att_sum'] + ret_ef12['att_sum'])
-    # gate_ef2 = ret_ef22['att_sum'] / (ret_ef22['att_sum'] + ret_ef21['att_sum'])
-    # gate_fe1 = ret_fe11['att_sum'] / (ret_fe11['att_sum'] + ret_fe12['att_sum'])
-    # gate_fe2 = ret_fe22['att_sum'] / (ret_fe22['att_sum'] + ret_fe21['att_sum'])
+    print 'Building a Natural Gate Function'
+    gate_ef1 = 1 - tensor.clip(ret_ef12['att_sum'] / (ret_ef11['att_sum']), 0, 1)
+    gate_ef2 = 1 - tensor.clip(ret_ef21['att_sum'] / (ret_ef22['att_sum']), 0, 1)
+    gate_fe1 = 1 - tensor.clip(ret_fe12['att_sum'] / (ret_fe11['att_sum']), 0, 1)
+    gate_fe2 = 1 - tensor.clip(ret_fe21['att_sum'] / (ret_fe22['att_sum']), 0, 1)
 
     print 'build loss function (w/o gate)'
 
@@ -213,7 +214,7 @@ def build_networks(options):
     funcs['crit_ef'] = ret_ef11['f_critic']
     funcs['crit_fe'] = ret_ef22['f_critic']
 
-    funcs['gate']    = f_gate
+    # funcs['gate']    = f_gate
 
     print 'Build Networks... done!'
     return funcs, tparams
@@ -289,8 +290,12 @@ def execute(inps, lrate, info):
 
     # check for bad numbers, usually we remove non-finite elements
     # and continue training - but not done here
-    if numpy.isnan(cost) or numpy.isinf(cost):
-        print 'NaN detected'
+    if numpy.isnan(cost):
+        print 'Cost NaN detected'
+        sys.exit(-1)
+
+    if numpy.isinf(cost):
+        print 'Cost Inf detected'
         sys.exit(-1)
 
     funcs['update'](lrate)

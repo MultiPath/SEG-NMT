@@ -270,6 +270,7 @@ def build_sampler(tparams, options, trng, pix=''):
 
     # get the weighted averages of context for this target word y
     ctxs = proj[1]
+    atts = proj[3]
 
     logit_lstm = get_layer('ff')[1](tparams, next_state, options,
                                     prefix=pix+'ff_logit_lstm', activ='linear')
@@ -291,7 +292,7 @@ def build_sampler(tparams, options, trng, pix=''):
     # sampled word for the next target, next hidden state to be used
     print 'Building f_next...',
     inps = [y, ctx, init_state]
-    outs = [next_probs, next_sample, next_state, ctxs]
+    outs = [next_probs, next_sample, next_state, ctxs, atts]
     f_next = theano.function(inps, outs, name='f_next', profile=profile)
     print 'Done'
 
@@ -348,8 +349,8 @@ def gen_sample(tparams,
     _, mctx0 = funcs['init_' + modes[m]](x2)
 
     # get attention propagation for translation memory
-    atts, _ = funcs['crit_' + modes[1 - m]](y2, y2_mask, x2, x2_mask)
-    atts = numpy.squeeze(atts)
+    attpipe, _ = funcs['crit_' + modes[1 - m]](y2, y2_mask, x2, x2_mask)
+    attpipe = numpy.squeeze(attpipe)
 
     for ii in xrange(maxlen):
         ctx = numpy.tile(ctx0, [live_k, 1])
@@ -357,15 +358,16 @@ def gen_sample(tparams,
 
         # --copy mode
         ret = funcs['att_' + modes[m]](next_state, next_w, mctx)
-        mctxs, matt = ret[0], ret[1]    # matt: batchsize x len_x2
-        copy_p = numpy.dot(matt, atts)  # batchsize x len_y2
+        mctxs, matt, mattsum = ret[0], ret[1], ret[2]    # matt: batchsize x len_x2
+        copy_p = numpy.dot(matt, attpipe)  # batchsize x len_y2
 
         # --generate mode
         ret = funcs['next_' + modes[m]](next_w, ctx, next_state)
-        next_p, next_w, next_state, ctxs = ret[0], ret[1], ret[2], ret[3]
+        next_p, next_w, next_state, ctxs, attsum = ret[0], ret[1], ret[2], ret[3], ret[4]
 
         # compute gate
-        gates = funcs['gate'](ctxs[None, :, :], mctxs[None, :, :])[0]  # batchsize
+        # gates = funcs['gate'](ctxs[None, :, :], mctxs[None, :, :])[0]  # batchsize
+        gates = numpy.clip(mattsum / attsum, 0, 1) # Natural Gate.
 
         # real probabilities
         next_p *= (1 - gates[:, None])
