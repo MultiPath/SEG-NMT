@@ -208,7 +208,8 @@ def fflayer(tparams, state_below, options, prefix='rconv',
 
 # bi-linear layer:
 def param_init_bllayer(options, params, prefix='bi', nin=None):
-    params[_p(prefix, 'M')] = 0.0001 * numpy.eye(nin, dtype='float32')
+    params[_p(prefix, 'M')] = ortho_weight(nin) * 0.001
+    # 0.0001 * numpy.eye(nin, dtype='float32')
     return params
 
 
