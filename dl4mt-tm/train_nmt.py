@@ -395,7 +395,7 @@ for eidx in xrange(max_epochs):
                                            k=1,
                                            maxlen=200,
                                            stochastic=model_options['stochastic'],
-                                           argmax=False)
+                                           argmax=True)
 
                 print 'Source-CR {}: {}'.format(jj, idx2seq(sx1[jj], 0))
                 print 'Target-CR {}: {}'.format(jj, idx2seq(sy1[jj], 1))
