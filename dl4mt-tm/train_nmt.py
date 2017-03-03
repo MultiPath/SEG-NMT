@@ -153,7 +153,7 @@ def build_networks(options):
     prob_fe22 = ret_fe22['probs']
 
     def compute_cost(prob, y, y_mask, att, t, t_mask, g):
-        _y = (y == 1)
+        _y = tensor.eq(y, 1)
         y_mask *= ((1 - _y) + _y * (1 - t_mask))
         ccost = -tensor.log(compute_prob(prob, y, y_mask) * g +
                             compute_prob(att, t, t_mask) * (1 - g) + 1e-8)
@@ -163,8 +163,8 @@ def build_networks(options):
     # get cost
     cost_ef1 = compute_cost(prob_ef11, y1, y1_mask, att_ef12, tef12, tef12_mask, gate_ef1)
     cost_ef2 = compute_cost(prob_ef22, y2, y2_mask, att_ef21, tef21, tef21_mask, gate_ef2)
-    cost_fe1 = compute_cost(prob_fe11, y1, y1_mask, att_fe12, tfe12, tfe12_mask, gate_fe1)
-    cost_fe2 = compute_cost(prob_fe22, y2, y2_mask, att_fe21, tfe21, tfe21_mask, gate_fe2)
+    cost_fe1 = compute_cost(prob_fe11, x1, x1_mask, att_fe12, tfe12, tfe12_mask, gate_fe1)
+    cost_fe2 = compute_cost(prob_fe22, x2, x2_mask, att_fe21, tfe21, tfe21_mask, gate_fe2)
 
     cost = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
 
