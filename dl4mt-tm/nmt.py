@@ -326,6 +326,7 @@ def gen_sample(tparams,
         assert not stochastic, 'Beam search does not support stochastic sampling'
 
     sample = []
+    action = []
     sample_score = []
     if stochastic:
         sample_score = 0
@@ -334,8 +335,9 @@ def gen_sample(tparams,
     dead_k = 0
 
     hyp_samples = [[]] * live_k
-    hyp_scores = numpy.zeros(live_k).astype('float32')
-    hyp_states = []
+    hyp_actions = [[]] * live_k
+    hyp_scores  = numpy.zeros(live_k).astype('float32')
+    hyp_states  = []
 
     # get initial state of decoder rnn and encoder context for x1
     ret = funcs['init_' + modes[m]](x1)
@@ -390,6 +392,7 @@ def gen_sample(tparams,
                 nw = rng.multinomial(1, pvals=merge_p[0]).argmax()
 
             sample.append(nw)
+            action.append(gates[0])
             sample_score -= numpy.log(merge_p[0, nw])
             if nw == 0:
                 break
@@ -447,5 +450,5 @@ def gen_sample(tparams,
                 sample.append(hyp_samples[idx])
                 sample_score.append(hyp_scores[idx])
 
-    return sample, sample_score
+    return sample, sample_score, action
 

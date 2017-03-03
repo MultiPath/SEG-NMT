@@ -143,8 +143,8 @@ def build_networks(options):
         y_flat  = y.flatten()
         n_words = probs.shape[-1]
         y_flat_idx = tensor.arange(y_flat.shape[0]) * n_words + y_flat
-        probw = probs.flatten()[y_flat_idx]
-        probw = probw.reshape([y.shape[0], y.shape[1]]) * y_mask
+        probw   = probs.flatten()[y_flat_idx]
+        probw   = probw.reshape([y.shape[0], y.shape[1]]) * y_mask
         return probw
 
     prob_ef11 = ret_ef11['probs']
@@ -152,19 +152,19 @@ def build_networks(options):
     prob_fe11 = ret_fe11['probs']
     prob_fe22 = ret_fe22['probs']
 
+    def compute_cost(prob, y, y_mask, att, t, t_mask, g):
+        _y = (y == 1)
+        y_mask *= ((1 - _y) + _y * (1 - t_mask))
+        ccost = -tensor.log(compute_prob(prob, y, y_mask) * g +
+                            compute_prob(att, t, t_mask) * (1 - g) + 1e-8)
+        ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
+        return ccost
+
     # get cost
-    cost_ef1 = (-tensor.log(compute_prob(prob_ef11, y1, y1_mask) * gate_ef1 +
-                            compute_prob(att_ef12, tef12, tef12_mask) * (1 - gate_ef1)
-                            + 1e-8) * (1 - (1 - y1_mask) * (1 - tef12_mask))).sum(0)
-    cost_ef2 = (-tensor.log(compute_prob(prob_ef22, y2, y2_mask) * gate_ef2 +
-                            compute_prob(att_ef21, tef21, tef21_mask) * (1 - gate_ef2)
-                            + 1e-8) * (1 - (1 - y2_mask) * (1 - tef21_mask))).sum(0)
-    cost_fe1 = (-tensor.log(compute_prob(prob_fe11, x1, x1_mask) * gate_fe1 +
-                            compute_prob(att_fe12, tfe12, tfe12_mask) * (1 - gate_fe1)
-                            + 1e-8) * (1 - (1 - x1_mask) * (1 - tfe12_mask))).sum(0)
-    cost_fe2 = (-tensor.log(compute_prob(prob_fe22, x2, x2_mask) * gate_fe2 +
-                            compute_prob(att_fe21, tfe21, tfe21_mask) * (1 - gate_fe2)
-                            + 1e-8) * (1 - (1 - x2_mask) * (1 - tfe21_mask))).sum(0)
+    cost_ef1 = compute_cost(prob_ef11, y1, y1_mask, att_ef12, tef12, tef12_mask, gate_ef1)
+    cost_ef2 = compute_cost(prob_ef22, y2, y2_mask, att_ef21, tef21, tef21_mask, gate_ef2)
+    cost_fe1 = compute_cost(prob_fe11, y1, y1_mask, att_fe12, tfe12, tfe12_mask, gate_fe1)
+    cost_fe2 = compute_cost(prob_fe22, y2, y2_mask, att_fe21, tfe21, tfe21_mask, gate_fe2)
 
     cost = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
 
@@ -384,7 +384,7 @@ for eidx in xrange(max_epochs):
         if numpy.mod(uidx, sampleFreq) == 0:
             for jj in xrange(numpy.minimum(5, x1.shape[1])):
                 stochastic = True
-                sample, score = gen_sample(tparams, funcs,
+                sample, sc, acts = gen_sample(tparams, funcs,
                                            x1[:, jj][:, None],
                                            x2[:, jj][:, None],
                                            y2[:, jj][:, None],
@@ -406,8 +406,8 @@ for eidx in xrange(max_epochs):
                 if model_options['stochastic']:
                     ss = sample
                 else:
-                    score /= numpy.array([len(s) for s in sample])
-                    ss = sample[score.argmin()]
+                    sc /= numpy.array([len(s) for s in sample])
+                    ss = sample[sc.argmin()]
 
                 _ss = []
                 for ii, si in enumerate(ss):
@@ -419,6 +419,7 @@ for eidx in xrange(max_epochs):
                         _ss.append(sy2[jj][offset])
 
                 print 'Sample-CR {}: {}'.format(jj, idx2seq(_ss, 1))
+                print 'Copy Prob {}: {}'.format(jj, ' '.join(['{:.2f}'.format(a) for a in acts]))
                 print
 
         # validate model on validation set and early stop if necessary
