@@ -156,7 +156,7 @@ def build_networks(options):
         _y = tensor.eq(y, 1)
         y_mask *= ((1 - _y) + _y * (1 - t_mask))
         ccost = -tensor.log(compute_prob(prob, y, y_mask) * g +
-                            compute_prob(att, t, t_mask) * (1 - g) + 1e-8)
+                            compute_prob(att, t, t_mask) * (1 - g) + 1e-7)
         ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
         return ccost
 
