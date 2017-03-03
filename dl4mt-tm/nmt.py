@@ -379,7 +379,8 @@ def gen_sample(tparams,
                     if y2[j] != 1:
                         temp_p[i, y2[j]] += copy_p[i, j]
                         temp_p[i, lmax + j] = 0.
-            temp_p -= 1e-8
+                temp_p[i, 1] = 0. # never output UNK
+            # temp_p -= 1e-8
             return temp_p
 
         merge_p = _merge()
