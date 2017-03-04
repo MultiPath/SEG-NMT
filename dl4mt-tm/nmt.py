@@ -199,7 +199,7 @@ def build_attender(tparams, inps, options, pix='', one_step=False):
 
     if not one_step:
         ret, _ = theano.scan(recurrence, sequences=[prev_hids, prev_emb],
-                            non_sequences=[ctx, x_mask])
+                             non_sequences=[ctx, x_mask])
         # weights (alignment matrix)
         opt_ret['ctxs'] = ret[0]
         opt_ret['attention'] = ret[1]

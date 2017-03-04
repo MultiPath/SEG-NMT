@@ -298,12 +298,10 @@ def execute(inps, lrate, info):
     # check for bad numbers, usually we remove non-finite elements
     # and continue training - but not done here
     if numpy.isnan(cost):
-        print 'Cost NaN detected'
-        sys.exit(-1)
+        raise Exception('Cost NaN detected')
 
     if numpy.isinf(cost):
-        print 'Cost Inf detected'
-        sys.exit(-1)
+        raise Exception('Cost Inf detected')
 
     funcs['update'](lrate)
     print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost,
@@ -369,7 +367,12 @@ for eidx in xrange(max_epochs):
                 ty12, ty12_mask, ty21, ty21_mask,
                 tx12, tx12_mask, tx21, tx21_mask]
 
-        execute(inps, lrate, [eidx, uidx]) # train one step.
+        try:
+            execute(inps, lrate, [eidx, uidx])  # train one step.
+
+        except Exception, e:
+            print e
+            continue
 
         # save the best model so far, in addition, save the latest model
         # into a separate file with the iteration number for external eval
