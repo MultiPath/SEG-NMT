@@ -390,7 +390,7 @@ for eidx in xrange(max_epochs):
         tx12, tx12_mask = prepare_cross(sx1, sx2, x1.shape[0])
         tx21, tx21_mask = prepare_cross(sx2, sx1, x2.shape[0])
         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
-        ty21, ty21_mask = prepare_cross(sy1, sy2, y2.shape[0])
+        ty21, ty21_mask = prepare_cross(sy2, sy1, y2.shape[0])
 
         # print 'x1:{}, x2:{}, y1:{}, y2:{}'.format(x1.shape, x2.shape, y1.shape, y2.shape)
 

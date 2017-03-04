@@ -184,7 +184,8 @@ def prepare_cross(seqs_x1, seqs_x2, maxlen_x1):
         match = [[(i, abs(i - j))
                   for i, xx2 in enumerate(x2) if xx1 == xx2]
                  for j, xx1 in enumerate(x1)]
-
+        print len(match)
+        print match
         for jdx, m in enumerate(match):
             if len(m) > 0:
                 if len(m) == 1:
