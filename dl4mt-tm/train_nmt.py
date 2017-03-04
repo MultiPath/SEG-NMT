@@ -128,7 +128,7 @@ def build_networks(options):
         f_gate = theano.function([ret_ef11['ctxs'], ret_ef12['ctxs']],
                                   gate_ef1, profile=profile)
         print 'Done.'
-    
+
     else:
         print 'Building a Natural Gate Function'
         gate_ef1 = 1 - tensor.clip(ret_ef12['att_sum'] / (ret_ef11['att_sum'] + ret_ef12['att_sum']), 0, 1)
@@ -157,19 +157,22 @@ def build_networks(options):
     def compute_cost(prob, y, y_mask, att, t, t_mask, g):
         _y = tensor.eq(y, 1)
         y_mask *= ((1 - _y) + _y * (1 - t_mask))
-        ccost = -tensor.log(compute_prob(prob, y, y_mask) * g +
-                            compute_prob(att, t, t_mask) * (1 - g) +
-                            1e-7)
+        value = compute_prob(prob, y, y_mask) * g +\
+                compute_prob(att, t, t_mask) * (1 - g) +\
+                1e-7
+
+        ccost = -tensor.log(value)
         ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
-        return ccost
+        return ccost, (value * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
 
     # get cost
-    cost_ef1 = compute_cost(prob_ef11, y1, y1_mask, att_ef12, tef12, tef12_mask, gate_ef1)
-    cost_ef2 = compute_cost(prob_ef22, y2, y2_mask, att_ef21, tef21, tef21_mask, gate_ef2)
-    cost_fe1 = compute_cost(prob_fe11, x1, x1_mask, att_fe12, tfe12, tfe12_mask, gate_fe1)
-    cost_fe2 = compute_cost(prob_fe22, x2, x2_mask, att_fe21, tfe21, tfe21_mask, gate_fe2)
+    cost_ef1, v1 = compute_cost(prob_ef11, y1, y1_mask, att_ef12, tef12, tef12_mask, gate_ef1)
+    cost_ef2, v2 = compute_cost(prob_ef22, y2, y2_mask, att_ef21, tef21, tef21_mask, gate_ef2)
+    cost_fe1, v3 = compute_cost(prob_fe11, x1, x1_mask, att_fe12, tfe12, tfe12_mask, gate_fe1)
+    cost_fe2, v4 = compute_cost(prob_fe22, x2, x2_mask, att_fe21, tfe21, tfe21_mask, gate_fe2)
 
-    cost = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
+    cost  = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
+    value = v1 + v2 + v3 + v4
 
     print 'build sampler (one-step)'
     f_init_ef, f_next_ef = build_sampler(tparams_ef, options, options['trng'], 'ef_')
@@ -188,19 +191,20 @@ def build_networks(options):
 
     print 'build Gradient (backward)...',
     cost    = cost.mean()
-    
+
     if options['build_gate']:
         tparams = dict(tparams_ef.items() + tparams_fe.items() + tparams_gate.items())
     else:
         tparams = dict(tparams_ef.items() + tparams_fe.items())
-    
+
     grads   = clip(tensor.grad(cost, wrt=itemlist(tparams)), options['clip_c'])
     print 'Done'
 
     # compile the optimizer, the actual computational graph is compiled here
     lr = tensor.scalar(name='lr')
     print 'Building Optimizers...',
-    f_cost, f_update = eval(options['optimizer'])(lr, tparams, grads, inputs, cost)
+    f_cost, f_update = eval(options['optimizer'])(
+        lr, tparams, grads, inputs, [cost, value])
 
     print 'Done'
 
@@ -293,7 +297,8 @@ def idx2seq(x, ii):
 @Timeit
 def execute(inps, lrate, info):
     eidx, uidx = info
-    cost = funcs['cost'](*inps)
+    cost, value = funcs['cost'](*inps)
+    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost, 'Value', value
 
     # check for bad numbers, usually we remove non-finite elements
     # and continue training - but not done here
@@ -304,7 +309,7 @@ def execute(inps, lrate, info):
         raise Exception('Cost Inf detected')
 
     funcs['update'](lrate)
-    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost,
+
     return cost
 
 
@@ -320,7 +325,7 @@ def validate(funcs, options, iterator, verbose=False):
         y2, y2_mask = prepare_data(sy2, 200, options['voc_sizes'][3])
 
         print 'x1:{}, x2:{}, y1:{}, y2:{}'.format(x1.shape, x2.shape, y1.shape, y2.shape)
-        
+
         tx12, tx12_mask = prepare_cross(sx1, sx2, x1.shape[0])
         tx21, tx21_mask = prepare_cross(sx2, sx1, x2.shape[0])
         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
@@ -350,7 +355,7 @@ for eidx in xrange(max_epochs):
 
     for k, (sx1, sy1, sx2, sy2) in enumerate(train):
         uidx += 1
-        
+
         x1, x1_mask = prepare_data(sx1, model_options['maxlen'], model_options['voc_sizes'][0])
         y1, y1_mask = prepare_data(sy1, model_options['maxlen'], model_options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, model_options['maxlen'], model_options['voc_sizes'][2])
