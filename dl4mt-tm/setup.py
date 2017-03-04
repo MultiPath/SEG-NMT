@@ -7,23 +7,23 @@ def setup_fren():
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
-        'saveto': model + '/tmv4_',
-        'datasets': [home + '/.dataset/fren/train.fr.tok.shuf',  # source
-                     home + '/.dataset/fren/train.en.tok.shuf',  # target
-                     home + '/.dataset/fren/train.fr.tok.shuf',  # source-TM
-                     home + '/.dataset/fren/train.en.tok.shuf'   # target-TM
+        'saveto': model + '/new.natural.v1_',
+        'datasets': [home + '/.dataset/tm.fren/train.fr.top5.random5.shuf.tok',          # source
+                     home + '/.dataset/tm.fren/train.en.top5.random5.shuf.tok',          # target
+                     home + '/.dataset/tm.fren/train.fr.top5.random5.matched.shuf.tok',  # source-TM
+                     home + '/.dataset/tm.fren/train.en.top5.random5.matched.shuf.tok'   # target-TM
                      ],
 
-        'valid_datasets': [home + '/.dataset/fren/devset.fr.tok',
-                           home + '/.dataset/fren/devset.en.tok',
-                           home + '/.dataset/fren/devset.fr.tok',
-                           home + '/.dataset/fren/devset.en.tok'
+        'valid_datasets': [home + '/.dataset/tm.fren/devset.fr.tok',
+                           home + '/.dataset/tm.fren/devset.en.tok',
+                           home + '/.dataset/tm.fren/devset.fr.matched.tok',
+                           home + '/.dataset/tm.fren/devset.en.matched.tok'
                            ],
 
-        'dictionaries': [home + '/.dataset/fren/train.fr.tok.pkl',
-                         home + '/.dataset/fren/train.en.tok.pkl',
-                         home + '/.dataset/fren/train.fr.tok.pkl',
-                         home + '/.dataset/fren/train.en.tok.pkl'
+        'dictionaries': [home + '/.dataset/tm.fren/train.fr.top5.random5.shuf.tok.pkl',
+                         home + '/.dataset/tm.fren/train.en.top5.random5.shuf.tok.pkl',
+                         home + '/.dataset/tm.fren/train.fr.top5.random5.shuf.tok.pkl',
+                         home + '/.dataset/tm.fren/train.en.top5.random5.shuf.tok.pkl'
                          ],
 
         'voc_sizes': [20000, 20000, 20000, 20000],

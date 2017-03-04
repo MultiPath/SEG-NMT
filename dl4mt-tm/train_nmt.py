@@ -392,7 +392,7 @@ for eidx in xrange(max_epochs):
         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
         ty21, ty21_mask = prepare_cross(sy1, sy2, y2.shape[0])
 
-        print 'x1:{}, x2:{}, y1:{}, y2:{}'.format(x1.shape, x2.shape, y1.shape, y2.shape)
+        # print 'x1:{}, x2:{}, y1:{}, y2:{}'.format(x1.shape, x2.shape, y1.shape, y2.shape)
 
         inps = [x1, x1_mask, y1, y1_mask,
                 x2, x2_mask, y2, y2_mask,
@@ -452,12 +452,12 @@ for eidx in xrange(max_epochs):
                                            stochastic=model_options['stochastic'],
                                            argmax=True)
 
+                print '============================='
+                print 'Target-TM {}: {}'.format(jj, idx2seq(sy2[jj], 3))
+                print 'Source-TM {}: {}'.format(jj, idx2seq(sx2[jj], 2))
                 print 'Source-CR {}: {}'.format(jj, idx2seq(sx1[jj], 0))
                 print 'Target-CR {}: {}'.format(jj, idx2seq(sy1[jj], 1))
                 print '-----------------------------'
-                print 'Source-TM {}: {}'.format(jj, idx2seq(sx2[jj], 2))
-                print 'Target-TM {}: {}'.format(jj, idx2seq(sy2[jj], 3))
-                print '============================='
 
                 if model_options['stochastic']:
                     ss = sample
@@ -474,7 +474,7 @@ for eidx in xrange(max_epochs):
                         offset = si - model_options['voc_sizes'][1]
                         _ss.append(sy2[jj][offset])
 
-                print 'Sample-CR {}: {}'.format(jj, idx2seq(_ss, 1))
+                # print 'Sample-CR {}: {}'.format(jj, idx2seq(_ss, 1))
                 print 'Copy Prob {}: {}'.format(jj, idx2seq(_ss, 1, acts))
                 print 'NMT Model {}: {}'.format(jj, idx2seq(ss0, 1))
                 print
