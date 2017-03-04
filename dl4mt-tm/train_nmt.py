@@ -2,6 +2,7 @@ from nmt import *
 from pprint import pprint
 from setup import setup
 from data_iterator import TextIterator, prepare_data, prepare_cross
+from termcolor import colored as clr
 
 import argparse
 
@@ -170,7 +171,6 @@ def build_networks(options):
     cost_fe2 = compute_cost(prob_fe22, x2, x2_mask, att_fe21, tfe21, tfe21_mask, gate_fe2)
 
     cost  = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
-    value = ret_ef12['att_sum'].sum()
 
     print 'build sampler (one-step)'
     f_init_ef, f_next_ef = build_sampler(tparams_ef, options, options['trng'], 'ef_')
@@ -202,7 +202,7 @@ def build_networks(options):
     lr = tensor.scalar(name='lr')
     print 'Building Optimizers...',
     f_cost, f_update = eval(options['optimizer'])(
-        lr, tparams, grads, inputs, [cost, value])
+        lr, tparams, grads, inputs, cost)
 
     print 'Done'
 
@@ -250,7 +250,8 @@ if model_options['use_pretrain']:
 else:
     print 'not loading the pretrained baseline'
 
-print '-------------------------------------------- Main-Loop -------------------------------------------------'
+print clr('-------------------------------------------- Main-Loop -------------------------------------------------',
+          'yellow')
 
 # ------------------ initlization --------------- #
 best_p       = None
@@ -285,9 +286,13 @@ def idx2seq(x, ii):
         if vv == 0:
             break
         if vv in worddicts_r[ii]:
-            seq.append(worddicts_r[ii][vv])
+            word = worddicts_r[ii][vv]
+            if vv > model_options['voc_sizes'][ii]:
+                seq.append(clr(word, 'green'))
+            else:
+                seq.append(word)
         else:
-            seq.append('UNK')
+            seq.append(clr('UNK', 'green'))
     return ' '.join(seq)
 
 
@@ -295,8 +300,8 @@ def idx2seq(x, ii):
 @Timeit
 def execute(inps, lrate, info):
     eidx, uidx = info
-    cost, value = funcs['cost'](*inps)
-    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost, 'Value', value
+    cost = funcs['cost'](*inps)
+    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost,
 
     # check for bad numbers, usually we remove non-finite elements
     # and continue training - but not done here
@@ -307,8 +312,6 @@ def execute(inps, lrate, info):
         raise Exception('Cost Inf detected')
 
     funcs['update'](lrate)
-    cost, value = funcs['cost'](*inps)
-    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost, 'Value', value
 
     return cost
 
@@ -324,7 +327,7 @@ def validate(funcs, options, iterator, verbose=False):
         x2, x2_mask = prepare_data(sx2, 200, options['voc_sizes'][2])
         y2, y2_mask = prepare_data(sy2, 200, options['voc_sizes'][3])
 
-        print 'x1:{}, x2:{}, y1:{}, y2:{}'.format(x1.shape, x2.shape, y1.shape, y2.shape)
+        # print 'x1:{}, x2:{}, y1:{}, y2:{}'.format(x1.shape, x2.shape, y1.shape, y2.shape)
 
         tx12, tx12_mask = prepare_cross(sx1, sx2, x1.shape[0])
         tx21, tx21_mask = prepare_cross(sx2, sx1, x2.shape[0])
@@ -377,7 +380,7 @@ for eidx in xrange(max_epochs):
             execute(inps, lrate, [eidx, uidx])  # train one step.
 
         except Exception, e:
-            print e
+            print clr(e, 'red')
             continue
 
         # save the best model so far, in addition, save the latest model
@@ -407,16 +410,14 @@ for eidx in xrange(max_epochs):
             for jj in xrange(numpy.minimum(5, x1.shape[1])):
                 stochastic = True
                 sample, sc, acts = gen_sample(tparams, funcs,
-                                           x1[:, jj][:, None],
-                                           x2[:, jj][:, None],
-                                           y2[:, jj][:, None],
-                                           model_options,
-                                           rng=model_options['rng'],
-                                           m=1,
-                                           k=1,
-                                           maxlen=200,
-                                           stochastic=model_options['stochastic'],
-                                           argmax=True)
+                                              x1[:, jj][:, None],
+                                              x2[:, jj][:, None],
+                                              y2[:, jj][:, None],
+                                              model_options,
+                                              rng=model_options['rng'],
+                                              m=1, k=1, maxlen=200,
+                                              stochastic=model_options['stochastic'],
+                                              argmax=True)
 
                 print 'Source-CR {}: {}'.format(jj, idx2seq(sx1[jj], 0))
                 print 'Target-CR {}: {}'.format(jj, idx2seq(sy1[jj], 1))
@@ -436,7 +437,6 @@ for eidx in xrange(max_epochs):
                     if si < model_options['voc_sizes'][1]:
                         _ss.append(si)
                     else:
-                        print si
                         offset = si - model_options['voc_sizes'][1]
                         _ss.append(sy2[jj][offset])
 
