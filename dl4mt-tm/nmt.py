@@ -384,7 +384,7 @@ def gen_sample(tparams,
                 for j in range(copy_p.shape[1]):
                     if y2[j] != 1:
                         temp_p[i, y2[j]] += copy_p[i, j]
-                        temp_p[i, lmax + j] = 0.
+                        temp_p[i, l_max + j] = 0.
                 temp_p[i, 1] = 0. # never output UNK
             # temp_p -= 1e-8
             return temp_p
