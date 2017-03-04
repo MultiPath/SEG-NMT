@@ -110,6 +110,11 @@ def build_networks(options):
     att_fe12 = build_prop(ret_fe12['attention'], ret_ef22['attention'])
     att_fe21 = build_prop(ret_fe21['attention'], ret_ef11['attention'])
 
+    v1 = ret_ef12['attention'].sum()
+    v2 = ret_ef21['attention'].sum()
+    v3 = ret_fe12['attention'].sum()
+    v4 = ret_fe21['attention'].sum()
+
     print 'build gates!'
     params_gate  = OrderedDict()
     params_gate  = get_layer('bi')[0](options, params_gate, nin=2 * options['dim'])
@@ -157,19 +162,17 @@ def build_networks(options):
     def compute_cost(prob, y, y_mask, att, t, t_mask, g):
         _y = tensor.eq(y, 1)
         y_mask *= ((1 - _y) + _y * (1 - t_mask))
-        value = compute_prob(att, t, t_mask) * (1 - g) + 1e-7
-
         ccost = -tensor.log(compute_prob(prob, y, y_mask) * g +
                             compute_prob(att, t, t_mask) * (1 - g) +
                             1e-7)
         ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
-        return ccost, (value * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
+        return ccost
 
     # get cost
-    cost_ef1, v1 = compute_cost(prob_ef11, y1, y1_mask, att_ef12, tef12, tef12_mask, gate_ef1)
-    cost_ef2, v2 = compute_cost(prob_ef22, y2, y2_mask, att_ef21, tef21, tef21_mask, gate_ef2)
-    cost_fe1, v3 = compute_cost(prob_fe11, x1, x1_mask, att_fe12, tfe12, tfe12_mask, gate_fe1)
-    cost_fe2, v4 = compute_cost(prob_fe22, x2, x2_mask, att_fe21, tfe21, tfe21_mask, gate_fe2)
+    cost_ef1 = compute_cost(prob_ef11, y1, y1_mask, att_ef12, tef12, tef12_mask, gate_ef1)
+    cost_ef2 = compute_cost(prob_ef22, y2, y2_mask, att_ef21, tef21, tef21_mask, gate_ef2)
+    cost_fe1 = compute_cost(prob_fe11, x1, x1_mask, att_fe12, tfe12, tfe12_mask, gate_fe1)
+    cost_fe2 = compute_cost(prob_fe22, x2, x2_mask, att_fe21, tfe21, tfe21_mask, gate_fe2)
 
     cost  = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
     value = v1 + v2 + v3 + v4
