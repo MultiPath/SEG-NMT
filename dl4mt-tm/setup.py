@@ -115,7 +115,8 @@ def setup(pair='fren'):
 
         'use_pretrain': True,
         'stochastic': True,
-        'build_gate': False,
+        'build_gate': True,
+        'gate_loss': False,
 
         # testing details
         'beamsize': 5,

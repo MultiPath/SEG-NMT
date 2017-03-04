@@ -144,8 +144,8 @@ def build_model(tparams, inps, options, pix='', return_cost=False, with_compile=
     probs = tensor.nnet.softmax(logit.reshape([logit_shp[0]*logit_shp[1],
                                                logit_shp[2]]))
 
-    opt_ret['logit'] = logit
-    opt_ret['probs'] = probs
+    opt_ret['hids']  = proj_h
+    opt_ret['probs']  = probs
 
     # cost
     if return_cost:
@@ -471,8 +471,13 @@ def gen_sample_memory(tparams,
         next_p, next_w, next_state, ctxs, attsum = ret[0], ret[1], ret[2], ret[3], ret[4]
 
         # compute gate
-        # gates = funcs['gate'](ctxs[None, :, :], mctxs[None, :, :])[0]  # batchsize
-        gates = numpy.clip(mattsum / (attsum + mattsum), 0, 1) # Natural Gate.
+        if not options['build_gate']:
+            gates = numpy.clip(mattsum / (attsum + mattsum), 0, 1) # Natural Gate.
+        else:
+            gates = funcs['gate'](
+                next_state[None, :, :],
+                ctxs[None, :, :],
+                mctxs[None, :, :])[0]  # batchsize
 
         # real probabilities
         next_p *= (1 - gates[:, None])

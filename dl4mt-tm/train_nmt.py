@@ -122,20 +122,25 @@ def build_networks(options):
 
     print 'build gates!'
     params_gate  = OrderedDict()
-    params_gate  = get_layer('bi')[0](options, params_gate, nin=2 * options['dim'])
+    params_gate  = get_layer('bi')[0](options, params_gate,
+                                      nin1= options['dim'],
+                                      nin2=2 * options['dim'],
+                                      activ='lambda x: tensor.tanh(x)')
     tparams_gate = init_tparams(params_gate)
 
     if options['build_gate']:
-        def build_gate(ctx1, ctx2):
-            return get_layer('bi')[1](tparams_gate, ctx1, ctx2)
+        def build_gate(hx1, ctx1, ctx2):
+            v1 = get_layer('bi')[1](tparams_gate, hx1, ctx1)
+            v2 = get_layer('bi')[1](tparams_gate, hx1, ctx2)
+            return tensor.nnet.sigmoid(v1 - v2)
 
-        gate_xy1 = 1 - build_gate(ret_xy11['ctxs'], ret_xy12['ctxs'])
-        gate_xy2 = 1 - build_gate(ret_xy22['ctxs'], ret_xy21['ctxs'])
-        gate_yx1 = 1 - build_gate(ret_yx11['ctxs'], ret_yx12['ctxs'])
-        gate_yx2 = 1 - build_gate(ret_yx22['ctxs'], ret_yx21['ctxs'])
+        gate_xy1 = build_gate(ret_xy11['hids'], ret_xy11['ctxs'], ret_xy12['ctxs'])
+        gate_xy2 = build_gate(ret_xy22['hids'], ret_xy22['ctxs'], ret_xy21['ctxs'])
+        gate_yx1 = build_gate(ret_yx11['hids'], ret_yx11['ctxs'], ret_yx12['ctxs'])
+        gate_yx2 = build_gate(ret_yx22['hids'], ret_yx22['ctxs'], ret_yx21['ctxs'])
 
         print 'Building Gate functions, ...',
-        f_gate = theano.function([ret_xy11['ctxs'], ret_xy12['ctxs']],
+        f_gate = theano.function([ret_xy11['hids'], ret_xy11['ctxs'], ret_xy12['ctxs']],
                                   gate_xy1, profile=profile)
         print 'Done.'
 
