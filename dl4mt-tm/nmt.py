@@ -357,13 +357,13 @@ def gen_sample(tparams,
         ctx = numpy.tile(ctx0, [live_k, 1])
         mctx = numpy.tile(mctx0, [live_k, 1])
 
-        # --copy mode
-        ret = funcs['att_' + modes[m]](next_state, next_w, mctx)
-        mctxs, matt, mattsum = ret[0], ret[1], ret[2]    # matt: batchsize x len_x2
-        copy_p = numpy.dot(matt, attpipe)  # batchsize x len_y2
-
         # -- mask OOV words as UNK
         _next_w = (next_w * (next_w < l_max) + 1.0 * (next_w >= l_max)).astype('int64')
+
+        # --copy mode
+        ret = funcs['att_' + modes[m]](next_state, _next_w, mctx)
+        mctxs, matt, mattsum = ret[0], ret[1], ret[2]    # matt: batchsize x len_x2
+        copy_p = numpy.dot(matt, attpipe)  # batchsize x len_y2
 
         # --generate mode
         ret = funcs['next_' + modes[m]](_next_w, ctx, next_state)
