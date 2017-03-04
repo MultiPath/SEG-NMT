@@ -318,6 +318,7 @@ def validate(funcs, options, iterator, verbose=False):
         y1, y1_mask = prepare_data(sy1, 200, options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, 200, options['voc_sizes'][2])
         y2, y2_mask = prepare_data(sy2, 200, options['voc_sizes'][3])
+
         print 'x1:{}, x2:{}, y1:{}, y2:{}'.format(x1.shape, x2.shape, y1.shape, y2.shape)
         
         tx12, tx12_mask = prepare_cross(sx1, sx2, x1.shape[0])

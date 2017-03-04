@@ -158,7 +158,9 @@ def build_model(tparams, inps, options, pix='', return_cost=False, with_compile=
 
     if with_compile:
         print 'Build f_critic...',
-        f_critic = theano.function(inps, [opt_ret['attention'], opt_ret['logit']], name='f_critic', profile=profile)
+        attention_prop = opt_ret['attention'] * y_mask[:, :, None]
+        f_critic = theano.function(inps, [attention_prop, opt_ret['logit']],
+                                   name='f_critic', profile=profile)
 
         opt_ret['f_critic'] = f_critic
         print 'Done'
