@@ -401,7 +401,7 @@ def gen_sample(tparams,
                 nw = rng.multinomial(1, pvals=merge_p[0]).argmax()
 
             sample.append(nw)
-            if nw > l_max:
+            if nw >= l_max:
                 action.append(0.0)
             else:
                 action.append(next_p[0, nw] / merge_p[0, nw])
