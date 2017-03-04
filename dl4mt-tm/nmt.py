@@ -316,6 +316,7 @@ def gen_sample(tparams,
                argmax=False):
     # modes
     modes = ['ef', 'fe']
+    l_max = options['voc_sizes'][1]
 
     # masks
     x1_mask = numpy.array(x1 > 0, dtype='float32')
@@ -361,8 +362,11 @@ def gen_sample(tparams,
         mctxs, matt, mattsum = ret[0], ret[1], ret[2]    # matt: batchsize x len_x2
         copy_p = numpy.dot(matt, attpipe)  # batchsize x len_y2
 
+        # -- mask OOV words as UNK
+        _next_w = (next_w * (next_w < l_max) + 1.0 * (next_w >= l_max)).astype('int64')
+
         # --generate mode
-        ret = funcs['next_' + modes[m]](next_w, ctx, next_state)
+        ret = funcs['next_' + modes[m]](_next_w, ctx, next_state)
         next_p, next_w, next_state, ctxs, attsum = ret[0], ret[1], ret[2], ret[3], ret[4]
 
         # compute gate
@@ -375,7 +379,7 @@ def gen_sample(tparams,
 
         def _merge():
             temp_p = copy.copy(numpy.concatenate([next_p, copy_p], axis=1))
-            lmax = next_p.shape[1]
+
             for i in range(next_p.shape[0]):
                 for j in range(copy_p.shape[1]):
                     if y2[j] != 1:
