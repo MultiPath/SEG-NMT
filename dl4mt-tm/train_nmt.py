@@ -110,11 +110,6 @@ def build_networks(options):
     att_fe12 = build_prop(ret_fe12['attention'], ret_ef22['attention'])
     att_fe21 = build_prop(ret_fe21['attention'], ret_ef11['attention'])
 
-    v1 = ret_ef22['attention'].sum()
-    v2 = ret_ef11['attention'].sum()
-    v3 = ret_fe22['attention'].sum()
-    v4 = ret_fe11['attention'].sum()
-
     print 'build gates!'
     params_gate  = OrderedDict()
     params_gate  = get_layer('bi')[0](options, params_gate, nin=2 * options['dim'])
@@ -175,7 +170,7 @@ def build_networks(options):
     cost_fe2 = compute_cost(prob_fe22, x2, x2_mask, att_fe21, tfe21, tfe21_mask, gate_fe2)
 
     cost  = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
-    value = v1 + v2 + v3 + v4
+    value = ret_ef12['att_sum'].sum()
 
     print 'build sampler (one-step)'
     f_init_ef, f_next_ef = build_sampler(tparams_ef, options, options['trng'], 'ef_')
@@ -312,6 +307,8 @@ def execute(inps, lrate, info):
         raise Exception('Cost Inf detected')
 
     funcs['update'](lrate)
+    cost, value = funcs['cost'](*inps)
+    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost, 'Value', value
 
     return cost
 

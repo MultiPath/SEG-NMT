@@ -100,7 +100,7 @@ def setup(pair='fren'):
         'decay_c': 0.,
         'clip_c': 1.,
         'use_dropout': False,
-        'lrate': 0.00002,
+        'lrate': 0.000002,
         'patience': 1000,
 
         'batch_size': 16,
