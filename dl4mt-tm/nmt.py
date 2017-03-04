@@ -144,8 +144,9 @@ def build_model(tparams, inps, options, pix='', return_cost=False, with_compile=
     probs = tensor.nnet.softmax(logit.reshape([logit_shp[0]*logit_shp[1],
                                                logit_shp[2]]))
 
-    opt_ret['hids']  = proj_h
+    opt_ret['hids']   = proj_h
     opt_ret['probs']  = probs
+    opt_ret['logit']  = logit
 
     # cost
     if return_cost:
