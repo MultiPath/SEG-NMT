@@ -401,7 +401,12 @@ def gen_sample(tparams,
                 nw = rng.multinomial(1, pvals=merge_p[0]).argmax()
 
             sample.append(nw)
-            action.append(gates[0])
+            if nw > l_max:
+                action.append(0.0)
+            else:
+                action.append(copy_p[0, nw] / merge_p[0, nw])
+
+            # action.append(gates[0])
             sample_score -= numpy.log(merge_p[0, nw])
             if nw == 0:
                 break

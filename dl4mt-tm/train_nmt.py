@@ -280,17 +280,27 @@ if model_options['reload_'] and os.path.exists(model_options['saveto']):
 
 
 # idx back to sequences
-def idx2seq(x, ii):
+def idx2seq(x, ii, pp=None):
     seq = []
-    for vv in x:
+    for kk, vv in enumerate(x):
         if vv == 0:
             break
         if vv in worddicts_r[ii]:
             word = worddicts_r[ii][vv]
-            if vv > model_options['voc_sizes'][ii]:
-                seq.append(clr(word, 'green'))
+
+            if pp is None:
+                if vv > model_options['voc_sizes'][ii]:
+                    seq.append(clr(word, 'green'))
+                else:
+                    seq.append(word)
             else:
-                seq.append(word)
+                if pp[kk] == 0:
+                    seq.append(clr(word, 'red'))
+                elif (pp[kk] > 0) and (pp[kk] <= 0.5):
+                    seq.append(clr(word, 'yellow'))
+                elif pp[kk] > 0.5:
+                    seq.append(clr(word, 'blue'))
+
         else:
             seq.append(clr('UNK', 'green'))
     return ' '.join(seq)
@@ -441,7 +451,7 @@ for eidx in xrange(max_epochs):
                         _ss.append(sy2[jj][offset])
 
                 print 'Sample-CR {}: {}'.format(jj, idx2seq(_ss, 1))
-                print 'Copy Prob {}: {}'.format(jj, ' '.join(['{:.2f}'.format(a) for a in acts]))
+                print 'Copy Prob {}: {}'.format(jj, idx2seq(_ss, 1, acts))
                 print
 
         # validate model on validation set and early stop if necessary
