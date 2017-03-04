@@ -404,7 +404,7 @@ def gen_sample(tparams,
             if nw > l_max:
                 action.append(0.0)
             else:
-                action.append(copy_p[0, nw] / merge_p[0, nw])
+                action.append(next_p[0, nw] / merge_p[0, nw])
 
             # action.append(gates[0])
             sample_score -= numpy.log(merge_p[0, nw])
