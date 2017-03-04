@@ -110,10 +110,10 @@ def build_networks(options):
     att_fe12 = build_prop(ret_fe12['attention'], ret_ef22['attention'])
     att_fe21 = build_prop(ret_fe21['attention'], ret_ef11['attention'])
 
-    v1 = ret_ef12['attention'].sum()
-    v2 = ret_ef21['attention'].sum()
-    v3 = ret_fe12['attention'].sum()
-    v4 = ret_fe21['attention'].sum()
+    v1 = ret_ef22['attention'].sum()
+    v2 = ret_ef11['attention'].sum()
+    v3 = ret_fe22['attention'].sum()
+    v4 = ret_fe11['attention'].sum()
 
     print 'build gates!'
     params_gate  = OrderedDict()
