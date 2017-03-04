@@ -44,19 +44,28 @@ if model_options['reload_'] and os.path.exists(model_options['saveto']):
 def build_networks(options):
     funcs = dict()
 
-    print 'Building model: E -> F & F -> E model'
-    params_ef = init_params(options, 'ef_')
-    params_fe = init_params(options, 'fe_')
+    print 'Building model: X -> Y & Y -> X model'
+    params_xy = init_params(options, 'xy_')
+    params_yx = init_params(options, 'yx_')
+    print 'Done.'
+
+    # use pre-trained models
+
+    print 'load the pretrained NMT-models...',
+    params_xy = load_params2(model_options['baseline_xy'], params_xy, mode='xy_')
+    params_yx = load_params2(model_options['baseline_yx'], params_yx, mode='yx_')
+    tparams_xy0 = init_tparams(params_xy)  # pre-trained E->F model
+    tparams_yx0 = init_tparams(params_yx)  # pre-trained F->E model
     print 'Done.'
 
     # reload parameters
     if options['reload_'] and os.path.exists(options['saveto']):
         print 'Reloading model parameters'
-        params_ef = load_params(options['saveto'], params_ef)
-        params_fe = load_params(options['saveto'], params_fe)
+        params_xy = load_params(options['saveto'], params_xy)
+        params_yx = load_params(options['saveto'], params_yx)
 
-    tparams_ef = init_tparams(params_ef)
-    tparams_fe = init_tparams(params_fe)
+    tparams_xy = init_tparams(params_xy)
+    tparams_yx = init_tparams(params_yx)
 
     # inputs of the model (x1, y1, x2, y2)
     x1 = tensor.matrix('x1', dtype='int64')
@@ -68,48 +77,48 @@ def build_networks(options):
     y2 = tensor.matrix('y2', dtype='int64')
     y2_mask = tensor.matrix('y2_mask', dtype='float32')
 
-    # TM reference index
-    tef12 = tensor.matrix('ef12', dtype='int64')
-    tef12_mask = tensor.matrix('ef12_mask', dtype='float32')
-    tef21 = tensor.matrix('ef21', dtype='int64')
-    tef21_mask = tensor.matrix('ef21_mask', dtype='float32')
-    tfe12 = tensor.matrix('fe12', dtype='int64')
-    tfe12_mask = tensor.matrix('fe12_mask', dtype='float32')
-    tfe21 = tensor.matrix('fe21', dtype='int64')
-    tfe21_mask = tensor.matrix('fe21_mask', dtype='float32')
+    # TM rxyerence index
+    txy12 = tensor.matrix('xy12', dtype='int64')
+    txy12_mask = tensor.matrix('xy12_mask', dtype='float32')
+    txy21 = tensor.matrix('xy21', dtype='int64')
+    txy21_mask = tensor.matrix('xy21_mask', dtype='float32')
+    tyx12 = tensor.matrix('yx12', dtype='int64')
+    tyx12_mask = tensor.matrix('yx12_mask', dtype='float32')
+    tyx21 = tensor.matrix('yx21', dtype='int64')
+    tyx21_mask = tensor.matrix('yx21_mask', dtype='float32')
 
     print 'build forward-attention models (4 models simultaneously)...'
-    ret_ef11 = build_model(tparams_ef, [x1, x1_mask, y1, y1_mask], options, 'ef_', False, True)   # E->F curr
-    ret_fe11 = build_model(tparams_fe, [y1, y1_mask, x1, x1_mask], options, 'fe_', False, False)  # F->E curr
-    ret_ef22 = build_model(tparams_ef, [x2, x2_mask, y2, y2_mask], options, 'ef_', False, True)   # E->F tm
-    ret_fe22 = build_model(tparams_fe, [y2, y2_mask, x2, x2_mask], options, 'fe_', False, False)  # F->E tm
+    ret_xy11 = build_model(tparams_xy, [x1, x1_mask, y1, y1_mask], options, 'xy_', False, True)   # E->F curr
+    ret_yx11 = build_model(tparams_yx, [y1, y1_mask, x1, x1_mask], options, 'yx_', False, True)  # F->E curr
+    ret_xy22 = build_model(tparams_xy, [x2, x2_mask, y2, y2_mask], options, 'xy_', False, False)   # E->F tm
+    ret_yx22 = build_model(tparams_yx, [y2, y2_mask, x2, x2_mask], options, 'yx_', False, False)  # F->E tm
 
     print 'build cross-attention models'
-    ret_ef12 = build_attender(tparams_ef,
-                              [ret_ef11['prev_hids'], ret_ef11['prev_emb'], ret_ef22['ctx'], x2_mask],
-                              options, 'ef_')  # E->F curr
-    ret_ef21 = build_attender(tparams_ef,
-                              [ret_ef22['prev_hids'], ret_ef22['prev_emb'], ret_ef11['ctx'], x1_mask],
-                              options, 'ef_')  # E->F tm
-    ret_fe12 = build_attender(tparams_fe,
-                              [ret_fe11['prev_hids'], ret_fe11['prev_emb'], ret_fe22['ctx'], y2_mask],
-                              options, 'fe_')  # F->E curr
-    ret_fe21 = build_attender(tparams_fe,
-                              [ret_fe22['prev_hids'], ret_fe22['prev_emb'], ret_fe11['ctx'], y1_mask],
-                              options, 'fe_')  # F->E tm
+    ret_xy12 = build_attender(tparams_xy,
+                              [ret_xy11['prev_hids'], ret_xy11['prev_emb'], ret_xy22['ctx'], x2_mask],
+                              options, 'xy_')  # E->F curr
+    ret_xy21 = build_attender(tparams_xy,
+                              [ret_xy22['prev_hids'], ret_xy22['prev_emb'], ret_xy11['ctx'], x1_mask],
+                              options, 'xy_')  # E->F tm
+    ret_yx12 = build_attender(tparams_yx,
+                              [ret_yx11['prev_hids'], ret_yx11['prev_emb'], ret_yx22['ctx'], y2_mask],
+                              options, 'yx_')  # F->E curr
+    ret_yx21 = build_attender(tparams_yx,
+                              [ret_yx22['prev_hids'], ret_yx22['prev_emb'], ret_yx11['ctx'], y1_mask],
+                              options, 'yx_')  # F->E tm
 
     print 'build attentions (forward, cross-propagation)'
 
-    def build_prop(atten_ef, atten_fe):
-        atten_ef = atten_ef.dimshuffle(1, 0, 2)
-        atten_fe = atten_fe.dimshuffle(1, 0, 2)
-        attention = tensor.batched_dot(atten_ef, atten_fe).dimshuffle(1, 0, 2)
+    def build_prop(atten_xy, atten_yx):
+        atten_xy = atten_xy.dimshuffle(1, 0, 2)
+        atten_yx = atten_yx.dimshuffle(1, 0, 2)
+        attention = tensor.batched_dot(atten_xy, atten_yx).dimshuffle(1, 0, 2)
         return attention
 
-    att_ef12 = build_prop(ret_ef12['attention'], ret_fe22['attention'])
-    att_ef21 = build_prop(ret_ef21['attention'], ret_fe11['attention'])
-    att_fe12 = build_prop(ret_fe12['attention'], ret_ef22['attention'])
-    att_fe21 = build_prop(ret_fe21['attention'], ret_ef11['attention'])
+    att_xy12 = build_prop(ret_xy12['attention'], ret_yx22['attention'])
+    att_xy21 = build_prop(ret_xy21['attention'], ret_yx11['attention'])
+    att_yx12 = build_prop(ret_yx12['attention'], ret_xy22['attention'])
+    att_yx21 = build_prop(ret_yx21['attention'], ret_xy11['attention'])
 
     print 'build gates!'
     params_gate  = OrderedDict()
@@ -120,22 +129,22 @@ def build_networks(options):
         def build_gate(ctx1, ctx2):
             return get_layer('bi')[1](tparams_gate, ctx1, ctx2)
 
-        gate_ef1 = 1 - build_gate(ret_ef11['ctxs'], ret_ef12['ctxs'])
-        gate_ef2 = 1 - build_gate(ret_ef22['ctxs'], ret_ef21['ctxs'])
-        gate_fe1 = 1 - build_gate(ret_fe11['ctxs'], ret_fe12['ctxs'])
-        gate_fe2 = 1 - build_gate(ret_fe22['ctxs'], ret_fe21['ctxs'])
+        gate_xy1 = 1 - build_gate(ret_xy11['ctxs'], ret_xy12['ctxs'])
+        gate_xy2 = 1 - build_gate(ret_xy22['ctxs'], ret_xy21['ctxs'])
+        gate_yx1 = 1 - build_gate(ret_yx11['ctxs'], ret_yx12['ctxs'])
+        gate_yx2 = 1 - build_gate(ret_yx22['ctxs'], ret_yx21['ctxs'])
 
         print 'Building Gate functions, ...',
-        f_gate = theano.function([ret_ef11['ctxs'], ret_ef12['ctxs']],
-                                  gate_ef1, profile=profile)
+        f_gate = theano.function([ret_xy11['ctxs'], ret_xy12['ctxs']],
+                                  gate_xy1, profile=profile)
         print 'Done.'
 
     else:
         print 'Building a Natural Gate Function'
-        gate_ef1 = 1 - tensor.clip(ret_ef12['att_sum'] / (ret_ef11['att_sum'] + ret_ef12['att_sum']), 0, 1)
-        gate_ef2 = 1 - tensor.clip(ret_ef21['att_sum'] / (ret_ef22['att_sum'] + ret_ef21['att_sum']), 0, 1)
-        gate_fe1 = 1 - tensor.clip(ret_fe12['att_sum'] / (ret_fe11['att_sum'] + ret_fe12['att_sum']), 0, 1)
-        gate_fe2 = 1 - tensor.clip(ret_fe21['att_sum'] / (ret_fe22['att_sum'] + ret_fe21['att_sum']), 0, 1)
+        gate_xy1 = 1 - tensor.clip(ret_xy12['att_sum'] / (ret_xy11['att_sum'] + ret_xy12['att_sum']), 0, 1)
+        gate_xy2 = 1 - tensor.clip(ret_xy21['att_sum'] / (ret_xy22['att_sum'] + ret_xy21['att_sum']), 0, 1)
+        gate_yx1 = 1 - tensor.clip(ret_yx12['att_sum'] / (ret_yx11['att_sum'] + ret_yx12['att_sum']), 0, 1)
+        gate_yx2 = 1 - tensor.clip(ret_yx21['att_sum'] / (ret_yx22['att_sum'] + ret_yx21['att_sum']), 0, 1)
 
     print 'build loss function (w/o gate)'
 
@@ -150,10 +159,10 @@ def build_networks(options):
         probw   = probw.reshape([y.shape[0], y.shape[1]]) * y_mask
         return probw
 
-    prob_ef11 = ret_ef11['probs']
-    prob_ef22 = ret_ef22['probs']
-    prob_fe11 = ret_fe11['probs']
-    prob_fe22 = ret_fe22['probs']
+    prob_xy11 = ret_xy11['probs']
+    prob_xy22 = ret_xy22['probs']
+    prob_yx11 = ret_yx11['probs']
+    prob_yx22 = ret_yx22['probs']
 
     def compute_cost(prob, y, y_mask, att, t, t_mask, g):
         _y = tensor.eq(y, 1)
@@ -165,35 +174,39 @@ def build_networks(options):
         return ccost
 
     # get cost
-    cost_ef1 = compute_cost(prob_ef11, y1, y1_mask, att_ef12, tef12, tef12_mask, gate_ef1)
-    cost_ef2 = compute_cost(prob_ef22, y2, y2_mask, att_ef21, tef21, tef21_mask, gate_ef2)
-    cost_fe1 = compute_cost(prob_fe11, x1, x1_mask, att_fe12, tfe12, tfe12_mask, gate_fe1)
-    cost_fe2 = compute_cost(prob_fe22, x2, x2_mask, att_fe21, tfe21, tfe21_mask, gate_fe2)
+    cost_xy1 = compute_cost(prob_xy11, y1, y1_mask, att_xy12, txy12, txy12_mask, gate_xy1)
+    cost_xy2 = compute_cost(prob_xy22, y2, y2_mask, att_xy21, txy21, txy21_mask, gate_xy2)
+    cost_yx1 = compute_cost(prob_yx11, x1, x1_mask, att_yx12, tyx12, tyx12_mask, gate_yx1)
+    cost_yx2 = compute_cost(prob_yx22, x2, x2_mask, att_yx21, tyx21, tyx21_mask, gate_yx2)
 
-    cost  = cost_ef1 + cost_ef2 + cost_fe1 + cost_fe2
+    cost  = cost_xy1 + cost_xy2 + cost_yx1 + cost_yx2
 
     print 'build sampler (one-step)'
-    f_init_ef, f_next_ef = build_sampler(tparams_ef, options, options['trng'], 'ef_')
-    f_init_fe, f_next_fe = build_sampler(tparams_fe, options, options['trng'], 'fe_')
+    f_init_xy, f_next_xy = build_sampler(tparams_xy, options, options['trng'], 'xy_')
+    f_init_yx, f_next_yx = build_sampler(tparams_yx, options, options['trng'], 'yx_')
+
+    print 'build old sampler'
+    f_init_xy0, f_next_xy0 = build_sampler(tparams_xy0, options, options['trng'], 'xy_')
+    f_init_yx0, f_next_yx0 = build_sampler(tparams_yx0, options, options['trng'], 'yx_')
 
     print 'build attender (one-step)'
-    f_attend_ef = build_attender(tparams_ef, None, options, 'ef_', one_step=True)  # E->F curr
-    f_attend_fe = build_attender(tparams_fe, None, options, 'fe_', one_step=True)
+    f_attend_xy = build_attender(tparams_xy, None, options, 'xy_', one_step=True)  # E->F curr
+    f_attend_yx = build_attender(tparams_yx, None, options, 'yx_', one_step=True)
 
     # before any regularizer
     print 'build Cost Function...',
     inputs = [x1, x1_mask, y1, y1_mask, x2, x2_mask, y2, y2_mask,
-              tef12, tef12_mask, tef21, tef21_mask,
-              tfe12, tfe12_mask, tfe21, tfe21_mask]
+              txy12, txy12_mask, txy21, txy21_mask,
+              tyx12, tyx12_mask, tyx21, tyx21_mask]
     f_valid = theano.function(inputs, cost, profile=profile)
 
     print 'build Gradient (backward)...',
     cost    = cost.mean()
 
     if options['build_gate']:
-        tparams = dict(tparams_ef.items() + tparams_fe.items() + tparams_gate.items())
+        tparams = dict(tparams_xy.items() + tparams_yx.items() + tparams_gate.items())
     else:
-        tparams = dict(tparams_ef.items() + tparams_fe.items())
+        tparams = dict(tparams_xy.items() + tparams_yx.items())
 
     grads   = clip(tensor.grad(cost, wrt=itemlist(tparams)), options['clip_c'])
     print 'Done'
@@ -207,28 +220,34 @@ def build_networks(options):
     print 'Done'
 
     # put everything into function lists
-    funcs['valid']  = f_valid
-    funcs['cost']   = f_cost
-    funcs['update'] = f_update
+    funcs['valid']    = f_valid
+    funcs['cost']     = f_cost
+    funcs['update']   = f_update
 
-    funcs['init_ef'] = f_init_ef
-    funcs['init_fe'] = f_init_fe
-    funcs['next_ef'] = f_next_ef
-    funcs['next_fe'] = f_next_fe
+    funcs['init_xy']  = f_init_xy
+    funcs['init_yx']  = f_init_yx
+    funcs['next_xy']  = f_next_xy
+    funcs['next_yx']  = f_next_yx
 
-    funcs['att_ef']  = f_attend_ef
-    funcs['att_fe']  = f_attend_fe
+    funcs['init_xy0'] = f_init_xy0
+    funcs['init_yx0'] = f_init_yx0
+    funcs['next_xy0'] = f_next_xy0
+    funcs['next_yx0'] = f_next_yx0
 
-    funcs['crit_ef'] = ret_ef11['f_critic']
-    funcs['crit_fe'] = ret_ef22['f_critic']
+    funcs['att_xy']   = f_attend_xy
+    funcs['att_yx']   = f_attend_yx
+
+    funcs['crit_xy'] = ret_xy11['f_critic']
+    funcs['crit_yx'] = ret_yx11['f_critic']
 
     if options['build_gate']:
         funcs['gate']    = f_gate
 
     print 'Build Networks... done!'
-    return funcs, tparams
+    return funcs, [tparams, tparams_xy0, tparams_yx0]
 
-funcs, tparams = build_networks(model_options)
+funcs, tp = build_networks(model_options)
+tparams, tparams_xy0, tparams_yx0 = tp
 
 # print 'save the compiled functions/tparams for temperal usage'
 
@@ -239,16 +258,6 @@ train = TextIterator(model_options['datasets'], model_options['dictionaries'], [
 valid = TextIterator(model_options['valid_datasets'], model_options['dictionaries'], [0, 0, 0, 0],
                      batch_size=model_options['batch_size'], maxlen=200)
 
-if model_options['use_pretrain']:
-    print 'use the pretrained NMT-models...',
-    params = unzip(tparams)
-    params = load_params2(model_options['baseline_ef'], params, mode='ef_')
-    params = load_params2(model_options['baseline_fe'], params, mode='fe_')
-    zipp(params, tparams)
-    print 'Done.'
-
-else:
-    print 'not loading the pretrained baseline'
 
 print clr('-------------------------------------------- Main-Loop -------------------------------------------------',
           'yellow')
@@ -423,15 +432,25 @@ for eidx in xrange(max_epochs):
         if numpy.mod(uidx, sampleFreq) == 0:
             for jj in xrange(numpy.minimum(5, x1.shape[1])):
                 stochastic = True
-                sample, sc, acts = gen_sample(tparams, funcs,
-                                              x1[:, jj][:, None],
-                                              x2[:, jj][:, None],
-                                              y2[:, jj][:, None],
-                                              model_options,
-                                              rng=model_options['rng'],
-                                              m=1, k=1, maxlen=200,
-                                              stochastic=model_options['stochastic'],
-                                              argmax=True)
+                sample, sc, acts = gen_sample_memory(tparams, funcs,
+                                                     x1[:, jj][:, None],
+                                                     x2[:, jj][:, None],
+                                                     y2[:, jj][:, None],
+                                                     model_options,
+                                                     rng=model_options['rng'],
+                                                     m=0, k=1, maxlen=200,
+                                                     stochastic=model_options['stochastic'],
+                                                     argmax=True)
+
+                sample0, sc0  = gen_sample(tparams_xy0,
+                                           funcs['init_xy0'],
+                                           funcs['next_xy0'],
+                                           x1[:, jj][:, None],
+                                           model_options,
+                                           rng=model_options['rng'], k=1,
+                                           maxlen=200,
+                                           stochastic=model_options['stochastic'],
+                                           argmax=True)
 
                 print 'Source-CR {}: {}'.format(jj, idx2seq(sx1[jj], 0))
                 print 'Target-CR {}: {}'.format(jj, idx2seq(sy1[jj], 1))
@@ -445,6 +464,7 @@ for eidx in xrange(max_epochs):
                 else:
                     sc /= numpy.array([len(s) for s in sample])
                     ss = sample[sc.argmin()]
+                ss0 = sample0
 
                 _ss = []
                 for ii, si in enumerate(ss):
@@ -456,6 +476,7 @@ for eidx in xrange(max_epochs):
 
                 print 'Sample-CR {}: {}'.format(jj, idx2seq(_ss, 1))
                 print 'Copy Prob {}: {}'.format(jj, idx2seq(_ss, 1, acts))
+                print 'NMT Model {}: {}'.format(jj, idx2seq(ss0, 1))
                 print
 
         # validate model on validation set and early stop if necessary

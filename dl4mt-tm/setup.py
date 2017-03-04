@@ -1,13 +1,13 @@
 # setup the training and testing details in this file
 def setup_fren():
-    #home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     home  = '/root/workspace/TMNMT'
     model = '/root/disk/scratch/model-tmnmt' 
     
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
-        'saveto': model + '/tmv3_',
+        'saveto': model + '/tmv4_',
         'datasets': [home + '/.dataset/fren/train.fr.tok.shuf',  # source
                      home + '/.dataset/fren/train.en.tok.shuf',  # target
                      home + '/.dataset/fren/train.fr.tok.shuf',  # source-TM
@@ -30,8 +30,8 @@ def setup_fren():
         'maxlen': 50,
 
         # baseline models
-        'baseline_fe': model + '/baseline_fren.npz',
-        'baseline_ef': model + '/baseline_enfr.bs64.npz',
+        'baseline_xy': model + '/baseline_fren.npz',
+        'baseline_yx': model + '/baseline_enfr.bs64.npz',
         
         # TODO: test phase is not ready
         # test phase
