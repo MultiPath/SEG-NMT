@@ -296,13 +296,17 @@ def idx2seq(x, ii, pp=None):
             else:
                 if pp[kk] == 0:
                     seq.append(clr(word, 'red'))
-                elif (pp[kk] > 0) and (pp[kk] <= 0.5):
+                elif (pp[kk] > 0) and (pp[kk] <= 0.25):
                     seq.append(clr(word, 'yellow'))
-                elif pp[kk] > 0.5:
+                elif (pp[kk] > 0.25) and (pp[kk] <= 0.5):
+                    seq.append(clr(word, 'green'))
+                elif (pp[kk] > 0.5) and (pp[kk] <= 0.75):
+                    seq.append(clr(word, 'cyan'))
+                else:
                     seq.append(clr(word, 'blue'))
 
         else:
-            seq.append(clr('UNK', 'green'))
+            seq.append(clr('UNK', 'white'))
     return ' '.join(seq)
 
 
