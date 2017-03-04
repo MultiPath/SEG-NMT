@@ -115,25 +115,26 @@ def build_networks(options):
     params_gate  = get_layer('bi')[0](options, params_gate, nin=2 * options['dim'])
     tparams_gate = init_tparams(params_gate)
 
-    # a neural gate which is the relatedness of two attentions.
-    # def build_gate(ctx1, ctx2):
-    #     return get_layer('bi')[1](tparams_gate, ctx1, ctx2)
-    #
-    # gate_ef1 = 1 - build_gate(ret_ef11['ctxs'], ret_ef12['ctxs'])
-    # gate_ef2 = 1 - build_gate(ret_ef22['ctxs'], ret_ef21['ctxs'])
-    # gate_fe1 = 1 - build_gate(ret_fe11['ctxs'], ret_fe12['ctxs'])
-    # gate_fe2 = 1 - build_gate(ret_fe22['ctxs'], ret_fe21['ctxs'])
-    #
-    # print 'Building Gate functions, ...',
-    # f_gate = theano.function([ret_ef11['ctxs'], ret_ef12['ctxs']],
-    #                           gate_ef1, profile=profile)
-    # print 'Done.'
+    if options['build_gate']:
+        def build_gate(ctx1, ctx2):
+            return get_layer('bi')[1](tparams_gate, ctx1, ctx2)
 
-    print 'Building a Natural Gate Function'
-    gate_ef1 = 1 - tensor.clip(ret_ef12['att_sum'] / (ret_ef11['att_sum']), 0, 1)
-    gate_ef2 = 1 - tensor.clip(ret_ef21['att_sum'] / (ret_ef22['att_sum']), 0, 1)
-    gate_fe1 = 1 - tensor.clip(ret_fe12['att_sum'] / (ret_fe11['att_sum']), 0, 1)
-    gate_fe2 = 1 - tensor.clip(ret_fe21['att_sum'] / (ret_fe22['att_sum']), 0, 1)
+        gate_ef1 = 1 - build_gate(ret_ef11['ctxs'], ret_ef12['ctxs'])
+        gate_ef2 = 1 - build_gate(ret_ef22['ctxs'], ret_ef21['ctxs'])
+        gate_fe1 = 1 - build_gate(ret_fe11['ctxs'], ret_fe12['ctxs'])
+        gate_fe2 = 1 - build_gate(ret_fe22['ctxs'], ret_fe21['ctxs'])
+
+        print 'Building Gate functions, ...',
+        f_gate = theano.function([ret_ef11['ctxs'], ret_ef12['ctxs']],
+                                  gate_ef1, profile=profile)
+        print 'Done.'
+    
+    else:
+        print 'Building a Natural Gate Function'
+        gate_ef1 = 1 - tensor.clip(ret_ef12['att_sum'] / (ret_ef11['att_sum'] + ret_ef12['att_sum']), 0, 1)
+        gate_ef2 = 1 - tensor.clip(ret_ef21['att_sum'] / (ret_ef22['att_sum'] + ret_ef21['att_sum']), 0, 1)
+        gate_fe1 = 1 - tensor.clip(ret_fe12['att_sum'] / (ret_fe11['att_sum'] + ret_fe12['att_sum']), 0, 1)
+        gate_fe2 = 1 - tensor.clip(ret_fe21['att_sum'] / (ret_fe22['att_sum'] + ret_fe21['att_sum']), 0, 1)
 
     print 'build loss function (w/o gate)'
 
@@ -187,7 +188,12 @@ def build_networks(options):
 
     print 'build Gradient (backward)...',
     cost    = cost.mean()
-    tparams = dict(tparams_ef.items() + tparams_fe.items() + tparams_gate.items())
+    
+    if options['build_gate']:
+        tparams = dict(tparams_ef.items() + tparams_fe.items() + tparams_gate.items())
+    else:
+        tparams = dict(tparams_ef.items() + tparams_fe.items())
+    
     grads   = clip(tensor.grad(cost, wrt=itemlist(tparams)), options['clip_c'])
     print 'Done'
 
@@ -214,7 +220,8 @@ def build_networks(options):
     funcs['crit_ef'] = ret_ef11['f_critic']
     funcs['crit_fe'] = ret_ef22['f_critic']
 
-    # funcs['gate']    = f_gate
+    if options['build_gate']:
+        funcs['gate']    = f_gate
 
     print 'Build Networks... done!'
     return funcs, tparams
@@ -367,24 +374,24 @@ for eidx in xrange(max_epochs):
         # save the best model so far, in addition, save the latest model
         # into a separate file with the iteration number for external eval
         if numpy.mod(uidx, saveFreq) == 0:
-           print 'Saving the best model...',
-           if best_p is not None:
-               params = best_p
-           else:
-               params = unzip(tparams)
+            print 'Saving the best model...',
+            if best_p is not None:
+                params = best_p
+            else:
+                params = unzip(tparams)
 
-           numpy.savez(saveto, history_errs=history_errs, uidx=uidx, **params)
-           pkl.dump(model_options, open('%s.pkl' % saveto, 'wb'))
-           print 'Done'
+            numpy.savez(saveto, history_errs=history_errs, uidx=uidx, **params)
+            pkl.dump(model_options, open('%s.pkl' % saveto, 'wb'))
+            print 'Done'
 
-           # save with uidx
-           if not overwrite:
-               print 'Saving the model at iteration {}...'.format(uidx),
-               saveto_uidx = '{}.iter{}.npz'.format(
-                   os.path.splitext(saveto)[0], uidx)
-               numpy.savez(saveto_uidx, history_errs=history_errs,
-                           uidx=uidx, **unzip(tparams))
-               print 'Done'
+            # save with uidx
+            if not overwrite:
+                print 'Saving the model at iteration {}...'.format(uidx),
+                saveto_uidx = '{}.iter{}.npz'.format(
+                    os.path.splitext(saveto)[0], uidx)
+                numpy.savez(saveto_uidx, history_errs=history_errs,
+                            uidx=uidx, **unzip(tparams))
+                print 'Done'
 
         # generate some samples with the model and display them
         if numpy.mod(uidx, sampleFreq) == 0:

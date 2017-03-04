@@ -367,7 +367,7 @@ def gen_sample(tparams,
 
         # compute gate
         # gates = funcs['gate'](ctxs[None, :, :], mctxs[None, :, :])[0]  # batchsize
-        gates = numpy.clip(mattsum / attsum, 0, 1) # Natural Gate.
+        gates = numpy.clip(mattsum / (attsum + mattsum), 0, 1) # Natural Gate.
 
         # real probabilities
         next_p *= (1 - gates[:, None])

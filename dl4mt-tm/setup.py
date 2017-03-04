@@ -1,6 +1,6 @@
 # setup the training and testing details in this file
 def setup_fren():
-    # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    #home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     home  = '/root/workspace/TMNMT'
     model = '/root/disk/scratch/model-tmnmt' 
     
@@ -115,6 +115,7 @@ def setup(pair='fren'):
 
         'use_pretrain': True,
         'stochastic': True,
+        'build_gate': False,
 
         # testing details
         'beamsize': 5,
