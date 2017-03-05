@@ -123,7 +123,7 @@ def build_networks(options):
     print 'build gates!'
     params_gate  = OrderedDict()
     params_gate  = get_layer('bi')[0](options, params_gate,
-                                      nin1= options['dim'],
+                                      nin1=options['dim'],
                                       nin2=2 * options['dim'])
     tparams_gate = init_tparams(params_gate)
 
@@ -171,19 +171,26 @@ def build_networks(options):
     def compute_cost(prob, y, y_mask, att, t, t_mask, g):
         _y = tensor.eq(y, 1)
         y_mask *= ((1 - _y) + _y * (1 - t_mask))
+
+        # normal loss
         ccost = -tensor.log(compute_prob(prob, y, y_mask) * g +
                             compute_prob(att, t, t_mask) * (1 - g) +
                             1e-7)
         ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
-        return ccost
+
+        # gate loss
+        gcost = -(tensor.log(g) * (1 - t_mask) + tensor.log(1-g) * t_mask)
+        gcost = (gcost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
+
+        return ccost, gcost
 
     # get cost
-    cost_xy1 = compute_cost(prob_xy11, y1, y1_mask, att_xy12, txy12, txy12_mask, gate_xy1)
-    cost_xy2 = compute_cost(prob_xy22, y2, y2_mask, att_xy21, txy21, txy21_mask, gate_xy2)
-    cost_yx1 = compute_cost(prob_yx11, x1, x1_mask, att_yx12, tyx12, tyx12_mask, gate_yx1)
-    cost_yx2 = compute_cost(prob_yx22, x2, x2_mask, att_yx21, tyx21, tyx21_mask, gate_yx2)
-
-    cost  = cost_xy1 + cost_xy2 + cost_yx1 + cost_yx2
+    cost_xy1, g_cost_xy1 = compute_cost(prob_xy11, y1, y1_mask, att_xy12, txy12, txy12_mask, gate_xy1)
+    cost_xy2, g_cost_xy2 = compute_cost(prob_xy22, y2, y2_mask, att_xy21, txy21, txy21_mask, gate_xy2)
+    cost_yx1, g_cost_yx1 = compute_cost(prob_yx11, x1, x1_mask, att_yx12, tyx12, tyx12_mask, gate_yx1)
+    cost_yx2, g_cost_yx2 = compute_cost(prob_yx22, x2, x2_mask, att_yx21, tyx21, tyx21_mask, gate_yx2)
+    cost   = cost_xy1 + cost_xy2 + cost_yx1 + cost_yx2
+    g_cost = g_cost_xy1 + g_cost_xy2 + g_cost_yx1 + g_cost_yx2
 
     print 'build sampler (one-step)'
     f_init_xy, f_next_xy = build_sampler(tparams_xy, options, options['trng'], 'xy_')
@@ -205,21 +212,28 @@ def build_networks(options):
     f_valid = theano.function(inputs, cost, profile=profile)
 
     print 'build Gradient (backward)...',
-    cost    = cost.mean()
-
     if options['build_gate']:
         tparams = dict(tparams_xy.items() + tparams_yx.items() + tparams_gate.items())
     else:
         tparams = dict(tparams_xy.items() + tparams_yx.items())
 
-    grads   = clip(tensor.grad(cost, wrt=itemlist(tparams)), options['clip_c'])
+    cost   = cost.mean()
+    g_cost = g_cost.mean()
+
+    if options['gate_loss']:
+        grads = clip(tensor.grad(cost + options['gate_lambda'] * g_cost,
+                                 wrt=itemlist(tparams)), options['clip_c'])
+    else:
+        grads = clip(tensor.grad(cost, wrt=itemlist(tparams)),
+                     options['clip_c'])
     print 'Done'
 
     # compile the optimizer, the actual computational graph is compiled here
     lr = tensor.scalar(name='lr')
+    outputs = [cost, g_cost]
     print 'Building Optimizers...',
     f_cost, f_update = eval(options['optimizer'])(
-        lr, tparams, grads, inputs, cost)
+        lr, tparams, grads, inputs, outputs)
 
     print 'Done'
 
@@ -327,8 +341,8 @@ def idx2seq(x, ii, pp=None):
 @Timeit
 def execute(inps, lrate, info):
     eidx, uidx = info
-    cost = funcs['cost'](*inps)
-    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost,
+    cost, g_cost = funcs['cost'](*inps)
+    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost, 'G', g_cost
 
     # check for bad numbers, usually we remove non-finite elements
     # and continue training - but not done here
@@ -436,15 +450,15 @@ for eidx in xrange(max_epochs):
         if numpy.mod(uidx, sampleFreq) == 0:
             for jj in xrange(numpy.minimum(5, x1.shape[1])):
                 stochastic = True
-                sample, sc, acts = gen_sample_memory(tparams, funcs,
-                                                     x1[:, jj][:, None],
-                                                     x2[:, jj][:, None],
-                                                     y2[:, jj][:, None],
-                                                     model_options,
-                                                     rng=model_options['rng'],
-                                                     m=0, k=1, maxlen=200,
-                                                     stochastic=model_options['stochastic'],
-                                                     argmax=True)
+                sample, sc, acts, gg = gen_sample_memory(tparams, funcs,
+                                                         x1[:, jj][:, None],
+                                                         x2[:, jj][:, None],
+                                                         y2[:, jj][:, None],
+                                                         model_options,
+                                                         rng=model_options['rng'],
+                                                         m=0, k=1, maxlen=200,
+                                                         stochastic=model_options['stochastic'],
+                                                         argmax=True)
 
                 sample0, sc0  = gen_sample(tparams_xy0,
                                            funcs['init_xy0'],
@@ -479,8 +493,9 @@ for eidx in xrange(max_epochs):
                         _ss.append(sy2[jj][offset])
 
                 # print 'Sample-CR {}: {}'.format(jj, idx2seq(_ss, 1))
-                print 'Copy Prob {}: {}'.format(jj, idx2seq(_ss, 1, acts))
                 print 'NMT Model {}: {}'.format(jj, idx2seq(ss0, 1))
+                print 'Copy Prob {}: {}'.format(jj, idx2seq(_ss, 1, acts))
+                print 'Copy Gate {}: {}'.format(jj, idx2seq(_ss, 1, gg))
                 print
 
         # validate model on validation set and early stop if necessary

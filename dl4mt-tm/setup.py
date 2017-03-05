@@ -117,6 +117,7 @@ def setup(pair='fren'):
         'stochastic': True,
         'build_gate': True,
         'gate_loss': False,
+        'gate_lambda': 0.01,
 
         # testing details
         'beamsize': 5,

@@ -431,6 +431,7 @@ def gen_sample_memory(tparams,
 
     sample = []
     action = []
+    gating = []
     sample_score = []
     if stochastic:
         sample_score = 0
@@ -481,8 +482,8 @@ def gen_sample_memory(tparams,
                 mctxs[None, :, :])[0]  # batchsize
 
         # real probabilities
-        next_p *= (1 - gates[:, None])
-        copy_p *= gates[:, None]
+        next_p *= gates[:, None]
+        copy_p *= 1 - gates[:, None]
 
         def _merge():
             temp_p = copy.copy(numpy.concatenate([next_p, copy_p], axis=1))
@@ -506,6 +507,7 @@ def gen_sample_memory(tparams,
                 nw = rng.multinomial(1, pvals=merge_p[0]).argmax()
 
             sample.append(nw)
+            gating.append(gates[:, None])
             if nw >= l_max:
                 action.append(0.0)
             else:
@@ -569,5 +571,5 @@ def gen_sample_memory(tparams,
                 sample.append(hyp_samples[idx])
                 sample_score.append(hyp_scores[idx])
 
-    return sample, sample_score, action
+    return sample, sample_score, action, gating
 
