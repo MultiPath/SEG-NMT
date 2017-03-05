@@ -124,14 +124,13 @@ def build_networks(options):
     params_gate  = OrderedDict()
     params_gate  = get_layer('bi')[0](options, params_gate,
                                       nin1= options['dim'],
-                                      nin2=2 * options['dim'],
-                                      activ='lambda x: tensor.tanh(x)')
+                                      nin2=2 * options['dim'])
     tparams_gate = init_tparams(params_gate)
 
     if options['build_gate']:
         def build_gate(hx1, ctx1, ctx2):
-            v1 = get_layer('bi')[1](tparams_gate, hx1, ctx1)
-            v2 = get_layer('bi')[1](tparams_gate, hx1, ctx2)
+            v1 = get_layer('bi')[1](tparams_gate, hx1, ctx1, activ='lambda x: tensor.tanh(x)')
+            v2 = get_layer('bi')[1](tparams_gate, hx1, ctx2, activ='lambda x: tensor.tanh(x)')
             return tensor.nnet.sigmoid(v1 - v2)
 
         gate_xy1 = build_gate(ret_xy11['hids'], ret_xy11['ctxs'], ret_xy12['ctxs'])
