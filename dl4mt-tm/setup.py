@@ -7,7 +7,7 @@ def setup_fren():
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
-        'saveto': model + '/new.natural.v1_',
+        'saveto': model + '/new.M-gate.v1_',
         'datasets': [home + '/.dataset/tm.fren/train.fr.top5.random5.shuf.tok',          # source
                      home + '/.dataset/tm.fren/train.en.top5.random5.shuf.tok',          # target
                      home + '/.dataset/tm.fren/train.fr.top5.random5.matched.shuf.tok',  # source-TM
