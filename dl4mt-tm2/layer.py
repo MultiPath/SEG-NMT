@@ -134,11 +134,28 @@ def norm_weight(nin, nout=None, scale=0.01, ortho=True):
 def tanh(x):
     return tensor.tanh(x)
 
+
 def sigmoid(x):
     return tensor.nnet.sigmoid(x)
 
+
+def softmax(x):
+    if x.ndim == 2:
+        return tensor.nnet.softmax(x)
+    else:
+        shp  = x.shape
+        prob = tensor.nnet.softmax(
+               x.reshape(shp[0] * shp[1], shp[2]))
+        return prob.reshape(x.shape)
+
+
 def linear(x):
     return x
+
+
+def normalize(x):
+    x_norm = tensor.sqrt(tensor.sum(x ** 2, axis=-1, keepdims=True))
+    return x / x_norm
 
 
 def concatenate(tensor_list, axis=0):
@@ -217,7 +234,16 @@ def param_init_bllayer(options, params, prefix='bi', nin1=None, nin2=None):
 
 def bllayer(tparams, input1, input2, prefix='bi',
             activ='lambda x: tensor.nnet.sigmoid(x)', **kwargs):
-    return eval(activ)(tensor.sum(tensor.dot(input1, tparams[_p(prefix, 'M')]) * input2, axis=-1))
+
+    input1 = tensor.dot(input1, tparams[_p(prefix, 'M')])
+    if input1.ndim == 2:
+        output = tensor.dot(input1, input2.dimshuffle(1, 0))
+    else:
+        output = tensor.batched_dot(input1.dimshuffle(1, 0, 2),
+                                    input2.dimshuffle(1, 2, 0))
+        output = output.dimshuffle(1, 0, 2)  # dec_len x batch_size x enc_len
+
+    return eval(activ)(output)
 
 
 # GRU layer

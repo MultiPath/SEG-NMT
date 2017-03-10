@@ -601,22 +601,20 @@ def gen_sample_memory(tparams,
 
     return sample, sample_score, action, gating
 
+
 @Timeit
 def build_networks(options, model=' ', train=True):
     funcs = dict()
 
     print 'Building model: X -> Y & Y -> X model'
     params_xy = init_params(options, 'xy_')
-    params_yx = init_params(options, 'yx_')
     print 'Done.'
 
     # use pre-trained models
 #     if train:
     print 'load the pretrained NMT-models...',
     params_xy = load_params2(options['baseline_xy'], params_xy, mode='xy_')
-    params_yx = load_params2(options['baseline_yx'], params_yx, mode='yx_')
     tparams_xy0 = init_tparams(params_xy)  # pre-trained E->F model
-    tparams_yx0 = init_tparams(params_yx)  # pre-trained F->E model
     print 'Done.'
 
     # reload parameters
@@ -624,15 +622,12 @@ def build_networks(options, model=' ', train=True):
         if options['reload_'] and os.path.exists(options['saveto']):
             print 'Reloading model parameters'
             params_xy = load_params(options['saveto'], params_xy)
-            params_yx = load_params(options['saveto'], params_yx)
     else:
 
         print 'Reloading model parameters'
         params_xy = load_params(model, params_xy)
-        params_yx = load_params(model, params_yx)
 
     tparams_xy = init_tparams(params_xy)
-    tparams_yx = init_tparams(params_yx)
 
     # inputs of the model (x1, y1, x2, y2)
     x1 = tensor.matrix('x1', dtype='int64')
@@ -644,78 +639,44 @@ def build_networks(options, model=' ', train=True):
     y2 = tensor.matrix('y2', dtype='int64')
     y2_mask = tensor.matrix('y2_mask', dtype='float32')
 
-    # TM rxyerence index
+    # TM-rxyerence index
     txy12 = tensor.matrix('xy12', dtype='int64')
     txy12_mask = tensor.matrix('xy12_mask', dtype='float32')
-    txy21 = tensor.matrix('xy21', dtype='int64')
-    txy21_mask = tensor.matrix('xy21_mask', dtype='float32')
-    tyx12 = tensor.matrix('yx12', dtype='int64')
-    tyx12_mask = tensor.matrix('yx12_mask', dtype='float32')
-    tyx21 = tensor.matrix('yx21', dtype='int64')
-    tyx21_mask = tensor.matrix('yx21_mask', dtype='float32')
 
-    print 'build forward-attention models (4 models simultaneously)...'
-    ret_xy11 = build_model(tparams_xy, [x1, x1_mask, y1, y1_mask], options, 'xy_', False, True)   # E->F curr
-    ret_yx11 = build_model(tparams_yx, [y1, y1_mask, x1, x1_mask], options, 'yx_', False, True)  # F->E curr
-    ret_xy22 = build_model(tparams_xy, [x2, x2_mask, y2, y2_mask], options, 'xy_', False, False)   # E->F tm
-    ret_yx22 = build_model(tparams_yx, [y2, y2_mask, x2, x2_mask], options, 'yx_', False, False)  # F->E tm
+    print 'build forward-attention models (2 models simultaneously)...'
+    ret_xy11 = build_model(tparams_xy, [x1, x1_mask, y1, y1_mask], options, 'xy_', False, True)   # X->Y curr
+    ret_xy22 = build_model(tparams_xy, [x2, x2_mask, y2, y2_mask], options, 'xy_', False, False)  # X->Y tm
 
-    print 'build cross-attention models'
-    ret_xy12 = build_attender(tparams_xy,
-                              [ret_xy11['prev_hids'], ret_xy11['prev_emb'], ret_xy22['ctx'], x2_mask],
-                              options, 'xy_')  # E->F curr
-    ret_xy21 = build_attender(tparams_xy,
-                              [ret_xy22['prev_hids'], ret_xy22['prev_emb'], ret_xy11['ctx'], x1_mask],
-                              options, 'xy_')  # E->F tm
-    ret_yx12 = build_attender(tparams_yx,
-                              [ret_yx11['prev_hids'], ret_yx11['prev_emb'], ret_yx22['ctx'], y2_mask],
-                              options, 'yx_')  # F->E curr
-    ret_yx21 = build_attender(tparams_yx,
-                              [ret_yx22['prev_hids'], ret_yx22['prev_emb'], ret_yx11['ctx'], y1_mask],
-                              options, 'yx_')  # F->E tm
-
-    print 'build attentions (forward, cross-propagation)'
-
-    def build_prop(atten_xy, atten_yx):
-        atten_xy = atten_xy.dimshuffle(1, 0, 2)
-        atten_yx = atten_yx.dimshuffle(1, 0, 2)
-        attention = tensor.batched_dot(atten_xy, atten_yx).dimshuffle(1, 0, 2)
-        return attention
-
-    att_xy12 = build_prop(ret_xy12['attention'], ret_yx22['attention'])
-    att_xy21 = build_prop(ret_xy21['attention'], ret_yx11['attention'])
-    att_yx12 = build_prop(ret_yx12['attention'], ret_xy22['attention'])
-    att_yx21 = build_prop(ret_yx21['attention'], ret_xy11['attention'])
-
-    print 'build gates!'
-    params_gate  = OrderedDict()
-    params_gate  = get_layer('bi')[0](options, params_gate,
-                                      nin1=options['dim'],
+    print 'build mapping (bi-linear model)!'
+    params_map  = OrderedDict()
+    params_map  = get_layer('bi')[0](options, params_map,
+                                      nin1=2 * options['dim'],
                                       nin2=2 * options['dim'])
-    tparams_gate = init_tparams(params_gate)
+    params_map['tau'] = numpy.ones((1,)).astype('float32')    # temperature for copy
+    params_map['eta'] = numpy.ones((1,)).astype('float32')    # temperature for gate
 
-    if options['build_gate']:
-        def build_gate(hx1, ctx1, ctx2):
-            v1 = get_layer('bi')[1](tparams_gate, hx1, ctx1, activ='lambda x: tensor.tanh(x)')
-            v2 = get_layer('bi')[1](tparams_gate, hx1, ctx2, activ='lambda x: tensor.tanh(x)')
-            return tensor.nnet.sigmoid(v1 - v2)
+    tparams_map = init_tparams(params_map)
 
-        gate_xy1 = build_gate(ret_xy11['hids'], ret_xy11['ctxs'], ret_xy12['ctxs'])
-        gate_xy2 = build_gate(ret_xy22['hids'], ret_xy22['ctxs'], ret_xy21['ctxs'])
-        gate_yx1 = build_gate(ret_yx11['hids'], ret_yx11['ctxs'], ret_yx12['ctxs'])
-        gate_yx2 = build_gate(ret_yx22['hids'], ret_yx22['ctxs'], ret_yx21['ctxs'])
+    # ctx1: dec_len x batch_size x context_dim
+    # ctx2: src_len x batch_size x context_dim
+    # map : dec_cur x batch_size x dec_tm
+    def build_mapping(ctx1, ctx2):
+        ctx1 = normalize(ctx1)
+        ctx2 = normalize(ctx2)
+        return get_layer('bi')[1](tparams_map, ctx1, ctx2, activ='lambda x: tensor.tanh(x)')
 
-        print 'Building Gate functions, ...',
-        f_gate = theano.function([ret_xy11['hids'], ret_xy11['ctxs'], ret_xy12['ctxs']],
-                                  gate_xy1, profile=profile)
-        print 'Done.'
+    mapping = build_mapping(ret_xy11['ctxs'], ret_xy22['ctxs'])
 
-    else:
-        print 'Building a Natural Gate Function'
-        gate_xy1 = 1 - tensor.clip(ret_xy12['att_sum'] / (ret_xy11['att_sum'] + ret_xy12['att_sum']), 0, 1)
-        gate_xy2 = 1 - tensor.clip(ret_xy21['att_sum'] / (ret_xy22['att_sum'] + ret_xy21['att_sum']), 0, 1)
-        gate_yx1 = 1 - tensor.clip(ret_yx12['att_sum'] / (ret_yx11['att_sum'] + ret_yx12['att_sum']), 0, 1)
-        gate_yx2 = 1 - tensor.clip(ret_yx21['att_sum'] / (ret_yx22['att_sum'] + ret_yx21['att_sum']), 0, 1)
+    # gate: alternative
+    gates   = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
+
+    # copy: alternative
+    attens  = softmax(mapping * tparams_map['tau'])
+
+    print 'Building Mapping functions, ...',
+    f_map   = theano.function([ret_xy11['ctxs'], ret_xy22['ctxs']],
+                              [mapping, gates, attens], profile=profile)
+    print 'Done.'
 
     print 'build loss function (w/o gate)'
 
@@ -729,11 +690,6 @@ def build_networks(options, model=' ', train=True):
         probw   = probs.flatten()[y_flat_idx]
         probw   = probw.reshape([y.shape[0], y.shape[1]]) * y_mask
         return probw
-
-    prob_xy11 = ret_xy11['probs']
-    prob_xy22 = ret_xy22['probs']
-    prob_yx11 = ret_yx11['probs']
-    prob_yx22 = ret_yx22['probs']
 
     def compute_cost(prob, y, y_mask, att, t, t_mask, g):
         _y = tensor.eq(y, 1)
@@ -751,39 +707,25 @@ def build_networks(options, model=' ', train=True):
 
         return ccost, gcost
 
-    # get cost
-    cost_xy1, g_cost_xy1 = compute_cost(prob_xy11, y1, y1_mask, att_xy12, txy12, txy12_mask, gate_xy1)
-    cost_xy2, g_cost_xy2 = compute_cost(prob_xy22, y2, y2_mask, att_xy21, txy21, txy21_mask, gate_xy2)
-    cost_yx1, g_cost_yx1 = compute_cost(prob_yx11, x1, x1_mask, att_yx12, tyx12, tyx12_mask, gate_yx1)
-    cost_yx2, g_cost_yx2 = compute_cost(prob_yx22, x2, x2_mask, att_yx21, tyx21, tyx21_mask, gate_yx2)
-    cost   = cost_xy1 + cost_xy2 + cost_yx1 + cost_yx2
-    g_cost = g_cost_xy1 + g_cost_xy2 + g_cost_yx1 + g_cost_yx2
+    probs = ret_xy11['probs']
+    cost, g_cost = compute_cost(probs, y1, y1_mask, attens, txy12, txy12_mask, gates)
 
     print 'build sampler (one-step)'
-    f_init_xy, f_next_xy = build_sampler(tparams_xy, options, options['trng'], 'xy_')
-    f_init_yx, f_next_yx = build_sampler(tparams_yx, options, options['trng'], 'yx_')
+    f_init_xy, f_next_xy   = build_sampler(tparams_xy, options, options['trng'], 'xy_')
 
     print 'build old sampler'
     f_init_xy0, f_next_xy0 = build_sampler(tparams_xy0, options, options['trng'], 'xy_')
-    f_init_yx0, f_next_yx0 = build_sampler(tparams_yx0, options, options['trng'], 'yx_')
-
-    print 'build attender (one-step)'
-    f_attend_xy = build_attender(tparams_xy, None, options, 'xy_', one_step=True)  # E->F curr
-    f_attend_yx = build_attender(tparams_yx, None, options, 'yx_', one_step=True)
 
     if train:
         # before any regularizer
         print 'build Cost Function...',
-        inputs = [x1, x1_mask, y1, y1_mask, x2, x2_mask, y2, y2_mask,
-                  txy12, txy12_mask, txy21, txy21_mask,
-                  tyx12, tyx12_mask, tyx21, tyx21_mask]
+        inputs = [x1, x1_mask, y1, y1_mask,
+                  x2, x2_mask, y2, y2_mask,
+                  txy12, txy12_mask]
         f_valid = theano.function(inputs, cost, profile=profile)
 
         print 'build Gradient (backward)...',
-        if options['build_gate']:
-            tparams = dict(tparams_xy.items() + tparams_yx.items() + tparams_gate.items())
-        else:
-            tparams = dict(tparams_xy.items() + tparams_yx.items())
+        tparams = dict(tparams_xy.items() + tparams_map.items())
 
         cost   = cost.mean()
         g_cost = g_cost.mean()
@@ -792,49 +734,35 @@ def build_networks(options, model=' ', train=True):
             grads = clip(tensor.grad(cost + options['gate_lambda'] * g_cost,
                                      wrt=itemlist(tparams)), options['clip_c'])
         else:
-            grads = clip(tensor.grad(cost, wrt=itemlist(tparams)),
-                         options['clip_c'])
+            grads = clip(tensor.grad(cost, wrt=itemlist(tparams)), options['clip_c'])
         print 'Done'
 
         # compile the optimizer, the actual computational graph is compiled here
         lr = tensor.scalar(name='lr')
         outputs = [cost, g_cost]
+
         print 'Building Optimizers...',
         f_cost, f_update = eval(options['optimizer'])(
             lr, tparams, grads, inputs, outputs)
-    elif options['build_gate']:
-        tparams = dict(tparams_xy.items() + tparams_yx.items() + tparams_gate.items())
+
+        funcs['valid']  = f_valid
+        funcs['cost']   = f_cost
+        funcs['update'] = f_update
+
     else:
-        tparams = dict(tparams_xy.items() + tparams_yx.items())
+        tparams = dict(tparams_xy.items() + tparams_map.items())
     print 'Done'
 
     # put everything into function lists
-    if train:
-        funcs['valid']    = f_valid
-        funcs['cost']     = f_cost
-        funcs['update']   = f_update
-
     funcs['init_xy']  = f_init_xy
-    funcs['init_yx']  = f_init_yx
     funcs['next_xy']  = f_next_xy
-    funcs['next_yx']  = f_next_yx
 
     funcs['init_xy0'] = f_init_xy0
-    funcs['init_yx0'] = f_init_yx0
     funcs['next_xy0'] = f_next_xy0
-    funcs['next_yx0'] = f_next_yx0
-
-    funcs['att_xy']   = f_attend_xy
-    funcs['att_yx']   = f_attend_yx
-
-    funcs['crit_xy'] = ret_xy11['f_critic']
-    funcs['crit_yx'] = ret_yx11['f_critic']
-
-    if options['build_gate']:
-        funcs['gate']    = f_gate
+    funcs['map']      = f_map
 
     print 'Build Networks... done!'
     if train:
-        return funcs, [tparams, tparams_xy0, tparams_yx0]
+        return funcs, [tparams, tparams_xy0]
     else:
         return funcs, tparams
