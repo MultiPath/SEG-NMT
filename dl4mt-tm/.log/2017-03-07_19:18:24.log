@@ -1,0 +1,222 @@
+{'baseline_xy': '/root/disk/scratch/model-tmnmt/baseline_fren.npz',
+ 'baseline_yx': '/root/disk/scratch/model-tmnmt/baseline_enfr.bs64.npz',
+ 'batch_size': 16,
+ 'beamsize': 5,
+ 'build_gate': True,
+ 'clip_c': 1.0,
+ 'd_maxlen': 200,
+ 'datasets': ['/root/workspace/TMNMT/.dataset/tm.fren/train.fr.top5.random5.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm.fren/train.en.top5.random5.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm.fren/train.fr.top5.random5.matched.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm.fren/train.en.top5.random5.matched.shuf.tok'],
+ 'decay_c': 0.0,
+ 'decoder': 'gru_cond',
+ 'dictionaries': ['/root/workspace/TMNMT/.dataset/tm.fren/train.fr.top5.random5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm.fren/train.en.top5.random5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm.fren/train.fr.top5.random5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm.fren/train.en.top5.random5.shuf.tok.pkl'],
+ 'dim': 1024,
+ 'dim_word': 512,
+ 'dispFreq': 10,
+ 'encoder': 'gru',
+ 'gate_lambda': 0.1,
+ 'gate_loss': True,
+ 'lrate': 2e-06,
+ 'maxlen': 50,
+ 'normalize': False,
+ 'optimizer': 'adam',
+ 'overwrite': True,
+ 'patience': 1000,
+ 'reload_': True,
+ 'sampleFreq': 20,
+ 'saveFreq': 500,
+ 'saveto': '/root/disk/scratch/model-tmnmt/new.L-gate.v1_fren.ff.16-50.npz',
+ 'stochastic': False,
+ 'trans_from': '/root/workspace/TMNMT/.dataset/fren/devset.fr.tok',
+ 'trans_ref': '/root/workspace/TMNMT/.dataset/fren/devset.en.tok',
+ 'trans_to': '/root/workspace/TMNMT/.translate/tmv3_',
+ 'use_dropout': False,
+ 'use_pretrain': True,
+ 'validFreq': 100,
+ 'valid_batch_size': 32,
+ 'valid_datasets': ['/root/workspace/TMNMT/.dataset/tm.fren/devset.fr.tok',
+                    '/root/workspace/TMNMT/.dataset/tm.fren/devset.en.tok',
+                    '/root/workspace/TMNMT/.dataset/tm.fren/devset.fr.matched.tok',
+                    '/root/workspace/TMNMT/.dataset/tm.fren/devset.en.matched.tok'],
+ 'voc_sizes': [20000, 20000, 20000, 20000]}
+Building model: X -> Y & Y -> X model
+Done.
+load the pretrained NMT-models... load ... xy_Wemb
+load ... xy_Wemb_dec
+load ... xy_encoder_W
+load ... xy_encoder_b
+load ... xy_encoder_U
+load ... xy_encoder_Wx
+load ... xy_encoder_bx
+load ... xy_encoder_Ux
+load ... xy_encoder_r_W
+load ... xy_encoder_r_b
+load ... xy_encoder_r_U
+load ... xy_encoder_r_Wx
+load ... xy_encoder_r_bx
+load ... xy_encoder_r_Ux
+load ... xy_ff_state_W
+load ... xy_ff_state_b
+load ... xy_decoder_W
+load ... xy_decoder_b
+load ... xy_decoder_U
+load ... xy_decoder_Wx
+load ... xy_decoder_Ux
+load ... xy_decoder_bx
+load ... xy_decoder_U_nl
+load ... xy_decoder_b_nl
+load ... xy_decoder_Ux_nl
+load ... xy_decoder_bx_nl
+load ... xy_decoder_Wc
+load ... xy_decoder_Wcx
+load ... xy_decoder_W_comb_att
+load ... xy_decoder_Wc_att
+load ... xy_decoder_b_att
+load ... xy_decoder_U_att
+load ... xy_decoder_c_tt
+load ... xy_ff_logit_lstm_W
+load ... xy_ff_logit_lstm_b
+load ... xy_ff_logit_prev_W
+load ... xy_ff_logit_prev_b
+load ... xy_ff_logit_ctx_W
+load ... xy_ff_logit_ctx_b
+load ... xy_ff_logit_W
+load ... xy_ff_logit_b
+load ... yx_Wemb
+load ... yx_Wemb_dec
+load ... yx_encoder_W
+load ... yx_encoder_b
+load ... yx_encoder_U
+load ... yx_encoder_Wx
+load ... yx_encoder_bx
+load ... yx_encoder_Ux
+load ... yx_encoder_r_W
+load ... yx_encoder_r_b
+load ... yx_encoder_r_U
+load ... yx_encoder_r_Wx
+load ... yx_encoder_r_bx
+load ... yx_encoder_r_Ux
+load ... yx_ff_state_W
+load ... yx_ff_state_b
+load ... yx_decoder_W
+load ... yx_decoder_b
+load ... yx_decoder_U
+load ... yx_decoder_Wx
+load ... yx_decoder_Ux
+load ... yx_decoder_bx
+load ... yx_decoder_U_nl
+load ... yx_decoder_b_nl
+load ... yx_decoder_Ux_nl
+load ... yx_decoder_bx_nl
+load ... yx_decoder_Wc
+load ... yx_decoder_Wcx
+load ... yx_decoder_W_comb_att
+load ... yx_decoder_Wc_att
+load ... yx_decoder_b_att
+load ... yx_decoder_U_att
+load ... yx_decoder_c_tt
+load ... yx_ff_logit_lstm_W
+load ... yx_ff_logit_lstm_b
+load ... yx_ff_logit_prev_W
+load ... yx_ff_logit_prev_b
+load ... yx_ff_logit_ctx_W
+load ... yx_ff_logit_ctx_b
+load ... yx_ff_logit_W
+load ... yx_ff_logit_b
+Done.
+Reloading model parameters
+build forward-attention models (4 models simultaneously)...
+Build f_critic... Done
+Build f_critic... Done
+build cross-attention models
+build attentions (forward, cross-propagation)
+build gates!
+Building Gate functions, ... Done.
+build loss function (w/o gate)
+build sampler (one-step)
+Building f_init... Done
+Building f_next... Done
+Building f_init... Done
+Building f_next... Done
+build old sampler
+Building f_init... Done
+Building f_next... Done
+Building f_init... Done
+Building f_next... Done
+build attender (one-step)
+Build f_attend... Done.
+Build f_attend... Done.
+build Cost Function... build Gradient (backward)... Done
+Building Optimizers... Done
+Build Networks... done!
+build_networks: elapsed 918.9683 secs.
+
+Loading data
+[33m-------------------------------------------- Main-Loop -------------------------------------------------[0m
+Epoch  0 Update  59001 Cost  490.502441406 G 126.704284668
+execute: elapsed 7.1641 secs.
+
+Epoch  0 Update  59002 Cost  306.788726807 G 106.172973633
+execute: elapsed 6.4855 secs.
+
+Epoch  0 Update  59003 Cost  313.113708496 G 88.5676116943
+execute: elapsed 5.6326 secs.
+
+Epoch  0 Update  59004 Cost  323.946929932 G 85.2335128784
+execute: elapsed 4.9979 secs.
+
+Epoch  0 Update  59005 Cost  339.740234375 G 76.4711380005
+execute: elapsed 5.2782 secs.
+
+Epoch  0 Update  59006 Cost  284.920471191 G 71.5436096191
+execute: elapsed 4.9219 secs.
+
+Epoch  0 Update  59007 Cost  245.923568726 G 63.6037063599
+execute: elapsed 5.3026 secs.
+
+Epoch  0 Update  59008 Cost  225.411621094 G 58.9048309326
+execute: elapsed 4.9944 secs.
+
+Epoch  0 Update  59009 Cost  126.564575195 G 43.7967910767
+execute: elapsed 3.8242 secs.
+
+Epoch  0 Update  59010 Cost  125.378616333 G 36.7184181213
+execute: elapsed 3.0275 secs.
+
+Epoch  0 Update  59011 Cost  150.052307129 G 38.4985122681
+execute: elapsed 4.0052 secs.
+
+Epoch  0 Update  59012 Cost  210.976394653 G 46.2128562927
+execute: elapsed 4.1679 secs.
+
+Epoch  0 Update  59013 Cost  124.573234558 G 29.4569282532
+execute: elapsed 3.1565 secs.
+
+Epoch  0 Update  59014 Cost  186.613067627 G 46.5731544495
+execute: elapsed 6.2215 secs.
+
+Epoch  0 Update  59015 Cost  522.236328125 G 111.840408325
+execute: elapsed 6.4746 secs.
+
+Epoch  0 Update  59016 Cost  415.461242676 G 105.893173218
+execute: elapsed 6.5147 secs.
+
+Epoch  0 Update  59017 Cost  470.749237061 G 100.832443237
+execute: elapsed 6.4070 secs.
+
+Epoch  0 Update  59018 Cost  343.045166016 G 79.8630523682
+execute: elapsed 5.3532 secs.
+
+Epoch  0 Update  59019 Cost  343.373718262 G 70.542098999
+execute: elapsed 4.6522 secs.
+
+Epoch  0 Update  59020 Cost  249.674606323 G 64.8152923584
+execute: elapsed 4.4473 secs.
+
+1
+0

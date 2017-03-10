@@ -418,12 +418,18 @@ def gen_sample_memory(tparams,
                stochastic=True, argmax=False):
     # modes
     modes = ['xy', 'yx']
-    l_max = options['voc_sizes'][1]
+    l_max = options['voc_sizes'][1-m]
 
     # masks
     x1_mask = numpy.array(x1 > 0, dtype='float32')
     x2_mask = numpy.array(x2 > 0, dtype='float32')
     y2_mask = numpy.array(y2 > 0, dtype='float32')
+
+    # mask problem (last step is zero) ----> a small bug
+    x1_mask[1:] = x1_mask[:-1]
+    x2_mask[1:] = x2_mask[:-1]
+    y2_mask[1:] = y2_mask[:-1]
+
 
     # k is the beam size we have
     if k > 1:
@@ -441,6 +447,7 @@ def gen_sample_memory(tparams,
 
     hyp_samples = [[]] * live_k
     hyp_actions = [[]] * live_k
+    hyp_gatings = [[]] * live_k
     hyp_scores  = numpy.zeros(live_k).astype('float32')
     hyp_states  = []
 
@@ -459,7 +466,8 @@ def gen_sample_memory(tparams,
     for ii in xrange(maxlen):
         ctx = numpy.tile(ctx0, [live_k, 1])
         mctx = numpy.tile(mctx0, [live_k, 1])
-
+#         print len(ctx)
+#         print ii
         # -- mask OOV words as UNK
         _next_w = (next_w * (next_w < l_max) + 1.0 * (next_w >= l_max)).astype('int64')
 
@@ -519,11 +527,11 @@ def gen_sample_memory(tparams,
                 break
         else:
             # TODO: beam-search is still not ready.
-            cand_scores = hyp_scores[:, None] - numpy.log(next_p)
+            cand_scores = hyp_scores[:, None] - numpy.log(merge_p)
             cand_flat = cand_scores.flatten()
             ranks_flat = cand_flat.argsort()[:(k - dead_k)]
 
-            voc_size = next_p.shape[1]
+            voc_size = merge_p.shape[1]
             trans_indices = ranks_flat / voc_size
             word_indices = ranks_flat % voc_size
             costs = cand_flat[ranks_flat]
@@ -531,29 +539,47 @@ def gen_sample_memory(tparams,
             new_hyp_samples = []
             new_hyp_scores = numpy.zeros(k - dead_k).astype('float32')
             new_hyp_states = []
+            new_hyp_gatings = []
+            new_hyp_actions = []
 
             for idx, [ti, wi] in enumerate(zip(trans_indices, word_indices)):
                 new_hyp_samples.append(hyp_samples[ti] + [wi])
                 new_hyp_scores[idx] = copy.copy(costs[idx])
                 new_hyp_states.append(copy.copy(next_state[ti]))
+                new_hyp_gatings.append(hyp_gatings[ti] + [gates[ti]])
+                if wi >= l_max:
+
+                    new_hyp_actions.append(hyp_actions[ti]+ [0])
+                else:
+                    new_hyp_actions.append(hyp_actions[ti] + [next_p[0, wi] / merge_p[0, wi]])
 
             # check the finished samples
             new_live_k = 0
             hyp_samples = []
             hyp_scores = []
             hyp_states = []
+            hyp_gatings = []
+            hyp_actions = []
+
 
             for idx in xrange(len(new_hyp_samples)):
                 if new_hyp_samples[idx][-1] == 0:
                     sample.append(new_hyp_samples[idx])
                     sample_score.append(new_hyp_scores[idx])
+                    action.append(new_hyp_actions[idx])
+                    gating.append(new_hyp_gatings[idx])
                     dead_k += 1
                 else:
                     new_live_k += 1
                     hyp_samples.append(new_hyp_samples[idx])
                     hyp_scores.append(new_hyp_scores[idx])
                     hyp_states.append(new_hyp_states[idx])
+                    hyp_gatings.append(new_hyp_gatings[idx])
+                    hyp_actions.append(new_hyp_actions[idx])
+
             hyp_scores = numpy.array(hyp_scores)
+#             hyp_gating = numpy.array(hyp_gating)
+#             hyp_action = numpy.array(hyp_action)
             live_k = new_live_k
 
             if new_live_k < 1:
@@ -570,6 +596,245 @@ def gen_sample_memory(tparams,
             for idx in xrange(live_k):
                 sample.append(hyp_samples[idx])
                 sample_score.append(hyp_scores[idx])
+                action.append(hyp_actions[idx])
+                gating.append(hyp_gatings[idx])
 
     return sample, sample_score, action, gating
 
+@Timeit
+def build_networks(options, model=' ', train=True):
+    funcs = dict()
+
+    print 'Building model: X -> Y & Y -> X model'
+    params_xy = init_params(options, 'xy_')
+    params_yx = init_params(options, 'yx_')
+    print 'Done.'
+
+    # use pre-trained models
+#     if train:
+    print 'load the pretrained NMT-models...',
+    params_xy = load_params2(options['baseline_xy'], params_xy, mode='xy_')
+    params_yx = load_params2(options['baseline_yx'], params_yx, mode='yx_')
+    tparams_xy0 = init_tparams(params_xy)  # pre-trained E->F model
+    tparams_yx0 = init_tparams(params_yx)  # pre-trained F->E model
+    print 'Done.'
+
+    # reload parameters
+    if train:
+        if options['reload_'] and os.path.exists(options['saveto']):
+            print 'Reloading model parameters'
+            params_xy = load_params(options['saveto'], params_xy)
+            params_yx = load_params(options['saveto'], params_yx)
+    else:
+
+        print 'Reloading model parameters'
+        params_xy = load_params(model, params_xy)
+        params_yx = load_params(model, params_yx)
+
+    tparams_xy = init_tparams(params_xy)
+    tparams_yx = init_tparams(params_yx)
+
+    # inputs of the model (x1, y1, x2, y2)
+    x1 = tensor.matrix('x1', dtype='int64')
+    x1_mask = tensor.matrix('x1_mask', dtype='float32')
+    y1 = tensor.matrix('y1', dtype='int64')
+    y1_mask = tensor.matrix('y1_mask', dtype='float32')
+    x2 = tensor.matrix('x2', dtype='int64')
+    x2_mask = tensor.matrix('x2_mask', dtype='float32')
+    y2 = tensor.matrix('y2', dtype='int64')
+    y2_mask = tensor.matrix('y2_mask', dtype='float32')
+
+    # TM rxyerence index
+    txy12 = tensor.matrix('xy12', dtype='int64')
+    txy12_mask = tensor.matrix('xy12_mask', dtype='float32')
+    txy21 = tensor.matrix('xy21', dtype='int64')
+    txy21_mask = tensor.matrix('xy21_mask', dtype='float32')
+    tyx12 = tensor.matrix('yx12', dtype='int64')
+    tyx12_mask = tensor.matrix('yx12_mask', dtype='float32')
+    tyx21 = tensor.matrix('yx21', dtype='int64')
+    tyx21_mask = tensor.matrix('yx21_mask', dtype='float32')
+
+    print 'build forward-attention models (4 models simultaneously)...'
+    ret_xy11 = build_model(tparams_xy, [x1, x1_mask, y1, y1_mask], options, 'xy_', False, True)   # E->F curr
+    ret_yx11 = build_model(tparams_yx, [y1, y1_mask, x1, x1_mask], options, 'yx_', False, True)  # F->E curr
+    ret_xy22 = build_model(tparams_xy, [x2, x2_mask, y2, y2_mask], options, 'xy_', False, False)   # E->F tm
+    ret_yx22 = build_model(tparams_yx, [y2, y2_mask, x2, x2_mask], options, 'yx_', False, False)  # F->E tm
+
+    print 'build cross-attention models'
+    ret_xy12 = build_attender(tparams_xy,
+                              [ret_xy11['prev_hids'], ret_xy11['prev_emb'], ret_xy22['ctx'], x2_mask],
+                              options, 'xy_')  # E->F curr
+    ret_xy21 = build_attender(tparams_xy,
+                              [ret_xy22['prev_hids'], ret_xy22['prev_emb'], ret_xy11['ctx'], x1_mask],
+                              options, 'xy_')  # E->F tm
+    ret_yx12 = build_attender(tparams_yx,
+                              [ret_yx11['prev_hids'], ret_yx11['prev_emb'], ret_yx22['ctx'], y2_mask],
+                              options, 'yx_')  # F->E curr
+    ret_yx21 = build_attender(tparams_yx,
+                              [ret_yx22['prev_hids'], ret_yx22['prev_emb'], ret_yx11['ctx'], y1_mask],
+                              options, 'yx_')  # F->E tm
+
+    print 'build attentions (forward, cross-propagation)'
+
+    def build_prop(atten_xy, atten_yx):
+        atten_xy = atten_xy.dimshuffle(1, 0, 2)
+        atten_yx = atten_yx.dimshuffle(1, 0, 2)
+        attention = tensor.batched_dot(atten_xy, atten_yx).dimshuffle(1, 0, 2)
+        return attention
+
+    att_xy12 = build_prop(ret_xy12['attention'], ret_yx22['attention'])
+    att_xy21 = build_prop(ret_xy21['attention'], ret_yx11['attention'])
+    att_yx12 = build_prop(ret_yx12['attention'], ret_xy22['attention'])
+    att_yx21 = build_prop(ret_yx21['attention'], ret_xy11['attention'])
+
+    print 'build gates!'
+    params_gate  = OrderedDict()
+    params_gate  = get_layer('bi')[0](options, params_gate,
+                                      nin1=options['dim'],
+                                      nin2=2 * options['dim'])
+    tparams_gate = init_tparams(params_gate)
+
+    if options['build_gate']:
+        def build_gate(hx1, ctx1, ctx2):
+            v1 = get_layer('bi')[1](tparams_gate, hx1, ctx1, activ='lambda x: tensor.tanh(x)')
+            v2 = get_layer('bi')[1](tparams_gate, hx1, ctx2, activ='lambda x: tensor.tanh(x)')
+            return tensor.nnet.sigmoid(v1 - v2)
+
+        gate_xy1 = build_gate(ret_xy11['hids'], ret_xy11['ctxs'], ret_xy12['ctxs'])
+        gate_xy2 = build_gate(ret_xy22['hids'], ret_xy22['ctxs'], ret_xy21['ctxs'])
+        gate_yx1 = build_gate(ret_yx11['hids'], ret_yx11['ctxs'], ret_yx12['ctxs'])
+        gate_yx2 = build_gate(ret_yx22['hids'], ret_yx22['ctxs'], ret_yx21['ctxs'])
+
+        print 'Building Gate functions, ...',
+        f_gate = theano.function([ret_xy11['hids'], ret_xy11['ctxs'], ret_xy12['ctxs']],
+                                  gate_xy1, profile=profile)
+        print 'Done.'
+
+    else:
+        print 'Building a Natural Gate Function'
+        gate_xy1 = 1 - tensor.clip(ret_xy12['att_sum'] / (ret_xy11['att_sum'] + ret_xy12['att_sum']), 0, 1)
+        gate_xy2 = 1 - tensor.clip(ret_xy21['att_sum'] / (ret_xy22['att_sum'] + ret_xy21['att_sum']), 0, 1)
+        gate_yx1 = 1 - tensor.clip(ret_yx12['att_sum'] / (ret_yx11['att_sum'] + ret_yx12['att_sum']), 0, 1)
+        gate_yx2 = 1 - tensor.clip(ret_yx21['att_sum'] / (ret_yx22['att_sum'] + ret_yx21['att_sum']), 0, 1)
+
+    print 'build loss function (w/o gate)'
+
+    # get the loss function
+    def compute_prob(probs, y, y_mask):
+
+        # compute the loss for the vocabulary-selection side
+        y_flat  = y.flatten()
+        n_words = probs.shape[-1]
+        y_flat_idx = tensor.arange(y_flat.shape[0]) * n_words + y_flat
+        probw   = probs.flatten()[y_flat_idx]
+        probw   = probw.reshape([y.shape[0], y.shape[1]]) * y_mask
+        return probw
+
+    prob_xy11 = ret_xy11['probs']
+    prob_xy22 = ret_xy22['probs']
+    prob_yx11 = ret_yx11['probs']
+    prob_yx22 = ret_yx22['probs']
+
+    def compute_cost(prob, y, y_mask, att, t, t_mask, g):
+        _y = tensor.eq(y, 1)
+        y_mask *= ((1 - _y) + _y * (1 - t_mask))
+
+        # normal loss
+        ccost = -tensor.log(compute_prob(prob, y, y_mask) * g +
+                            compute_prob(att, t, t_mask) * (1 - g) +
+                            1e-7)
+        ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
+
+        # gate loss
+        gcost = -(tensor.log(g) * (1 - t_mask) + tensor.log(1-g) * t_mask)
+        gcost = (gcost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
+
+        return ccost, gcost
+
+    # get cost
+    cost_xy1, g_cost_xy1 = compute_cost(prob_xy11, y1, y1_mask, att_xy12, txy12, txy12_mask, gate_xy1)
+    cost_xy2, g_cost_xy2 = compute_cost(prob_xy22, y2, y2_mask, att_xy21, txy21, txy21_mask, gate_xy2)
+    cost_yx1, g_cost_yx1 = compute_cost(prob_yx11, x1, x1_mask, att_yx12, tyx12, tyx12_mask, gate_yx1)
+    cost_yx2, g_cost_yx2 = compute_cost(prob_yx22, x2, x2_mask, att_yx21, tyx21, tyx21_mask, gate_yx2)
+    cost   = cost_xy1 + cost_xy2 + cost_yx1 + cost_yx2
+    g_cost = g_cost_xy1 + g_cost_xy2 + g_cost_yx1 + g_cost_yx2
+
+    print 'build sampler (one-step)'
+    f_init_xy, f_next_xy = build_sampler(tparams_xy, options, options['trng'], 'xy_')
+    f_init_yx, f_next_yx = build_sampler(tparams_yx, options, options['trng'], 'yx_')
+
+    print 'build old sampler'
+    f_init_xy0, f_next_xy0 = build_sampler(tparams_xy0, options, options['trng'], 'xy_')
+    f_init_yx0, f_next_yx0 = build_sampler(tparams_yx0, options, options['trng'], 'yx_')
+
+    print 'build attender (one-step)'
+    f_attend_xy = build_attender(tparams_xy, None, options, 'xy_', one_step=True)  # E->F curr
+    f_attend_yx = build_attender(tparams_yx, None, options, 'yx_', one_step=True)
+
+    if train:
+        # before any regularizer
+        print 'build Cost Function...',
+        inputs = [x1, x1_mask, y1, y1_mask, x2, x2_mask, y2, y2_mask,
+                  txy12, txy12_mask, txy21, txy21_mask,
+                  tyx12, tyx12_mask, tyx21, tyx21_mask]
+        f_valid = theano.function(inputs, cost, profile=profile)
+
+        print 'build Gradient (backward)...',
+        if options['build_gate']:
+            tparams = dict(tparams_xy.items() + tparams_yx.items() + tparams_gate.items())
+        else:
+            tparams = dict(tparams_xy.items() + tparams_yx.items())
+
+        cost   = cost.mean()
+        g_cost = g_cost.mean()
+
+        if options['gate_loss']:
+            grads = clip(tensor.grad(cost + options['gate_lambda'] * g_cost,
+                                     wrt=itemlist(tparams)), options['clip_c'])
+        else:
+            grads = clip(tensor.grad(cost, wrt=itemlist(tparams)),
+                         options['clip_c'])
+        print 'Done'
+
+        # compile the optimizer, the actual computational graph is compiled here
+        lr = tensor.scalar(name='lr')
+        outputs = [cost, g_cost]
+        print 'Building Optimizers...',
+        f_cost, f_update = eval(options['optimizer'])(
+            lr, tparams, grads, inputs, outputs)
+    elif options['build_gate']:
+        tparams = dict(tparams_xy.items() + tparams_yx.items() + tparams_gate.items())
+    else:
+        tparams = dict(tparams_xy.items() + tparams_yx.items())
+    print 'Done'
+
+    # put everything into function lists
+    if train:
+        funcs['valid']    = f_valid
+        funcs['cost']     = f_cost
+        funcs['update']   = f_update
+
+    funcs['init_xy']  = f_init_xy
+    funcs['init_yx']  = f_init_yx
+    funcs['next_xy']  = f_next_xy
+    funcs['next_yx']  = f_next_yx
+
+    funcs['init_xy0'] = f_init_xy0
+    funcs['init_yx0'] = f_init_yx0
+    funcs['next_xy0'] = f_next_xy0
+    funcs['next_yx0'] = f_next_yx0
+
+    funcs['att_xy']   = f_attend_xy
+    funcs['att_yx']   = f_attend_yx
+
+    funcs['crit_xy'] = ret_xy11['f_critic']
+    funcs['crit_yx'] = ret_yx11['f_critic']
+
+    if options['build_gate']:
+        funcs['gate']    = f_gate
+
+    print 'Build Networks... done!'
+    if train:
+        return funcs, [tparams, tparams_xy0, tparams_yx0]
+    else:
+        return funcs, tparams

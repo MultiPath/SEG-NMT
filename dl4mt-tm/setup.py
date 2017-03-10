@@ -2,8 +2,8 @@
 def setup_fren():
     # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     home  = '/root/workspace/TMNMT'
-    model = '/root/disk/scratch/model-tmnmt' 
-    
+    model = '/root/disk/scratch/model-tmnmt'
+
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
@@ -32,19 +32,20 @@ def setup_fren():
         # baseline models
         'baseline_xy': model + '/baseline_fren.npz',
         'baseline_yx': model + '/baseline_enfr.bs64.npz',
-        
-        # TODO: test phase is not ready
+
         # test phase
-        'trans_from': home + '/.dataset/fren/devset.fr.tok',
-        'trans_ref':  home + '/.dataset/fren/devset.en.tok',
-        'trans_to':   home + '/.translate/tmv3_'
+        'trans_from': home + '/.dataset/tm.fren/devset.fr.tok',
+        'tm_source':  home + '/.dataset/tm.fren/devset.fr.matched.tok',
+        'tm_target':  home + '/.dataset/tm.fren/devset.en.matched.tok',
+        'trans_ref':  home + '/.dataset/tm.fren/devset.en.tok',
+        'trans_to':   home + '/.translate/greedy.tm.translate'
     }
     return config
 
 
 def setup_fren_bpe():
     home  = '/root/workspace/TMNMT'
-    model = '/root/disk/scratch/model-tmnmt' 
+    model = '/root/disk/scratch/model-tmnmt'
     # home = '/home/thoma/work/TMNMT'
     # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     # home   = '/scratch/jg5223/exp/TMNMT'
@@ -114,24 +115,24 @@ def setup(pair='fren'):
         'reload_': True,
 
         'use_pretrain': True,
-        'stochastic': True,
+        'stochastic': False,
         'build_gate': True,
         'gate_loss': True,
         'gate_lambda': 0.1,
 
         # testing details
-        'beamsize': 5,
-        'normalize': False,
+        'beamsize': 1,
+        'normalize': True,
         'd_maxlen': 200
     }
 
     # get dataset info
     config.update(eval('setup_{}'.format(pair))())
-    
+
     # get full model name
     config['saveto'] += '{}.{}.{}-{}.npz'.format(
             pair, 'ff' if config['use_pretrain'] else 'ss',
             config['batch_size'], config['maxlen']
         )
-    
+
     return config

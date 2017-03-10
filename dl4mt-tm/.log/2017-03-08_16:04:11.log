@@ -1,0 +1,230 @@
+{'baseline_xy': '/root/disk/scratch/model-tmnmt/baseline_fren.npz',
+ 'baseline_yx': '/root/disk/scratch/model-tmnmt/baseline_enfr.bs64.npz',
+ 'batch_size': 16,
+ 'beamsize': 5,
+ 'build_gate': True,
+ 'clip_c': 1.0,
+ 'd_maxlen': 200,
+ 'datasets': ['/root/workspace/TMNMT/.dataset/tm.fren/train.fr.top5.random5.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm.fren/train.en.top5.random5.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm.fren/train.fr.top5.random5.matched.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm.fren/train.en.top5.random5.matched.shuf.tok'],
+ 'decay_c': 0.0,
+ 'decoder': 'gru_cond',
+ 'dictionaries': ['/root/workspace/TMNMT/.dataset/tm.fren/train.fr.top5.random5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm.fren/train.en.top5.random5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm.fren/train.fr.top5.random5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm.fren/train.en.top5.random5.shuf.tok.pkl'],
+ 'dim': 1024,
+ 'dim_word': 512,
+ 'dispFreq': 10,
+ 'encoder': 'gru',
+ 'gate_lambda': 0.1,
+ 'gate_loss': True,
+ 'lrate': 2e-06,
+ 'maxlen': 50,
+ 'normalize': False,
+ 'optimizer': 'adam',
+ 'overwrite': True,
+ 'patience': 1000,
+ 'reload_': True,
+ 'sampleFreq': 20,
+ 'saveFreq': 500,
+ 'saveto': '/root/disk/scratch/model-tmnmt/new.L-gate.v1_fren.ff.16-50.npz',
+ 'stochastic': False,
+ 'trans_from': '/root/workspace/TMNMT/.dataset/fren/devset.fr.tok',
+ 'trans_ref': '/root/workspace/TMNMT/.dataset/fren/devset.en.tok',
+ 'trans_to': '/root/workspace/TMNMT/.translate/tmv3_',
+ 'use_dropout': False,
+ 'use_pretrain': True,
+ 'validFreq': 100,
+ 'valid_batch_size': 32,
+ 'valid_datasets': ['/root/workspace/TMNMT/.dataset/tm.fren/devset.fr.tok',
+                    '/root/workspace/TMNMT/.dataset/tm.fren/devset.en.tok',
+                    '/root/workspace/TMNMT/.dataset/tm.fren/devset.fr.matched.tok',
+                    '/root/workspace/TMNMT/.dataset/tm.fren/devset.en.matched.tok'],
+ 'voc_sizes': [20000, 20000, 20000, 20000]}
+Building model: X -> Y & Y -> X model
+Done.
+load the pretrained NMT-models... load ... xy_Wemb
+load ... xy_Wemb_dec
+load ... xy_encoder_W
+load ... xy_encoder_b
+load ... xy_encoder_U
+load ... xy_encoder_Wx
+load ... xy_encoder_bx
+load ... xy_encoder_Ux
+load ... xy_encoder_r_W
+load ... xy_encoder_r_b
+load ... xy_encoder_r_U
+load ... xy_encoder_r_Wx
+load ... xy_encoder_r_bx
+load ... xy_encoder_r_Ux
+load ... xy_ff_state_W
+load ... xy_ff_state_b
+load ... xy_decoder_W
+load ... xy_decoder_b
+load ... xy_decoder_U
+load ... xy_decoder_Wx
+load ... xy_decoder_Ux
+load ... xy_decoder_bx
+load ... xy_decoder_U_nl
+load ... xy_decoder_b_nl
+load ... xy_decoder_Ux_nl
+load ... xy_decoder_bx_nl
+load ... xy_decoder_Wc
+load ... xy_decoder_Wcx
+load ... xy_decoder_W_comb_att
+load ... xy_decoder_Wc_att
+load ... xy_decoder_b_att
+load ... xy_decoder_U_att
+load ... xy_decoder_c_tt
+load ... xy_ff_logit_lstm_W
+load ... xy_ff_logit_lstm_b
+load ... xy_ff_logit_prev_W
+load ... xy_ff_logit_prev_b
+load ... xy_ff_logit_ctx_W
+load ... xy_ff_logit_ctx_b
+load ... xy_ff_logit_W
+load ... xy_ff_logit_b
+load ... yx_Wemb
+load ... yx_Wemb_dec
+load ... yx_encoder_W
+load ... yx_encoder_b
+load ... yx_encoder_U
+load ... yx_encoder_Wx
+load ... yx_encoder_bx
+load ... yx_encoder_Ux
+load ... yx_encoder_r_W
+load ... yx_encoder_r_b
+load ... yx_encoder_r_U
+load ... yx_encoder_r_Wx
+load ... yx_encoder_r_bx
+load ... yx_encoder_r_Ux
+load ... yx_ff_state_W
+load ... yx_ff_state_b
+load ... yx_decoder_W
+load ... yx_decoder_b
+load ... yx_decoder_U
+load ... yx_decoder_Wx
+load ... yx_decoder_Ux
+load ... yx_decoder_bx
+load ... yx_decoder_U_nl
+load ... yx_decoder_b_nl
+load ... yx_decoder_Ux_nl
+load ... yx_decoder_bx_nl
+load ... yx_decoder_Wc
+load ... yx_decoder_Wcx
+load ... yx_decoder_W_comb_att
+load ... yx_decoder_Wc_att
+load ... yx_decoder_b_att
+load ... yx_decoder_U_att
+load ... yx_decoder_c_tt
+load ... yx_ff_logit_lstm_W
+load ... yx_ff_logit_lstm_b
+load ... yx_ff_logit_prev_W
+load ... yx_ff_logit_prev_b
+load ... yx_ff_logit_ctx_W
+load ... yx_ff_logit_ctx_b
+load ... yx_ff_logit_W
+load ... yx_ff_logit_b
+Done.
+Reloading model parameters
+build forward-attention models (4 models simultaneously)...
+Build f_critic... Done
+Build f_critic... Done
+build cross-attention models
+build attentions (forward, cross-propagation)
+build gates!
+Building Gate functions, ... Done.
+build loss function (w/o gate)
+build sampler (one-step)
+Building f_init... Done
+Building f_next... Done
+Building f_init... Done
+Building f_next... Done
+build old sampler
+Building f_init... Done
+Building f_next... Done
+Building f_init... Done
+Building f_next... Done
+build attender (one-step)
+Build f_attend... Done.
+Build f_attend... Done.
+build Cost Function... build Gradient (backward)... Done
+Building Optimizers... Done
+Build Networks... done!
+build_networks: elapsed 911.5360 secs.
+
+Loading data
+[33m-------------------------------------------- Main-Loop -------------------------------------------------[0m
+Epoch  0 Update  59001 Cost  488.867248535 G 122.272506714
+execute: elapsed 6.4710 secs.
+
+Epoch  0 Update  59002 Cost  310.262390137 G 107.357955933
+execute: elapsed 5.8663 secs.
+
+Epoch  0 Update  59003 Cost  312.16192627 G 88.6654510498
+execute: elapsed 5.9823 secs.
+
+Epoch  0 Update  59004 Cost  322.737335205 G 83.4367752075
+execute: elapsed 5.7760 secs.
+
+Epoch  0 Update  59005 Cost  340.961029053 G 76.0038909912
+execute: elapsed 5.9435 secs.
+
+Epoch  0 Update  59006 Cost  286.675048828 G 72.1550445557
+execute: elapsed 5.1753 secs.
+
+Epoch  0 Update  59007 Cost  246.695556641 G 66.1307678223
+execute: elapsed 4.9630 secs.
+
+Epoch  0 Update  59008 Cost  227.76675415 G 60.4770851135
+execute: elapsed 4.6015 secs.
+
+Epoch  0 Update  59009 Cost  128.128112793 G 44.7222824097
+execute: elapsed 3.5300 secs.
+
+Epoch  0 Update  59010 Cost  126.249771118 G 38.3721046448
+execute: elapsed 3.1492 secs.
+
+Epoch  0 Update  59011 Cost  149.994781494 G 38.8689804077
+execute: elapsed 4.5868 secs.
+
+Epoch  0 Update  59012 Cost  212.591400146 G 48.3205757141
+execute: elapsed 4.7659 secs.
+
+Epoch  0 Update  59013 Cost  123.17741394 G 28.5859775543
+execute: elapsed 3.7563 secs.
+
+Epoch  0 Update  59014 Cost  188.323928833 G 47.4410591125
+execute: elapsed 7.0342 secs.
+
+Epoch  0 Update  59015 Cost  523.054199219 G 112.003707886
+execute: elapsed 6.3681 secs.
+
+Epoch  0 Update  59016 Cost  412.700622559 G 103.997024536
+execute: elapsed 6.0898 secs.
+
+Epoch  0 Update  59017 Cost  472.226348877 G 100.662528992
+execute: elapsed 6.0283 secs.
+
+Epoch  0 Update  59018 Cost  346.69934082 G 83.7689666748
+execute: elapsed 5.6121 secs.
+
+Epoch  0 Update  59019 Cost  346.385009766 G 74.7721099854
+execute: elapsed 4.9674 secs.
+
+Epoch  0 Update  59020 Cost  249.071289062 G 64.4697723389
+execute: elapsed 5.0452 secs.
+
+=============================
+Target-TM 0: The European Commission hereby presents to the budgetary authority the amending letter No 3 to the preliminary draft budget for 2006 for the reasons set out in the explanatory memorandum .
+Source-TM 0: La Commission européenne présente ci-après à l &apos; autorité budgétaire la lettre rectificative n ° 3 à l &apos; avant-projet de budget 2006 pour les raisons reprises dans l &apos; exposé des motifs .
+Source-CR 0: 1 . Chaque État membre établit un réseau rural national qui regroupe les organisations et les administrations travaillant dans le domaine du développement rural .
+Target-CR 0: 1 . Each Member State shall establish a national rural network , which groups the organisations and administrations involved in rural development .
+-----------------------------
+NMT Model 0: 1 . Each Member State presents a national rural Italy which letter 3 organisations to the authority preliminary and features in the areas of rural reasons set up
+[19, 6, 742, 34, 68, 5042, 14, 121, 1507, 988, 36, 1191, 37, 525, 7, 2, 1556, 1556, 1556, 10, 2921, 6, 0]
+[[1.0, 0.9999826, 1.0, 1.0, 1.0, 1.5915919e-05, 1.0, 1.0, 1.0, 1.0, 1.0, 5.3333938e-06, 8.8966499e-06, 1.0, 6.1319661e-05, 0.49782062, 0.0075001973, 7.7707649e-05, 1.0, 1.0, 0.99919289, 1.0], [1.0, 0.9999826, 1.0, 1.0, 1.0, 1.5915919e-05, 1.0, 1.0, 1.0, 1.0, 1.0, 5.3333938e-06, 8.8966499e-06, 1.0, 6.1319661e-05, 0.49782062, 8.2581158e-05, 7.7707649e-05, 3.3888866e-06, 1.0, 1.0, 0.9995321, 1.0], [1.0, 0.9999826, 1.0, 1.0, 1.0, 1.5915919e-05, 1.0, 1.0, 1.0, 1.0, 1.0, 5.3333938e-06, 8.8966499e-06, 1.0, 6.1319661e-05, 0.49782062, 8.2581158e-05, 7.7707649e-05, 3.3888866e-06, 3.0758474e-06, 1.0, 1.0, 0.00173369, 1.0], [1.0, 0.9999826, 1.0, 1.0, 1.0, 1.5915919e-05, 1.0, 1.0, 1.0, 1.0, 1.0, 5.3333938e-06, 8.8966499e-06, 1.0, 6.1319661e-05, 0.49782062, 0.0075001973, 7.7707649e-05, 1.0, 1.0, 0.99692649, 0.12391716, 1.0, 1.0, 1.0, 1.0179525e-06, 1.2384514e-06, 1.0, 1.0], [1.0, 0.9999826, 1.0, 1.0, 1.0, 1.5915919e-05, 1.0, 1.0, 1.0, 1.0, 1.0, 5.3333938e-06, 8.8966499e-06, 1.0, 6.1319661e-05, 0.49782062, 8.2581158e-05, 7.7707649e-05, 3.3888866e-06, 1.0, 1.0, 0.99506414, 0.0005305903, 1.210484e-06, 1.0, 1.0, 1.2384514e-06, 0.81501532, 1.0]]
+Copy Prob 0: [34m1[0m [34m.[0m [34mEach[0m [34mMember[0m [34mState[0m [33mpresents[0m [34ma[0m [34mnational[0m [34mrural[0m [34mItaly[0m [34mwhich[0m [33mletter[0m [33m3[0m [34morganisations[0m [33mto[0m [32mthe[0m [33mpreliminary[0m [33mpreliminary[0m [33mpreliminary[0m [34mand[0m [34mfeatures[0m [34m.[0m
