@@ -32,7 +32,7 @@ for ii, dd in enumerate(model_options['dictionaries']):
 
 
 funcs, tp = build_networks(model_options)
-tparams, tparams_xy0, tparams_yx0 = tp
+tparams, tparams_xy0 = tp
 
 # print 'save the compiled functions/tparams for temperal usage'
 
