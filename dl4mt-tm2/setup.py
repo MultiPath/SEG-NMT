@@ -8,22 +8,22 @@ def setup_fren():
     config = {
         # train phase
         'saveto': model + '/TM2.v1_',
-        'datasets': [home + '/.dataset/tm.fren/train.fr.top5.random5.shuf.tok',          # source
-                     home + '/.dataset/tm.fren/train.en.top5.random5.shuf.tok',          # target
-                     home + '/.dataset/tm.fren/train.fr.top5.random5.matched.shuf.tok',  # source-TM
-                     home + '/.dataset/tm.fren/train.en.top5.random5.matched.shuf.tok'   # target-TM
+        'datasets': [home + '/.dataset/tm2.fren/train.fr.top5.shuf.tok',          # source
+                     home + '/.dataset/tm2.fren/train.en.top5.shuf.tok',          # target
+                     home + '/.dataset/tm2.fren/train.fr.top5.matched.shuf.tok',  # source-TM
+                     home + '/.dataset/tm2.fren/train.en.top5.matched.shuf.tok'   # target-TM
                      ],
 
-        'valid_datasets': [home + '/.dataset/tm.fren/devset.fr.tok',
-                           home + '/.dataset/tm.fren/devset.en.tok',
-                           home + '/.dataset/tm.fren/devset.fr.matched.tok',
-                           home + '/.dataset/tm.fren/devset.en.matched.tok'
+        'valid_datasets': [home + '/.dataset/tm2.fren/devset.fr.tok',
+                           home + '/.dataset/tm2.fren/devset.en.tok',
+                           home + '/.dataset/tm2.fren/devset.fr.matched.tok',
+                           home + '/.dataset/tm2.fren/devset.en.matched.tok'
                            ],
 
-        'dictionaries': [home + '/.dataset/tm.fren/train.fr.top5.random5.shuf.tok.pkl',
-                         home + '/.dataset/tm.fren/train.en.top5.random5.shuf.tok.pkl',
-                         home + '/.dataset/tm.fren/train.fr.top5.random5.shuf.tok.pkl',
-                         home + '/.dataset/tm.fren/train.en.top5.random5.shuf.tok.pkl'
+        'dictionaries': [home + '/.dataset/tm2.fren/train.fr.top5.shuf.tok.pkl',
+                         home + '/.dataset/tm2.fren/train.en.top5.shuf.tok.pkl',
+                         home + '/.dataset/tm2.fren/train.fr.top5.shuf.tok.pkl',
+                         home + '/.dataset/tm2.fren/train.en.top5.shuf.tok.pkl'
                          ],
 
         'voc_sizes': [20000, 20000, 20000, 20000],
@@ -34,10 +34,10 @@ def setup_fren():
         'baseline_yx': model + '/baseline_enfr.bs64.npz',
 
         # test phase
-        'trans_from': home + '/.dataset/tm.fren/devset.fr.tok',
-        'tm_source':  home + '/.dataset/tm.fren/devset.fr.matched.tok',
-        'tm_target':  home + '/.dataset/tm.fren/devset.en.matched.tok',
-        'trans_ref':  home + '/.dataset/tm.fren/devset.en.tok',
+        'trans_from': home + '/.dataset/tm2.fren/devset.fr.tok',
+        'tm_source':  home + '/.dataset/tm2.fren/devset.fr.matched.tok',
+        'tm_target':  home + '/.dataset/tm2.fren/devset.en.matched.tok',
+        'trans_ref':  home + '/.dataset/tm2.fren/devset.en.tok',
         'trans_to':   home + '/.translate/TM2.v1.translate'
     }
     return config

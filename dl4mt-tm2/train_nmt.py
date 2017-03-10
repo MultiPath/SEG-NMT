@@ -134,25 +134,15 @@ def validate(funcs, options, iterator, verbose=False):
         y1, y1_mask = prepare_data(sy1, 200, options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, 200, options['voc_sizes'][2])
         y2, y2_mask = prepare_data(sy2, 200, options['voc_sizes'][3])
-
-        # print 'x1:{}, x2:{}, y1:{}, y2:{}'.format(x1.shape, x2.shape, y1.shape, y2.shape)
-
-        tx12, tx12_mask = prepare_cross(sx1, sx2, x1.shape[0])
-        tx21, tx21_mask = prepare_cross(sx2, sx1, x2.shape[0])
         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
-        ty21, ty21_mask = prepare_cross(sy1, sy2, y2.shape[0])
 
         inps = [x1, x1_mask, y1, y1_mask,
                 x2, x2_mask, y2, y2_mask,
-                ty12, ty12_mask, ty21, ty21_mask,
-                tx12, tx12_mask, tx21, tx21_mask]
+                ty12, ty12_mask]
 
         pprobs = funcs['valid'](*inps)
         for pp in pprobs:
             probs.append(pp)
-
-        # if numpy.isnan(numpy.mean(probs)):
-        #     ipdb.set_trace()
 
         if verbose:
             print >>sys.stderr, '%d samples computed' % (n_done)
@@ -171,18 +161,13 @@ for eidx in xrange(max_epochs):
         y1, y1_mask = prepare_data(sy1, model_options['maxlen'], model_options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, model_options['maxlen'], model_options['voc_sizes'][2])
         y2, y2_mask = prepare_data(sy2, model_options['maxlen'], model_options['voc_sizes'][3])
-
-        tx12, tx12_mask = prepare_cross(sx1, sx2, x1.shape[0])
-        tx21, tx21_mask = prepare_cross(sx2, sx1, x2.shape[0])
         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
-        ty21, ty21_mask = prepare_cross(sy2, sy1, y2.shape[0])
 
         # print 'x1:{}, x2:{}, y1:{}, y2:{}'.format(x1.shape, x2.shape, y1.shape, y2.shape)
 
         inps = [x1, x1_mask, y1, y1_mask,
                 x2, x2_mask, y2, y2_mask,
-                ty12, ty12_mask, ty21, ty21_mask,
-                tx12, tx12_mask, tx21, tx21_mask]
+                ty12, ty12_mask]
 
         try:
             execute(inps, lrate, [eidx, uidx])  # train one step.

@@ -160,7 +160,7 @@ def build_model(tparams, inps, options, pix='', return_cost=False, with_compile=
     if with_compile:
         print 'Build f_critic...',
         attention_prop = opt_ret['attention'] * y_mask[:, :, None]
-        f_critic = theano.function(inps, [attention_prop, opt_ret['logit']],
+        f_critic = theano.function(inps, [attention_prop, opt_ret['ctxs'], opt_ret['logit']],
                                    name='f_critic', profile=profile)
 
         opt_ret['f_critic'] = f_critic
@@ -407,15 +407,11 @@ def gen_sample(tparams,
 
 # generate sample, either with stochastic sampling or beam search. Note that,
 # this function iteratively calls f_init and f_next functions.
-def gen_sample_memory(tparams,
-               funcs,
-               x1, x2, y2,
-               options,
-               rng=None,
-               m=0,
-               k=1,  # beam-size
-               maxlen=200,
-               stochastic=True, argmax=False):
+def gen_sample_memory(tparams, funcs,
+                      x1, x2, y2,
+                      options, rng=None,
+                      m=0, k=1, maxlen=200,
+                      stochastic=True, argmax=False):
     # modes
     modes = ['xy', 'yx']
     l_max = options['voc_sizes'][1-m]
@@ -424,12 +420,9 @@ def gen_sample_memory(tparams,
     x1_mask = numpy.array(x1 > 0, dtype='float32')
     x2_mask = numpy.array(x2 > 0, dtype='float32')
     y2_mask = numpy.array(y2 > 0, dtype='float32')
-
-    # mask problem (last step is zero) ----> a small bug
     x1_mask[1:] = x1_mask[:-1]
     x2_mask[1:] = x2_mask[:-1]
     y2_mask[1:] = y2_mask[:-1]
-
 
     # k is the beam size we have
     if k > 1:
@@ -452,46 +445,31 @@ def gen_sample_memory(tparams,
     hyp_states  = []
 
     # get initial state of decoder rnn and encoder context for x1
-    ret = funcs['init_' + modes[m]](x1)
+    ret = funcs['init_xy'](x1)
     next_state, ctx0 = ret[0], ret[1]  # init-state, contexts
     next_w = -1 * numpy.ones((1,)).astype('int64')  # bos indicator
 
-    # get translation memory encoder context
-    _, mctx0 = funcs['init_' + modes[m]](x2)
-
     # get attention propagation for translation memory
-    attpipe, _ = funcs['crit_' + modes[1 - m]](y2, y2_mask, x2, x2_mask)
-    attpipe = numpy.squeeze(attpipe)
+    _, ctxs2, _ = funcs['crit_xy'](x2, x2_mask, y2, y2_mask)
 
     for ii in xrange(maxlen):
-        ctx = numpy.tile(ctx0, [live_k, 1])
-        mctx = numpy.tile(mctx0, [live_k, 1])
-#         print len(ctx)
-#         print ii
+        ctx  = numpy.tile(ctx0, [live_k, 1])
+
         # -- mask OOV words as UNK
         _next_w = (next_w * (next_w < l_max) + 1.0 * (next_w >= l_max)).astype('int64')
 
-        # --copy mode
-        ret = funcs['att_' + modes[m]](next_state, _next_w, mctx)
-        mctxs, matt, mattsum = ret[0], ret[1], ret[2]    # matt: batchsize x len_x2
-        copy_p = numpy.dot(matt, attpipe)  # batchsize x len_y2
-
         # --generate mode
-        ret = funcs['next_' + modes[m]](_next_w, ctx, next_state)
+        ret = funcs['next_xy'](_next_w, ctx, next_state)
         next_p, next_w, next_state, ctxs, attsum = ret[0], ret[1], ret[2], ret[3], ret[4]
 
-        # compute gate
-        if not options['build_gate']:
-            gates = numpy.clip(mattsum / (attsum + mattsum), 0, 1) # Natural Gate.
-        else:
-            gates = funcs['gate'](
-                next_state[None, :, :],
-                ctxs[None, :, :],
-                mctxs[None, :, :])[0]  # batchsize
+        # -- compute mapping, gating and copying attention
+        mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2)
+        gates  = numpy.squeeze(gates)
+        copy_p = numpy.squeeze(copy_p)
 
         # real probabilities
-        next_p *= gates[:, None]
-        copy_p *= 1 - gates[:, None]
+        next_p *= 1 - gates[:, None]
+        copy_p *= gates[:, None]
 
         def _merge():
             temp_p = copy.copy(numpy.concatenate([next_p, copy_p], axis=1))
@@ -501,7 +479,7 @@ def gen_sample_memory(tparams,
                     if y2[j] != 1:
                         temp_p[i, y2[j]] += copy_p[i, j]
                         temp_p[i, l_max + j] = 0.
-                temp_p[i, 1] = 0. # never output UNK
+                temp_p[i, 1] = 0.  # never output UNK
             # temp_p -= 1e-8
             return temp_p
 
@@ -560,7 +538,6 @@ def gen_sample_memory(tparams,
             hyp_states = []
             hyp_gatings = []
             hyp_actions = []
-
 
             for idx in xrange(len(new_hyp_samples)):
                 if new_hyp_samples[idx][-1] == 0:
@@ -754,12 +731,12 @@ def build_networks(options, model=' ', train=True):
     print 'Done'
 
     # put everything into function lists
-    funcs['init_xy']  = f_init_xy
-    funcs['next_xy']  = f_next_xy
-
-    funcs['init_xy0'] = f_init_xy0
-    funcs['next_xy0'] = f_next_xy0
-    funcs['map']      = f_map
+    funcs['init_xy']   = f_init_xy
+    funcs['next_xy']   = f_next_xy
+    funcs['critic_xy'] = ret_xy11['f_critic']
+    funcs['init_xy0']  = f_init_xy0
+    funcs['next_xy0']  = f_next_xy0
+    funcs['map']       = f_map
 
     print 'Build Networks... done!'
     if train:
