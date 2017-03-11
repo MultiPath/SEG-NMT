@@ -450,10 +450,11 @@ def gen_sample_memory(tparams, funcs,
     next_w = -1 * numpy.ones((1,)).astype('int64')  # bos indicator
 
     # get attention propagation for translation memory
-    _, ctxs2, _ = funcs['crit_xy'](x2, x2_mask, y2, y2_mask)
+    _, ctxs20, _ = funcs['crit_xy'](x2, x2_mask, y2, y2_mask)
 
     for ii in xrange(maxlen):
-        ctx  = numpy.tile(ctx0, [live_k, 1])
+        ctx   = numpy.tile(ctx0,   [live_k, 1])
+        ctxs2 = numpy.tile(ctxs20, [live_k, 1])
 
         # -- mask OOV words as UNK
         _next_w = (next_w * (next_w < l_max) + 1.0 * (next_w >= l_max)).astype('int64')
@@ -464,8 +465,10 @@ def gen_sample_memory(tparams, funcs,
 
         # -- compute mapping, gating and copying attention
         mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2)
-        gates  = numpy.squeeze(gates)
-        copy_p = numpy.squeeze(copy_p)
+        gates  = gates[0]
+        copy_p = copy_p[0]
+
+        # print gates, gates.shape
 
         # real probabilities
         next_p *= 1 - gates[:, None]
@@ -629,8 +632,8 @@ def build_networks(options, model=' ', train=True):
     params_map  = get_layer('bi')[0](options, params_map,
                                       nin1=2 * options['dim'],
                                       nin2=2 * options['dim'])
-    params_map['tau'] = numpy.ones((1,)).astype('float32')    # temperature for copy
-    params_map['eta'] = numpy.ones((1,)).astype('float32')    # temperature for gate
+    params_map['tau'] = numpy.float32(1.)    # temperature for copy
+    params_map['eta'] = numpy.float32(1.)    # temperature for gate
 
     tparams_map = init_tparams(params_map)
 
@@ -707,11 +710,17 @@ def build_networks(options, model=' ', train=True):
         cost   = cost.mean()
         g_cost = g_cost.mean()
 
+        if options['only_train_g']:
+            _tparams = tparams_map
+        else:
+            _tparams = tparams
+
         if options['gate_loss']:
             grads = clip(tensor.grad(cost + options['gate_lambda'] * g_cost,
-                                     wrt=itemlist(tparams)), options['clip_c'])
+                                     wrt=itemlist(_tparams)), options['clip_c'])
         else:
-            grads = clip(tensor.grad(cost, wrt=itemlist(tparams)), options['clip_c'])
+            grads = clip(tensor.grad(cost,
+                                     wrt=itemlist(_tparams)), options['clip_c'])
         print 'Done'
 
         # compile the optimizer, the actual computational graph is compiled here
@@ -720,7 +729,7 @@ def build_networks(options, model=' ', train=True):
 
         print 'Building Optimizers...',
         f_cost, f_update = eval(options['optimizer'])(
-            lr, tparams, grads, inputs, outputs)
+            lr, _tparams, grads, inputs, outputs)
 
         funcs['valid']  = f_valid
         funcs['cost']   = f_cost
@@ -733,7 +742,7 @@ def build_networks(options, model=' ', train=True):
     # put everything into function lists
     funcs['init_xy']   = f_init_xy
     funcs['next_xy']   = f_next_xy
-    funcs['critic_xy'] = ret_xy11['f_critic']
+    funcs['crit_xy']   = ret_xy11['f_critic']
     funcs['init_xy0']  = f_init_xy0
     funcs['next_xy0']  = f_next_xy0
     funcs['map']       = f_map

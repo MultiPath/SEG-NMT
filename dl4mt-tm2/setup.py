@@ -101,7 +101,7 @@ def setup(pair='fren'):
         'decay_c': 0.,
         'clip_c': 1.,
         'use_dropout': False,
-        'lrate': 0.000002,
+        'lrate': 0.001,
         'patience': 1000,
 
         'batch_size': 16,
@@ -115,13 +115,14 @@ def setup(pair='fren'):
         'reload_': True,
 
         'use_pretrain': True,
+        'only_train_g': True,
         'stochastic': False,
         'build_gate': True,
         'gate_loss': True,
         'gate_lambda': 0.1,
 
         # testing details
-        'beamsize': 1,
+        'beamsize': 5,
         'normalize': True,
         'd_maxlen': 200
     }

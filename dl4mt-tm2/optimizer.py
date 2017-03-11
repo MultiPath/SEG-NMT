@@ -25,7 +25,7 @@ def clip(grads, clip_c=0):
 
 # name(hyperp, tparams, grads, inputs (list), cost) = f_grad_shared, f_update
 def adam(lr, tparams, grads, inp, cost):
-    gshared = [theano.shared(p.get_value() * 0.,
+    gshared = [theano.shared(p.get_value() * numpy.float32(0.),
                              name='%s_grad' % k)
                for k, p in tparams.iteritems()]
     gsup = [(gs, g) for gs, g in zip(gshared, grads)]
@@ -45,8 +45,8 @@ def adam(lr, tparams, grads, inp, cost):
     lr_t = lr * (tensor.sqrt(fix2) / fix1)
 
     for p, g in zip(tparams.values(), gshared):
-        m = theano.shared(p.get_value() * 0.)
-        v = theano.shared(p.get_value() * 0.)
+        m = theano.shared(p.get_value() * numpy.float32(0.))
+        v = theano.shared(p.get_value() * numpy.float32(0.))
         m_t = (b1 * g) + ((1. - b1) * m)
         v_t = (b2 * tensor.sqr(g)) + ((1. - b2) * v)
         g_t = m_t / (tensor.sqrt(v_t) + e)

@@ -21,6 +21,21 @@ from collections import OrderedDict
 
 profile = False
 
+class flushfile(object):
+    def __getattr__(self,name):
+        return object.__getattribute__(self.f, name)
+    def __init__(self, f):
+        self.f = f
+
+    def write(self, x):
+        self.f.write(x)
+        self.f.flush()
+
+import sys
+sys.stdout = flushfile(sys.stdout)
+
+
+
 
 class Timeit(object):
     def __init__(self, func):
@@ -29,7 +44,7 @@ class Timeit(object):
     def __call__(self, *args, **kws):
         start_t = time.time()
         result = self._wrapped(*args, **kws)
-        print '{}: elapsed {:.4f} secs.\n'.format(self._wrapped.__name__,
+        print '{}: elapsed {:.4f} secs.'.format(self._wrapped.__name__,
                                                 time.time() - start_t)
         return result
 
@@ -145,7 +160,7 @@ def softmax(x):
     else:
         shp  = x.shape
         prob = tensor.nnet.softmax(
-               x.reshape(shp[0] * shp[1], shp[2]))
+               x.reshape((shp[0] * shp[1], shp[2])))
         return prob.reshape(x.shape)
 
 
@@ -224,11 +239,15 @@ def fflayer(tparams, state_below, options, prefix='rconv',
 
 
 # bi-linear layer:
-def param_init_bllayer(options, params, prefix='bi', nin1=None, nin2=None):
+def param_init_bllayer(options, params, prefix='bi', nin1=None, nin2=None, eye=False):
     if not nin2:
         nin2 = nin1
 
-    params[_p(prefix, 'M')] = norm_weight(nin1, nin2, scale=0.01, ortho=True)
+    if not eye:
+        params[_p(prefix, 'M')] = norm_weight(nin1, nin2, scale=0.01, ortho=True)
+    else:
+        params[_p(prefix, 'M')] = numpy.eye(nin1, nin2, dtype='float32')
+
     return params
 
 

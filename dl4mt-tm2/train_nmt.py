@@ -1,3 +1,4 @@
+from __future__ import division
 from nmt import *
 from pprint import pprint
 from setup import setup
@@ -109,7 +110,7 @@ def idx2seq(x, ii, pp=None):
 def execute(inps, lrate, info):
     eidx, uidx = info
     cost, g_cost = funcs['cost'](*inps)
-    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost, 'G', g_cost
+    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost, 'G', g_cost,
 
     # check for bad numbers, usually we remove non-finite elements
     # and continue training - but not done here
@@ -208,7 +209,8 @@ for eidx in xrange(max_epochs):
                                                          y2[:, jj][:, None],
                                                          model_options,
                                                          rng=model_options['rng'],
-                                                         m=0, k=5, maxlen=200,
+                                                         m=0, k=model_options['beamsize'],
+                                                         maxlen=200,
                                                          stochastic=model_options['stochastic'],
                                                          argmax=True)
 
@@ -217,7 +219,8 @@ for eidx in xrange(max_epochs):
                                            funcs['next_xy0'],
                                            x1[:, jj][:, None],
                                            model_options,
-                                           rng=model_options['rng'], k=5,
+                                           rng=model_options['rng'],
+                                           k=model_options['beamsize'],
                                            maxlen=200,
                                            stochastic=model_options['stochastic'],
                                            argmax=True)
@@ -230,19 +233,20 @@ for eidx in xrange(max_epochs):
                 print '-----------------------------'
 
                 if model_options['stochastic']:
-                    ss = sample
+                    ss  = sample
+                    act = acts
+                    gg_ = gg
                 else:
-                    sc /= numpy.array([len(s) for s in sample])
+                    sc /= numpy.array([len(s) for s in sample]).astype('float32')
                     ss = sample[sc.argmin()]
                     act = acts[sc.argmin()]
                     gg_ = gg[sc.argmin()]
 
                 if model_options['stochastic']:
-                    ss = sample0
+                    ss0 = sample0
                 else:
-                    sc /= numpy.array([len(s) for s in sample0])
-                    ss0 = sample[sc.argmin()]
-#                 ss0 = sample0
+                    sc0 /= numpy.array([len(s) for s in sample0]).astype('float32')
+                    ss0  = sample0[sc0.argmin()]
 
                 _ss = []
                 for ii, si in enumerate(ss):
@@ -254,8 +258,6 @@ for eidx in xrange(max_epochs):
 
                 # print 'Sample-CR {}: {}'.format(jj, idx2seq(_ss, 1))
                 print 'NMT Model {}: {}'.format(jj, idx2seq(ss0, 1))
-                print _ss
-                print act
                 print 'Copy Prob {}: {}'.format(jj, idx2seq(_ss, 1, act))
                 print 'Copy Gate {}: {}'.format(jj, idx2seq(_ss, 1, gg_))
                 print
