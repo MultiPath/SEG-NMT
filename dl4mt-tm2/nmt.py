@@ -159,8 +159,7 @@ def build_model(tparams, inps, options, pix='', return_cost=False, with_compile=
 
     if with_compile:
         print 'Build f_critic...',
-        attention_prop = opt_ret['attention'] * y_mask[:, :, None]
-        f_critic = theano.function(inps, [attention_prop, opt_ret['ctxs'], opt_ret['logit']],
+        f_critic = theano.function(inps, [opt_ret['hids'], opt_ret['ctxs'], opt_ret['logit']],
                                    name='f_critic', profile=profile)
 
         opt_ret['f_critic'] = f_critic
@@ -449,7 +448,7 @@ def gen_sample_memory(tparams, funcs,
     next_w = -1 * numpy.ones((1,)).astype('int64')  # bos indicator
 
     # get attention propagation for translation memory
-    _, ctxs20, _ = funcs['crit_xy'](x2, x2_mask, y2, y2_mask)
+    hids20, ctxs20, _ = funcs['crit_xy'](x2, x2_mask, y2, y2_mask)
 
     # initial coverage vector
     next_cov = numpy.zeros((live_k, y2.shape[0]), dtype='float32')
@@ -457,6 +456,7 @@ def gen_sample_memory(tparams, funcs,
     for ii in xrange(maxlen):
         ctx   = numpy.tile(ctx0,   [live_k, 1])
         ctxs2 = numpy.tile(ctxs20, [live_k, 1])
+        hids2 = numpy.tile(hids20, [live_k, 1])
         y2_mask_ = numpy.tile(y2_mask, [live_k])
 
         # -- mask OOV words as UNK
@@ -468,9 +468,13 @@ def gen_sample_memory(tparams, funcs,
 
         # -- compute mapping, gating and copying attention
         if not options['use_coverage']:
-            mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2, y2_mask_)
+            mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2,
+                                                  next_state[None, :, :], hids2,
+                                                  y2_mask_)
         else:
-            outs = funcs['map'](ctxs[None, :, :], ctxs2, y2_mask_, next_cov)
+            outs = funcs['map'](ctxs[None, :, :], ctxs2,
+                                next_state[None, :, :], hids2,
+                                y2_mask_, next_cov)
             mapping, gates, copy_p, next_cov = [o[0] for o in outs]
 
         # real probabilities
@@ -661,7 +665,7 @@ def build_networks(options, model=' ', train=True):
 
     if not options['use_coverage']:
 
-        inps += [ret_xy11['ctxs'], ret_xy22['ctxs'], ret_xy11['hids'], ret_xy22['hids']]
+        inps += [ret_xy11['ctxs'], ret_xy22['ctxs'], ret_xy11['hids'], ret_xy22['hids'], y2_mask]
 
         # ctx1: dec_len x batch_size x context_dim
         # ctx2: dec_tm  x batch_size x context_dim
@@ -693,7 +697,7 @@ def build_networks(options, model=' ', train=True):
 
     else:
 
-        inps += [ret_xy11['ctxs'], ret_xy22['ctxs'], att0]
+        inps += [ret_xy11['ctxs'], ret_xy22['ctxs'], ret_xy11['hids'], ret_xy22['hids'], y2_mask, att0]
 
 
         # cur_ctx1: batch_size x context_dim
@@ -729,8 +733,8 @@ def build_networks(options, model=' ', train=True):
 
         coverage, attens, mapping, gates = ret[0], ret[1], ret[2], ret[3]
 
-        outs += [mapping, attens, coverage]
-        # gates = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
+        outs += [mapping, gates, attens, coverage]
+
 
     print 'Building Mapping functions, ...',
     f_map = theano.function(inps, outs, profile=profile)
