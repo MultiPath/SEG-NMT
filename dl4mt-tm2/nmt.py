@@ -629,9 +629,17 @@ def build_networks(options, model=' ', train=True):
 
     print 'build mapping (bi-linear model)!'
     params_map  = OrderedDict()
-    params_map  = get_layer('bi')[0](options, params_map,
-                                      nin1=2 * options['dim'],
-                                      nin2=2 * options['dim'])
+
+    if not options['use_coverage']:
+        params_map  = get_layer('bi')[0](options, params_map,
+                                         nin1=2 * options['dim'],
+                                         nin2=2 * options['dim'])
+    else:
+        params_map  = get_layer('bi')[0](options, params_map,
+                                         nin1=2 * options['dim'],
+                                         nin2=2 * options['dim'],
+                                         bias=True)
+
     params_map['tau'] = numpy.float32(1.)    # temperature for copy
     params_map['eta'] = numpy.float32(1.)    # temperature for gate
 
@@ -668,7 +676,7 @@ def build_networks(options, model=' ', train=True):
             mapping_ = get_layer('bi')[1](tparams_map, cur_ctx1[None, :, :],
                                           tm_ctx2, prev_att[None, :, :])[0]  # batchsize x dec_tm
             attens_  = softmax(mapping_ * tparams_map['tau'], mask=tm_mask)
-            coverage = prev_att + attens
+            coverage = prev_att + attens_
             return coverage, attens_, mapping_
 
         ret, _ = theano.scan(build_mapping_step,
