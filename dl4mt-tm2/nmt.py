@@ -455,6 +455,7 @@ def gen_sample_memory(tparams, funcs,
     for ii in xrange(maxlen):
         ctx   = numpy.tile(ctx0,   [live_k, 1])
         ctxs2 = numpy.tile(ctxs20, [live_k, 1])
+        y2_mask_ = numpy.tile(y2_mask, [live_k])
 
         # -- mask OOV words as UNK
         _next_w = (next_w * (next_w < l_max) + 1.0 * (next_w >= l_max)).astype('int64')
