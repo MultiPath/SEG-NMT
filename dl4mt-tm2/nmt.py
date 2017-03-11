@@ -643,7 +643,7 @@ def build_networks(options, model=' ', train=True):
     def build_mapping(ctx1, ctx2):
         ctx1 = normalize(ctx1)
         ctx2 = normalize(ctx2)
-        return get_layer('bi')[1](tparams_map, ctx1, ctx2, activ='lambda x: tensor.tanh(x)')
+        return get_layer('bi')[1](tparams_map, ctx1, ctx2, activ='lambda x: x')
 
     mapping = build_mapping(ret_xy11['ctxs'], ret_xy22['ctxs'])
 
