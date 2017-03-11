@@ -442,7 +442,6 @@ def gen_sample_memory(tparams, funcs,
     hyp_actions = [[]] * live_k
     hyp_gatings = [[]] * live_k
     hyp_scores  = numpy.zeros(live_k).astype('float32')
-    hyp_states  = []
 
     # get initial state of decoder rnn and encoder context for x1
     ret = funcs['init_xy'](x1)
@@ -451,6 +450,9 @@ def gen_sample_memory(tparams, funcs,
 
     # get attention propagation for translation memory
     _, ctxs20, _ = funcs['crit_xy'](x2, x2_mask, y2, y2_mask)
+
+    # initial coverage vector
+    next_cov = numpy.zeros((live_k, y2.shape[0]), dtype='float32')
 
     for ii in xrange(maxlen):
         ctx   = numpy.tile(ctx0,   [live_k, 1])
@@ -465,7 +467,11 @@ def gen_sample_memory(tparams, funcs,
         next_p, next_w, next_state, ctxs, attsum = ret[0], ret[1], ret[2], ret[3], ret[4]
 
         # -- compute mapping, gating and copying attention
-        mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2, y2_mask_)
+        if not options['use_coverage']:
+            mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2, y2_mask_)
+        else:
+            mapping, gates, copy_p, next_cov = funcs['map'](ctxs[None, :, :], ctxs2, y2_mask_, next_cov)
+
         gates  = gates[0]
         copy_p = copy_p[0]
 
@@ -484,7 +490,6 @@ def gen_sample_memory(tparams, funcs,
                         temp_p[i, y2[j]] += copy_p[i, j]
                         temp_p[i, l_max + j] = 0.
                 temp_p[i, 1] = 0.  # never output UNK
-            # temp_p -= 1e-8
             return temp_p
 
         merge_p = _merge()
@@ -519,8 +524,9 @@ def gen_sample_memory(tparams, funcs,
             costs = cand_flat[ranks_flat]
 
             new_hyp_samples = []
-            new_hyp_scores = numpy.zeros(k - dead_k).astype('float32')
-            new_hyp_states = []
+            new_hyp_scores  = numpy.zeros(k - dead_k).astype('float32')
+            new_hyp_states  = []
+            new_hyp_covs    = []
             new_hyp_gatings = []
             new_hyp_actions = []
 
@@ -528,6 +534,7 @@ def gen_sample_memory(tparams, funcs,
                 new_hyp_samples.append(hyp_samples[ti] + [wi])
                 new_hyp_scores[idx] = copy.copy(costs[idx])
                 new_hyp_states.append(copy.copy(next_state[ti]))
+                new_hyp_covs.append(copy.copy(next_cov[ti]))
                 new_hyp_gatings.append(hyp_gatings[ti] + [1 - gates[ti]])
                 if wi >= l_max:
                     new_hyp_actions.append(hyp_actions[ti] + [0])
@@ -537,8 +544,9 @@ def gen_sample_memory(tparams, funcs,
             # check the finished samples
             new_live_k = 0
             hyp_samples = []
-            hyp_scores = []
-            hyp_states = []
+            hyp_scores  = []
+            hyp_states  = []
+            hyp_covs    = []
             hyp_gatings = []
             hyp_actions = []
 
@@ -554,6 +562,7 @@ def gen_sample_memory(tparams, funcs,
                     hyp_samples.append(new_hyp_samples[idx])
                     hyp_scores.append(new_hyp_scores[idx])
                     hyp_states.append(new_hyp_states[idx])
+                    hyp_covs.append(new_hyp_covs[idx])
                     hyp_gatings.append(new_hyp_gatings[idx])
                     hyp_actions.append(new_hyp_actions[idx])
 
@@ -569,6 +578,7 @@ def gen_sample_memory(tparams, funcs,
 
             next_w = numpy.array([w[-1] for w in hyp_samples])
             next_state = numpy.array(hyp_states)
+            next_cov   = numpy.array(hyp_covs)
 
     if not stochastic:
         # dump every remaining one
@@ -645,6 +655,8 @@ def build_networks(options, model=' ', train=True):
 
     tparams_map = init_tparams(params_map)
 
+    att0 = tensor.matrix('init_atten')
+
     if not options['use_coverage']:
         # ctx1: dec_len x batch_size x context_dim
         # ctx2: dec_tm  x batch_size x context_dim
@@ -663,10 +675,16 @@ def build_networks(options, model=' ', train=True):
         tm_mask = y2_mask.T
         attens  = softmax(mapping * tparams_map['tau'], mask=tm_mask[None, :, :])
 
+        print 'Building Mapping functions, ...',
+        f_map = theano.function([ret_xy11['ctxs'], ret_xy22['ctxs'], y2_mask],
+                                [mapping, gates, attens], profile=profile)
+        print 'Done.'
+
     else:
         ctx1 = normalize(ret_xy11['ctxs'])
         ctx2 = normalize(ret_xy22['ctxs'])
-        att0 = tensor.zeros((ctx2.shape[1], ctx2.shape[0]), dtype='float32')
+
+        # att0 = tensor.zeros((ctx2.shape[1], ctx2.shape[0]), dtype='float32')
 
         # cur_ctx1: batch_size x context_dim
         # tm_ctx2:  dec_tm x batch_size x context_dim
@@ -687,10 +705,10 @@ def build_networks(options, model=' ', train=True):
         coverage, attens, mapping = ret[0], ret[1], ret[2]
         gates = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
 
-    print 'Building Mapping functions, ...',
-    f_map   = theano.function([ret_xy11['ctxs'], ret_xy22['ctxs'], y2_mask],
-                              [mapping, gates, attens], profile=profile)
-    print 'Done.'
+        print 'Building Mapping functions, ...',
+        f_map = theano.function([ret_xy11['ctxs'], ret_xy22['ctxs'], y2_mask, att0],
+                                [mapping, gates, attens, coverage], profile=profile)
+        print 'Done.'
 
     print 'build loss function (w/o gate)'
 
@@ -736,6 +754,9 @@ def build_networks(options, model=' ', train=True):
         inputs = [x1, x1_mask, y1, y1_mask,
                   x2, x2_mask, y2, y2_mask,
                   txy12, txy12_mask]
+        if options['use_coverage']:
+            inputs += [att0]
+
         f_valid = theano.function(inputs, cost, profile=profile)
 
         print 'build Gradient (backward)...',
