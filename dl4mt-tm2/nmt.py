@@ -636,75 +636,105 @@ def build_networks(options, model=' ', train=True):
     print 'build mapping (bi-linear model)!'
     params_map  = OrderedDict()
 
+    # params for copying
     if not options['use_coverage']:
-        params_map  = get_layer('bi')[0](options, params_map,
+        params_map  = get_layer('bi')[0](options, params_map, prefix='map_bi',
                                          nin1=2 * options['dim'],
                                          nin2=2 * options['dim'])
     else:
-        params_map  = get_layer('bi')[0](options, params_map,
+        params_map  = get_layer('bi')[0](options, params_map, prefix='map_ff',
                                          nin1=2 * options['dim'],
                                          nin2=2 * options['dim'],
                                          bias=True)
-
     params_map['tau'] = numpy.float32(1.)    # temperature for copy
-    params_map['eta'] = numpy.float32(1.)    # temperature for gate
+
+    # params for gating
+    params_map = get_layer('ff')[0](options, params_map,
+                                    nin=5 * options['dim'], nout=2)
+
 
     tparams_map = init_tparams(params_map)
 
     att0 = tensor.matrix('init_atten')
+    inps = []
+    outs = []
 
     if not options['use_coverage']:
+
+        inps += [ret_xy11['ctxs'], ret_xy22['ctxs'], ret_xy11['hids'], ret_xy22['hids']]
+
         # ctx1: dec_len x batch_size x context_dim
         # ctx2: dec_tm  x batch_size x context_dim
         # map : dec_cur x batch_size x dec_tm
         def build_mapping(ctx1, ctx2):
             ctx1 = normalize(ctx1)
             ctx2 = normalize(ctx2)
-            return get_layer('bi')[1](tparams_map, ctx1, ctx2, activ='lambda x: x')
+            return get_layer('bi')[1](tparams_map, ctx1, ctx2,
+                                      prefix='map_bi', activ='lambda x: x')
 
-        mapping = build_mapping(ret_xy11['ctxs'], ret_xy22['ctxs'])
-
-        # gate: alternative
-        gates   = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
+        mapping = build_mapping(inps[0], inps[1])
 
         # copy: alternative
         tm_mask = y2_mask.T
         attens  = softmax(mapping * tparams_map['tau'], mask=tm_mask[None, :, :])
 
-        print 'Building Mapping functions, ...',
-        f_map = theano.function([ret_xy11['ctxs'], ret_xy22['ctxs'], y2_mask],
-                                [mapping, gates, attens], profile=profile)
-        print 'Done.'
+        # gate: alternative
+        # gates   = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
+        att_tmh = tensor.batched_dot(attens.dimshuffle(1, 0, 2),            # dec_cur x bs x dec_tm
+                                     ret_xy22['hids'].dimshuffle(1, 0, 2))  # dec_tm x bs x hid_dim
+                                                                            # bs x dec_cur x hid_dim
+        att_tmh = att_tmh.dimshuffle(1, 0, 2)
+
+        gates = get_layer('ff')[1](tparams_map,
+                                   concatenate([ret_xy11['hids'], att_tmh, ret_xy11['ctxs']], axis=2),
+                                   options, prefix='map_ff', activ='softmax')[:, :, 0]
+
+        outs += [mapping, gates, attens]
 
     else:
-        ctx1 = normalize(ret_xy11['ctxs'])
-        ctx2 = normalize(ret_xy22['ctxs'])
 
-        # att0 = tensor.zeros((ctx2.shape[1], ctx2.shape[0]), dtype='float32')
+        inps += [ret_xy11['ctxs'], ret_xy22['ctxs'], att0]
+
 
         # cur_ctx1: batch_size x context_dim
         # tm_ctx2:  dec_tm x batch_size x context_dim
         # prev_att: batch_size x dec_tm
         # map : dec_cur x batch_size x dec_tm
-        def build_mapping_step(cur_ctx1, prev_att, tm_ctx2, tm_mask):
-            mapping_ = get_layer('bi')[1](tparams_map, cur_ctx1[None, :, :],
+        def build_mapping_step(cur_ctx1, cur_hid,
+                               prev_att,
+                               tm_ctx2, tm_hids, tm_mask):
+            # normalize
+            cur_ctx1_ = normalize(cur_ctx1)
+
+            mapping_  = get_layer('bi')[1](tparams_map, cur_ctx1_[None, :, :],
                                           tm_ctx2, prev_att[None, :, :])[0]  # batchsize x dec_tm
-            attens_  = softmax(mapping_ * tparams_map['tau'], mask=tm_mask)
-            coverage = prev_att + attens_
-            return coverage, attens_, mapping_
+            attens_   = softmax(mapping_ * tparams_map['tau'], mask=tm_mask)
+            coverage  = prev_att + attens_
+
+            att_tmh   = tensor.batched_dot(attens_[:, None, :],            # bs x dec_tm
+                                           tm_hids.dimshuffle(1, 0, 2))    # dec_tm x bs x hid_dim
+                                                                           # bs x 1 x hid_dim
+            att_tmh   = att_tmh[:, 0, :]                                   # bs x hid_dim
+
+            gates_    = get_layer('ff')[1](tparams_map,
+                                           concatenate([cur_hid, att_tmh, cur_ctx1], axis=1),
+                                           options, prefix='map_ff', activ='softmax')[:, 0]
+
+            return coverage, attens_, mapping_, gates_
 
         ret, _ = theano.scan(build_mapping_step,
-                             sequences=[ctx1],
-                             outputs_info=[att0, None, None],
-                             non_sequences=[ctx2, y2_mask.T])
+                             sequences=[ret_xy11['ctxs'], ret_xy11['hids']],
+                             outputs_info=[att0, None, None, None],
+                             non_sequences=[normalize(ret_xy22['ctxs']), ret_xy22['hids'], y2_mask.T])
 
-        coverage, attens, mapping = ret[0], ret[1], ret[2]
-        gates = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
+        coverage, attens, mapping, gates = ret[0], ret[1], ret[2], ret[3]
 
-        print 'Building Mapping functions, ...',
-        f_map = theano.function([ret_xy11['ctxs'], ret_xy22['ctxs'], y2_mask, att0],
-                                [mapping, gates, attens, coverage], profile=profile)
-        print 'Done.'
+        outs += [mapping, attens, coverage]
+        # gates = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
+
+    print 'Building Mapping functions, ...',
+    f_map = theano.function(inps, outs, profile=profile)
+    print 'Done.'
 
     print 'build loss function (w/o gate)'
 
