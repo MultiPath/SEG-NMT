@@ -465,7 +465,7 @@ def gen_sample_memory(tparams, funcs,
         next_p, next_w, next_state, ctxs, attsum = ret[0], ret[1], ret[2], ret[3], ret[4]
 
         # -- compute mapping, gating and copying attention
-        mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2, y2_mask)
+        mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2, y2_mask_)
         gates  = gates[0]
         copy_p = copy_p[0]
 
