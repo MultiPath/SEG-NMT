@@ -530,8 +530,7 @@ def gen_sample_memory(tparams, funcs,
                 new_hyp_states.append(copy.copy(next_state[ti]))
                 new_hyp_gatings.append(hyp_gatings[ti] + [1 - gates[ti]])
                 if wi >= l_max:
-
-                    new_hyp_actions.append(hyp_actions[ti]+ [0])
+                    new_hyp_actions.append(hyp_actions[ti] + [0])
                 else:
                     new_hyp_actions.append(hyp_actions[ti] + [next_p[0, wi] / merge_p[0, wi]])
 
