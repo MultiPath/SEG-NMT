@@ -464,7 +464,7 @@ def gen_sample_memory(tparams, funcs,
         next_p, next_w, next_state, ctxs, attsum = ret[0], ret[1], ret[2], ret[3], ret[4]
 
         # -- compute mapping, gating and copying attention
-        mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2)
+        mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2, y2_mask)
         gates  = gates[0]
         copy_p = copy_p[0]
 
@@ -652,27 +652,35 @@ def build_networks(options, model=' ', train=True):
         gates   = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
 
         # copy: alternative
-        attens  = softmax(mapping * tparams_map['tau'], mask=y2_mask[None, :, :])
+        tm_mask = y2_mask.T
+        attens  = softmax(mapping * tparams_map['tau'], mask=tm_mask[None, :, :])
 
     else:
         ctx1 = normalize(ret_xy11['ctxs'])
         ctx2 = normalize(ret_xy22['ctxs'])
+        att0 = tensor.zeros((ctx2.shape[1], ctx2.shape[0]), dtype='float32')
 
         # cur_ctx1: batch_size x context_dim
         # tm_ctx2:  dec_tm x batch_size x context_dim
         # prev_att: batch_size x dec_tm
         # map : dec_cur x batch_size x dec_tm
-        def build_mapping_step(cur_ctx1, tm_ctx2, prev_att):
+        def build_mapping_step(cur_ctx1, prev_att, tm_ctx2, tm_mask):
             mapping_ = get_layer('bi')[1](tparams_map, cur_ctx1[None, :, :],
-                                          tm_ctx2, prev_att[None, :, :])  # 1 x batchsize x dec_tm
-            attens = softmax(mapping_)
-        mapping, _ = theano.scan(build_mapping_step,
-                                 sequences=[ctx1],
-                                 outputs_info=1)
+                                          tm_ctx2, prev_att[None, :, :])[0]  # batchsize x dec_tm
+            attens_  = softmax(mapping_ * tparams_map['tau'], mask=tm_mask)
+            coverage = prev_att + attens
+            return coverage, attens_, mapping_
 
+        ret, _ = theano.scan(build_mapping_step,
+                             sequences=[ctx1],
+                             outputs_info=[att0, None, None],
+                             non_sequences=[ctx2, y2_mask.T])
+
+        coverage, attens, mapping = ret[0], ret[1], ret[2]
+        gates = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
 
     print 'Building Mapping functions, ...',
-    f_map   = theano.function([ret_xy11['ctxs'], ret_xy22['ctxs']],
+    f_map   = theano.function([ret_xy11['ctxs'], ret_xy22['ctxs'], y2_mask],
                               [mapping, gates, attens], profile=profile)
     print 'Done.'
 
