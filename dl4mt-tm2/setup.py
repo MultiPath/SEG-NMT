@@ -7,7 +7,7 @@ def setup_fren():
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
-        'saveto': model + '/TM2.v2_',
+        'saveto': model + '/TM2.v3_',
         'datasets': [home + '/.dataset/tm2.fren/train.fr.top5.shuf.tok',          # source
                      home + '/.dataset/tm2.fren/train.en.top5.shuf.tok',          # target
                      home + '/.dataset/tm2.fren/train.fr.top5.matched.shuf.tok',  # source-TM
@@ -116,6 +116,8 @@ def setup(pair='fren'):
 
         'use_pretrain': True,
         'only_train_g': True,
+        'use_coverage': False,
+
         'stochastic': False,
         'build_gate': True,
         'gate_loss': True,

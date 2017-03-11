@@ -496,7 +496,7 @@ def gen_sample_memory(tparams, funcs,
                 nw = rng.multinomial(1, pvals=merge_p[0]).argmax()
 
             sample.append(nw)
-            gating.append(gates[:, None])
+            gating.append(1 - gates[:, None])
             if nw >= l_max:
                 action.append(0.0)
             else:
@@ -527,7 +527,7 @@ def gen_sample_memory(tparams, funcs,
                 new_hyp_samples.append(hyp_samples[ti] + [wi])
                 new_hyp_scores[idx] = copy.copy(costs[idx])
                 new_hyp_states.append(copy.copy(next_state[ti]))
-                new_hyp_gatings.append(hyp_gatings[ti] + [gates[ti]])
+                new_hyp_gatings.append(hyp_gatings[ti] + [1 - gates[ti]])
                 if wi >= l_max:
 
                     new_hyp_actions.append(hyp_actions[ti]+ [0])
@@ -637,21 +637,39 @@ def build_networks(options, model=' ', train=True):
 
     tparams_map = init_tparams(params_map)
 
-    # ctx1: dec_len x batch_size x context_dim
-    # ctx2: src_len x batch_size x context_dim
-    # map : dec_cur x batch_size x dec_tm
-    def build_mapping(ctx1, ctx2):
-        ctx1 = normalize(ctx1)
-        ctx2 = normalize(ctx2)
-        return get_layer('bi')[1](tparams_map, ctx1, ctx2, activ='lambda x: x')
+    if not options['use_coverage']:
+        # ctx1: dec_len x batch_size x context_dim
+        # ctx2: dec_tm  x batch_size x context_dim
+        # map : dec_cur x batch_size x dec_tm
+        def build_mapping(ctx1, ctx2):
+            ctx1 = normalize(ctx1)
+            ctx2 = normalize(ctx2)
+            return get_layer('bi')[1](tparams_map, ctx1, ctx2, activ='lambda x: x')
 
-    mapping = build_mapping(ret_xy11['ctxs'], ret_xy22['ctxs'])
+        mapping = build_mapping(ret_xy11['ctxs'], ret_xy22['ctxs'])
 
-    # gate: alternative
-    gates   = sigmoid(tensor.max(mapping, axis=-1) * tensor.maximum(tparams_map['eta'], 0.5))
+        # gate: alternative
+        gates   = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
 
-    # copy: alternative
-    attens  = softmax(mapping * tparams_map['tau'])
+        # copy: alternative
+        attens  = softmax(mapping * tparams_map['tau'], mask=y2_mask[None, :, :])
+
+    else:
+        ctx1 = normalize(ret_xy11['ctxs'])
+        ctx2 = normalize(ret_xy22['ctxs'])
+
+        # cur_ctx1: batch_size x context_dim
+        # tm_ctx2:  dec_tm x batch_size x context_dim
+        # prev_att: batch_size x dec_tm
+        # map : dec_cur x batch_size x dec_tm
+        def build_mapping_step(cur_ctx1, tm_ctx2, prev_att):
+            mapping_ = get_layer('bi')[1](tparams_map, cur_ctx1[None, :, :],
+                                          tm_ctx2, prev_att[None, :, :])  # 1 x batchsize x dec_tm
+            attens = softmax(mapping_)
+        mapping, _ = theano.scan(build_mapping_step,
+                                 sequences=[ctx1],
+                                 outputs_info=1)
+
 
     print 'Building Mapping functions, ...',
     f_map   = theano.function([ret_xy11['ctxs'], ret_xy22['ctxs']],

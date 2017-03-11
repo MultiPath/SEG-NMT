@@ -154,14 +154,20 @@ def sigmoid(x):
     return tensor.nnet.sigmoid(x)
 
 
-def softmax(x):
-    if x.ndim == 2:
-        return tensor.nnet.softmax(x)
+def softmax(x, mask=None):
+    if not mask:
+        if x.ndim == 2:
+            return tensor.nnet.softmax(x)
+        else:
+            shp  = x.shape
+            prob = tensor.nnet.softmax(
+                   x.reshape((shp[0] * shp[1], shp[2])))
+            return prob.reshape(x.shape)
     else:
-        shp  = x.shape
-        prob = tensor.nnet.softmax(
-               x.reshape((shp[0] * shp[1], shp[2])))
-        return prob.reshape(x.shape)
+        max_x = x.max(axis=-1, keepdims=True)
+        exp_x = tensor.exp(x - max_x) * mask
+        prob  = exp_x / exp_x.sum(axis=-1, keepdims=True)
+        return prob
 
 
 def linear(x):
@@ -239,7 +245,9 @@ def fflayer(tparams, state_below, options, prefix='rconv',
 
 
 # bi-linear layer:
-def param_init_bllayer(options, params, prefix='bi', nin1=None, nin2=None, eye=False):
+def param_init_bllayer(options, params, prefix='bi',
+                       nin1=None, nin2=None, eye=False,
+                       bias=False):
     if not nin2:
         nin2 = nin1
 
@@ -248,11 +256,18 @@ def param_init_bllayer(options, params, prefix='bi', nin1=None, nin2=None, eye=F
     else:
         params[_p(prefix, 'M')] = numpy.eye(nin1, nin2, dtype='float32')
 
+    if bias:
+        params[_p(prefix, 'b')] = numpy.float32(0.)
+
     return params
 
 
-def bllayer(tparams, input1, input2, prefix='bi',
-            activ='lambda x: tensor.nnet.sigmoid(x)', **kwargs):
+def bllayer(tparams, input1, input2, cov=None, prefix='bi',
+            activ='lambda x: tensor.nnet.sigmoid(x)',
+            **kwargs):
+
+    if cov is not None:
+        assert (_p(prefix, 'b') in tparams, 'coverage as bias')
 
     input1 = tensor.dot(input1, tparams[_p(prefix, 'M')])
     if input1.ndim == 2:
@@ -261,6 +276,9 @@ def bllayer(tparams, input1, input2, prefix='bi',
         output = tensor.batched_dot(input1.dimshuffle(1, 0, 2),
                                     input2.dimshuffle(1, 2, 0))
         output = output.dimshuffle(1, 0, 2)  # dec_len x batch_size x enc_len
+
+    if cov:
+        output += tparams[_p(prefix, 'b')] * cov
 
     return eval(activ)(output)
 
