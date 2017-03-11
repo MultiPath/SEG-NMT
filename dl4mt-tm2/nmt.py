@@ -703,13 +703,13 @@ def build_networks(options, model=' ', train=True):
         y_mask *= ((1 - _y) + _y * (1 - t_mask))
 
         # normal loss
-        ccost = -tensor.log(compute_prob(prob, y, y_mask) * g +
-                            compute_prob(att, t, t_mask) * (1 - g) +
+        ccost = -tensor.log(compute_prob(prob, y, y_mask) * (1 - g) +
+                            compute_prob(att, t, t_mask) * g +
                             1e-7)
         ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
 
         # gate loss
-        gcost = -(tensor.log(g) * (1 - t_mask) + tensor.log(1-g) * t_mask)
+        gcost = -(tensor.log(1 - g) * (1 - t_mask) + tensor.log(g) * t_mask)
         gcost = (gcost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
 
         return ccost, gcost
