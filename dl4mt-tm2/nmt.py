@@ -470,12 +470,8 @@ def gen_sample_memory(tparams, funcs,
         if not options['use_coverage']:
             mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2, y2_mask_)
         else:
-            mapping, gates, copy_p, next_cov = funcs['map'](ctxs[None, :, :], ctxs2, y2_mask_, next_cov)
-
-        gates  = gates[0]
-        copy_p = copy_p[0]
-
-        # print gates, gates.shape
+            outs = funcs['map'](ctxs[None, :, :], ctxs2, y2_mask_, next_cov)
+            mapping, gates, copy_p, next_cov = [o[0] for o in outs]
 
         # real probabilities
         next_p *= 1 - gates[:, None]
