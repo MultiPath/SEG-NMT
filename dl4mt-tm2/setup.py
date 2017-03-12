@@ -38,7 +38,7 @@ def setup_fren():
         'tm_source':  home + '/.dataset/tm2.fren/devset.fr.matched.tok',
         'tm_target':  home + '/.dataset/tm2.fren/devset.en.matched.tok',
         'trans_ref':  home + '/.dataset/tm2.fren/devset.en.tok',
-        'trans_to':   home + '/.translate/TM2.v1.translate'
+        'trans_to':   home + '/.translate/TM2.v5.translate'
     }
     return config
 
@@ -116,7 +116,7 @@ def setup(pair='fren'):
 
         'use_pretrain': True,
         'only_train_g': True,
-        'use_coverage': False,
+        'use_coverage': True,
 
         'stochastic': False,
         'build_gate': True,

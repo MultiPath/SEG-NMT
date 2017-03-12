@@ -3,7 +3,7 @@
 
 # Define a timestamp function
 timestamp=$(date +"%Y-%m-%d_%T")
-logfile=./.log/$timestamp.log # print timestamp
+logfile=./.log/train_$timestamp.log # print timestamp
 echo $logfile
 
 

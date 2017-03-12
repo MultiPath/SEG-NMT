@@ -30,17 +30,18 @@ def translate_model(queue, model, options, k, normalize, m=0, d_maxlen=200):
                                   numpy.array(seq_x2).reshape([len(seq_x2), 1]),
                                   numpy.array(seq_y2).reshape([len(seq_y2), 1]),
                                   options, rng=trng, m=m, k=k, maxlen=d_maxlen,
-                                  stochastic=True, argmax=True)
+                                  stochastic=options['stochastic'], argmax=True)
 
         # normalize scores according to sequence lengths
         if k > 1:
             if normalize:
                 lengths = numpy.array([len(s) for s in sample])
                 score = score / lengths
-            sidx = numpy.argmin(score)
-            return sample[sidx]
+            sidx   = numpy.argmin(score)
+            sample, score, action, gating = \
+                    sample[sidx], score[sidx], action[sidx], gating[sidx]
 
-        return sample
+        return sample, score, action, gating
 
 
     rqueue = []
@@ -51,10 +52,10 @@ def translate_model(queue, model, options, k, normalize, m=0, d_maxlen=200):
         y2 = map(lambda ii: ii if ii < options['voc_sizes'][3] else 1, sy2)
 
         print 'translate-', idx
-        seq  = _translate(x1, x2, y2)
+        seq, ss, acts, gs = _translate(x1, x2, y2)
         sseq = map(lambda ii: ii if ii < options['voc_sizes'][1] else sy2[ii-options['voc_sizes'][1]], seq)
 
-        rqueue.append(sseq)
+        rqueue.append((sseq, ss, acts, gs))
 
     return rqueue
 
@@ -133,12 +134,18 @@ def main(model, dictionary, dictionary_target,
         return queue
 
 
-    print 'Translating ', source_file_x1, '...'
+    print 'Translating ', source_file_x1, '...to...', saveto
     queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
-    trans = _seqs2words(translate_model(queue, model, options, k, normalize, 0, d_maxlen))
+    rets  = translate_model(queue, model, options, k, normalize, 0, d_maxlen)
+    sseqs, ss, acts, gs = zip(*rets)
+
+    trans = _seqs2words(sseqs)
     with open(saveto, 'w') as f:
         print >>f, '\n'.join(trans)
     print 'Done'
+
+    pkl.dump(rets, open(saveto + '.pkl', 'w'))
+    print 'All Done'
 
 
 if __name__ == "__main__":
@@ -148,7 +155,7 @@ if __name__ == "__main__":
 
     config = setup(args.m)
 
-    main('/root/disk/scratch/model-tmnmt/new.L-gate.v1_fren.ff.16-50.npz',
+    main(config['saveto'],
          config['dictionaries'][0],
          config['dictionaries'][1],
          config['trans_from'],

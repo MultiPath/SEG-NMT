@@ -468,9 +468,11 @@ def gen_sample_memory(tparams, funcs,
 
         # -- compute mapping, gating and copying attention
         if not options['use_coverage']:
-            mapping, gates, copy_p = funcs['map'](ctxs[None, :, :], ctxs2,
-                                                  next_state[None, :, :], hids2,
-                                                  y2_mask_)
+            outs = funcs['map'](ctxs[None, :, :], ctxs2,
+                                next_state[None, :, :], hids2,
+                                y2_mask_)
+            mapping, gates, copy_p = [o[0] for o in outs]
+
         else:
             outs = funcs['map'](ctxs[None, :, :], ctxs2,
                                 next_state[None, :, :], hids2,
@@ -646,15 +648,15 @@ def build_networks(options, model=' ', train=True):
                                          nin1=2 * options['dim'],
                                          nin2=2 * options['dim'])
     else:
-        params_map  = get_layer('bi')[0](options, params_map, prefix='map_ff',
+        params_map  = get_layer('bi')[0](options, params_map, prefix='map_bi',
                                          nin1=2 * options['dim'],
                                          nin2=2 * options['dim'],
                                          bias=True)
     params_map['tau'] = numpy.float32(1.)    # temperature for copy
 
     # params for gating
-    params_map = get_layer('ff')[0](options, params_map,
-                                    nin=5 * options['dim'], nout=2)
+    params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',
+                                    nin=4 * options['dim'], nout=2)
 
 
     tparams_map = init_tparams(params_map)
@@ -697,7 +699,9 @@ def build_networks(options, model=' ', train=True):
 
     else:
 
-        inps += [ret_xy11['ctxs'], ret_xy22['ctxs'], ret_xy11['hids'], ret_xy22['hids'], y2_mask, att0]
+        inps += [ret_xy11['ctxs'], ret_xy22['ctxs'],
+                 ret_xy11['hids'], ret_xy22['hids'],
+                 y2_mask, att0]
 
 
         # cur_ctx1: batch_size x context_dim
@@ -711,7 +715,8 @@ def build_networks(options, model=' ', train=True):
             cur_ctx1_ = normalize(cur_ctx1)
 
             mapping_  = get_layer('bi')[1](tparams_map, cur_ctx1_[None, :, :],
-                                          tm_ctx2, prev_att[None, :, :])[0]  # batchsize x dec_tm
+                                          tm_ctx2, prev_att[None, :, :],
+                                          prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
             attens_   = softmax(mapping_ * tparams_map['tau'], mask=tm_mask)
             coverage  = prev_att + attens_
 
