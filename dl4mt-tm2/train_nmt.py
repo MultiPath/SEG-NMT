@@ -42,7 +42,7 @@ print 'Loading data'
 train = TextIterator(model_options['datasets'], model_options['dictionaries'], [0, 0, 0, 0],
                      batch_size=model_options['batch_size'], maxlen=model_options['maxlen'])
 valid = TextIterator(model_options['valid_datasets'], model_options['dictionaries'], [0, 0, 0, 0],
-                     batch_size=model_options['batch_size'], maxlen=200)
+                     batch_size=model_options['batch_size'], maxlen=500)
 
 
 print clr('-------------------------------------------- Main-Loop -------------------------------------------------',
@@ -267,20 +267,18 @@ for eidx in xrange(max_epochs):
                 print
 
         # validate model on validation set and early stop if necessary
-        # if numpy.mod(uidx, validFreq) == 0:
-        #    # use_noise.set_value(0.)
-        #    valid_errs = validate(funcs, model_options, valid, False)
-        #    valid_err  = valid_errs.mean()
-        #    history_errs.append(valid_err)
+        if numpy.mod(uidx, validFreq) == 0:
+            # use_noise.set_value(0.)
+            valid_errs = validate(funcs, model_options, valid, False)
+            valid_err  = valid_errs.mean()
+            history_errs.append(valid_err)
 
-        #    if numpy.isnan(valid_err):
-        #        print 'NaN detected'
-        #        sys.exit(-1)
+            if numpy.isnan(valid_err):
+                print 'NaN detected'
+                sys.exit(-1)
 
-        #    print 'Valid ', valid_err
+            print 'Valid ', valid_err
 
-        # validate model with BLEU
-        pass
 
         # finish after this many updates
         if uidx >= finish_after:

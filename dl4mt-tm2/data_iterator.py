@@ -41,7 +41,7 @@ class TextIterator:
     def fill(self):
         for i in range(self.nums):
             self.buffers[i] = []  # clean the buffers
-        
+
         for _ in range(self.k):
             lines = [self.datasets[i].readline() for i in range(self.nums)]
 
@@ -50,6 +50,7 @@ class TextIterator:
                 if line == "":
                     flag = True
             if flag:
+                self.end_of_data = True
                 break
 
             for ia in range(self.nums):
@@ -59,7 +60,7 @@ class TextIterator:
         tidx = numpy.array([len(t) for t in self.buffers[1]]).argsort()
         for ib in range(self.nums):
             self.buffers[ib] = [self.buffers[ib][j] for j in tidx]
-            
+
     def next(self):
         if self.end_of_data:
             self.end_of_data = False
@@ -73,7 +74,7 @@ class TextIterator:
 
         if len(self.buffers[0]) == 0:
             self.fill()
-            
+
         flag2 = False
         for ic in range(self.nums):
             if len(self.buffers[ic]) == 0:
@@ -85,7 +86,7 @@ class TextIterator:
             raise StopIteration
 
         try:
-            
+
             # actual work here
             _samples = 0
             while True:
@@ -98,6 +99,7 @@ class TextIterator:
                     try:
                         line = self.buffers[id].pop()
                     except IndexError:
+
                         self.fill()
                         flagx = True
                         break
@@ -109,8 +111,8 @@ class TextIterator:
 
                 if flagx:
                     continue
-                    
-                    
+
+
                 flag3 = False
                 for line in _lines:
                     if len(line) > self.maxlen:

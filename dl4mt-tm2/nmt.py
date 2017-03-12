@@ -599,21 +599,26 @@ def build_networks(options, model=' ', train=True):
     funcs = dict()
 
     print 'Building model: X -> Y & Y -> X model'
-    params_xy = init_params(options, 'xy_')
+    params_xy  = init_params(options, 'xy_')
+    params_xy0 = copy.copy(params_xy)
+    print 'Done.'
+
+    print 'load the pretrained NMT-models...',
+    params_xy0  = load_params2(options['baseline_xy'], params_xy0, mode='xy_')
+    tparams_xy0 = init_tparams(params_xy0)  # pre-trained E->F model
     print 'Done.'
 
     # use pre-trained models
-#     if train:
-    print 'load the pretrained NMT-models...',
-    params_xy = load_params2(options['baseline_xy'], params_xy, mode='xy_')
-    tparams_xy0 = init_tparams(params_xy)  # pre-trained E->F model
-    print 'Done.'
+    if options['use_pretrain']:
+        params_xy = copy.copy(params_xy0)
 
     # reload parameters
     if train:
         if options['reload_'] and os.path.exists(options['saveto']):
             print 'Reloading model parameters'
             params_xy = load_params(options['saveto'], params_xy)
+        else:
+            print 'Start a new model'
     else:
 
         print 'Reloading model parameters'
@@ -646,11 +651,11 @@ def build_networks(options, model=' ', train=True):
     if not options['use_coverage']:
         params_map  = get_layer('bi')[0](options, params_map, prefix='map_bi',
                                          nin1=2 * options['dim'],
-                                         nin2=2 * options['dim'])
+                                         nin2=2 * options['dim'], eye=True)
     else:
         params_map  = get_layer('bi')[0](options, params_map, prefix='map_bi',
                                          nin1=2 * options['dim'],
-                                         nin2=2 * options['dim'],
+                                         nin2=2 * options['dim'], eye=True,
                                          bias=True)
     params_map['tau'] = numpy.float32(1.)    # temperature for copy
 
@@ -673,8 +678,8 @@ def build_networks(options, model=' ', train=True):
         # ctx2: dec_tm  x batch_size x context_dim
         # map : dec_cur x batch_size x dec_tm
         def build_mapping(ctx1, ctx2):
-            ctx1 = normalize(ctx1)
-            ctx2 = normalize(ctx2)
+            # ctx1 = normalize(ctx1)
+            # ctx2 = normalize(ctx2)
             return get_layer('bi')[1](tparams_map, ctx1, ctx2,
                                       prefix='map_bi', activ='lambda x: x')
 
@@ -712,9 +717,9 @@ def build_networks(options, model=' ', train=True):
                                prev_att,
                                tm_ctx2, tm_hids, tm_mask):
             # normalize
-            cur_ctx1_ = normalize(cur_ctx1)
+            # cur_ctx1_ = normalize(cur_ctx1)
 
-            mapping_  = get_layer('bi')[1](tparams_map, cur_ctx1_[None, :, :],
+            mapping_  = get_layer('bi')[1](tparams_map, cur_ctx1[None, :, :],
                                           tm_ctx2, prev_att[None, :, :],
                                           prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
             attens_   = softmax(mapping_ * tparams_map['tau'], mask=tm_mask)
@@ -734,7 +739,7 @@ def build_networks(options, model=' ', train=True):
         ret, _ = theano.scan(build_mapping_step,
                              sequences=[ret_xy11['ctxs'], ret_xy11['hids']],
                              outputs_info=[att0, None, None, None],
-                             non_sequences=[normalize(ret_xy22['ctxs']), ret_xy22['hids'], y2_mask.T])
+                             non_sequences=[ret_xy22['ctxs'], ret_xy22['hids'], y2_mask.T])
 
         coverage, attens, mapping, gates = ret[0], ret[1], ret[2], ret[3]
 
@@ -769,7 +774,7 @@ def build_networks(options, model=' ', train=True):
         ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
 
         # gate loss
-        gcost = -(tensor.log(1 - g) * (1 - t_mask) + tensor.log(g) * t_mask)
+        gcost = (tensor.log(1 - g) * (1 - g) + tensor.log(g) * g)
         gcost = (gcost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
 
         return ccost, gcost

@@ -7,6 +7,6 @@ echo $logfile
 
 export THEANO_FLAGS=device=gpu,floatX=float32
 
-python ./translate_gpu.py -m fren | tee $logfile
+# python ./translate_gpu.py -m fren | tee $logfile
 python ./score.py -m fren | tee -a $logfile
 

@@ -7,7 +7,7 @@ def setup_fren():
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
-        'saveto': model + '/TM2.v5_',
+        'saveto': model + '/TM2.v6_',
         'datasets': [home + '/.dataset/tm2.fren/train.fr.top5.shuf.tok',          # source
                      home + '/.dataset/tm2.fren/train.en.top5.shuf.tok',          # target
                      home + '/.dataset/tm2.fren/train.fr.top5.matched.shuf.tok',  # source-TM
@@ -38,7 +38,7 @@ def setup_fren():
         'tm_source':  home + '/.dataset/tm2.fren/devset.fr.matched.tok',
         'tm_target':  home + '/.dataset/tm2.fren/devset.en.matched.tok',
         'trans_ref':  home + '/.dataset/tm2.fren/devset.en.tok',
-        'trans_to':   home + '/.translate/TM2.v5.translate'
+        'trans_to':   home + '/.translate/TM2.v6.translate'
     }
     return config
 
@@ -106,7 +106,7 @@ def setup(pair='fren'):
 
         'batch_size': 32,
         'valid_batch_size': 32,
-        'validFreq': 100,
+        'validFreq': 250,
         'dispFreq': 10,
         'saveFreq': 500,
         'sampleFreq': 20,
@@ -114,13 +114,13 @@ def setup(pair='fren'):
         'overwrite': True,
         'reload_': True,
 
-        'use_pretrain': True,
-        'only_train_g': True,
+        'use_pretrain': False,
+        'only_train_g': False,
         'use_coverage': True,
 
         'stochastic': False,
         'build_gate': True,
-        'gate_loss': True,
+        'gate_loss':  False,
         'gate_lambda': 0.1,
 
         # testing details
