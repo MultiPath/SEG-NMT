@@ -662,8 +662,6 @@ def build_networks(options, model=' ', train=True):
     # params for gating
     params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',
                                     nin=4 * options['dim'], nout=2)
-
-
     tparams_map = init_tparams(params_map)
 
     att0 = tensor.matrix('init_atten')
@@ -707,7 +705,6 @@ def build_networks(options, model=' ', train=True):
         inps += [ret_xy11['ctxs'], ret_xy22['ctxs'],
                  ret_xy11['hids'], ret_xy22['hids'],
                  y2_mask, att0]
-
 
         # cur_ctx1: batch_size x context_dim
         # tm_ctx2:  dec_tm x batch_size x context_dim

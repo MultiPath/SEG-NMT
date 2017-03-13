@@ -119,6 +119,7 @@ def load_params2(path, params, mode=''):
 # layers: 'name': ('parameter initializer', 'feedforward')
 layers = {'ff': ('param_init_fflayer', 'fflayer'),
           'bi': ('param_init_bllayer', 'bllayer'),
+          'bd': ('param_init_bdlayer', 'bdlayer'),
           'gru': ('param_init_gru', 'gru_layer'),
           'gru_cond': ('param_init_gru_cond', 'gru_cond_layer'),
           }
@@ -273,6 +274,38 @@ def bllayer(tparams, input1, input2, cov=None, prefix='bi',
     if input1.ndim == 2:
         output = tensor.dot(input1, input2.dimshuffle(1, 0))
     else:
+        output = tensor.batched_dot(input1.dimshuffle(1, 0, 2),
+                                    input2.dimshuffle(1, 2, 0))
+        output = output.dimshuffle(1, 0, 2)  # dec_len x batch_size x enc_len
+
+    if cov:
+        output += tparams[_p(prefix, 'b')] * cov
+
+    return eval(activ)(output)
+
+
+# bi-linear layer with diagonal weights:
+def param_init_bdlayer(options, params, prefix='bd',
+                       nin1=None, bias=False):
+
+    params[_p(prefix, 'Md')] = 0.01 * numpy.random.randn((nin1,)).astype('float32')
+    if bias:
+        params[_p(prefix, 'b')] = numpy.float32(0.)
+
+    return params
+
+
+def bdlayer(tparams, input1, input2, cov=None, prefix='bd',
+            activ='lambda x: x', **kwargs):
+
+    if cov is not None:
+        assert (_p(prefix, 'b') in tparams, 'coverage as bias')
+
+    if input1.ndim == 2:
+        input1 = input1 * tparams[_p(prefix, 'Md')][None, :]
+        output = tensor.dot(input1, input2.dimshuffle(1, 0))
+    else:
+        input1 = input1 * tparams[_p(prefix, 'Md')][None, None, :]
         output = tensor.batched_dot(input1.dimshuffle(1, 0, 2),
                                     input2.dimshuffle(1, 2, 0))
         output = output.dimshuffle(1, 0, 2)  # dec_len x batch_size x enc_len

@@ -91,42 +91,44 @@ def setup(pair='fren'):
     config = {
 
         # model details
-        'encoder': 'gru',
-        'decoder': 'gru_cond',
-        'dim_word': 512,
-        'dim': 1024,
+        'encoder':     'gru',
+        'decoder':     'gru_cond',
+        'dim_word':     512,
+        'dim':          1024,
 
         # training details
-        'optimizer': 'adam',
-        'decay_c': 0.,
-        'clip_c': 1.,
-        'use_dropout': False,
-        'lrate': 0.0001,
-        'patience': 1000,
+        'optimizer':   'adam',
+        'decay_c':      0.,
+        'clip_c':       1.,
+        'use_dropout':  False,
+        'lrate':        0.0001,
+        'patience':     1000,
 
-        'batch_size': 32,
+        'batch_size':   32,
         'valid_batch_size': 32,
-        'validFreq': 250,
-        'dispFreq': 10,
-        'saveFreq': 500,
-        'sampleFreq': 20,
+        'validFreq':    250,
+        'dispFreq':     10,
+        'saveFreq':     500,
+        'sampleFreq':   20,
 
-        'overwrite': True,
-        'reload_': True,
+        'overwrite':    True,
+        'reload_':      True,
 
         'use_pretrain': False,
         'only_train_g': False,
+        'diagonal':     True,
         'use_coverage': True,
+        'gru_coverage': True,
 
-        'stochastic': False,
-        'build_gate': True,
-        'gate_loss':  False,
-        'gate_lambda': 0.1,
+        'stochastic':   False,
+        'build_gate':   True,
+        'gate_loss':    False,
+        'gate_lambda':  0.1,
 
         # testing details
-        'beamsize': 5,
-        'normalize': True,
-        'd_maxlen': 200
+        'beamsize':     5,
+        'normalize':    True,
+        'd_maxlen':     200
     }
 
     # get dataset info
