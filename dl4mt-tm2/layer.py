@@ -120,6 +120,7 @@ def load_params2(path, params, mode=''):
 layers = {'ff': ('param_init_fflayer', 'fflayer'),
           'bi': ('param_init_bllayer', 'bllayer'),
           'bd': ('param_init_bdlayer', 'bdlayer'),
+          'bg': ('param_init_bglayer', 'bglayer'),
           'gru': ('param_init_gru', 'gru_layer'),
           'gru_cond': ('param_init_gru_cond', 'gru_cond_layer'),
           }
@@ -280,6 +281,43 @@ def bllayer(tparams, input1, input2, cov=None, prefix='bi',
 
     if cov:
         output += tparams[_p(prefix, 'b')] * cov
+    output = output.reshape((output.shape[1], output.shape[2]))
+    return eval(activ)(output)
+
+def param_init_bglayer(options, params, prefix='bg',
+                       nin1=None, nin2=None, eye=False,
+                       bias=False):
+    if not nin2:
+        nin2 = nin1
+
+    if not eye:
+        params[_p(prefix, 'M')] = norm_weight(nin1, nin2, scale=0.01, ortho=True)
+    else:
+        params[_p(prefix, 'M')] = numpy.eye(nin1, nin2, dtype='float32')
+
+    if bias:
+        params[_p(prefix, 'b')] = numpy.zeros((10,), dtype = 'float32')
+
+    return params
+
+
+def bglayer(tparams, input1, input2, cov=None, prefix='bg',
+            activ='lambda x: tensor.nnet.sigmoid(x)',
+            **kwargs):
+
+    if cov is not None:
+        assert (_p(prefix, 'b') in tparams, 'coverage as bias')
+
+    input1 = tensor.dot(input1, tparams[_p(prefix, 'M')])     #1 x batch_size x c_dim
+    if input1.ndim == 2:
+        output = tensor.dot(input1, input2.dimshuffle(1, 0))
+    else:
+        output = tensor.batched_dot(input1.dimshuffle(1, 0, 2),   #bs x 1 x c_dim
+                                    input2.dimshuffle(1, 2, 0))    # bs x c_dim x dec_tm
+        output = output.dimshuffle(1, 0, 2)  # 1 x batch_size x dec_tm
+
+    if cov:    #bs x dec_tm x d
+        output += (cov * tparams[_p(prefix, 'b')][None, None, :]).sum(-1)[None, :, :]  # 1 x bs x dec_tm
 
     return eval(activ)(output)
 

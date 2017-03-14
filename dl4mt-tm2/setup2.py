@@ -7,8 +7,8 @@ def setup_fren():
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
-        # 'saveto': model + '/10_',
-        'saveto': model + '/TM2.v6_',
+        'saveto': model + '/10_',
+#         'saveto': model + '/TM2.v6_',
         'datasets': [home + '/.dataset/tm2.fren/train.fr.top5.shuf.tok',          # source
                      home + '/.dataset/tm2.fren/train.en.top5.shuf.tok',          # target
                      home + '/.dataset/tm2.fren/train.fr.top5.matched.shuf.tok',  # source-TM
@@ -39,7 +39,7 @@ def setup_fren():
         'tm_source':  home + '/.dataset/tm2.fren/devset.fr.matched.tok',
         'tm_target':  home + '/.dataset/tm2.fren/devset.en.matched.tok',
         'trans_ref':  home + '/.dataset/tm2.fren/devset.en.tok',
-        'trans_to':   home + '/.translate/TM2.v6.150k.translate'
+        'trans_to':   home + '/.translate/TM2.v6.120k.translate'
     }
     return config
 

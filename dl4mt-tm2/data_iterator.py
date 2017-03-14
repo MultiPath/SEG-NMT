@@ -198,3 +198,4 @@ def prepare_cross(seqs_x1, seqs_x2, maxlen_x1):
                 t_mask[jdx, idx] = 1.
 
     return t, t_mask
+
