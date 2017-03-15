@@ -803,25 +803,31 @@ def build_networks(options, model=' ', train=True):
     print 'build loss function (w/o gate)'
 
     # get the loss function
-    def compute_prob(probs, y, y_mask):
+    def compute_prob(probs, y, y_mask=None):
 
         # compute the loss for the vocabulary-selection side
         y_flat  = y.flatten()
         n_words = probs.shape[-1]
         y_flat_idx = tensor.arange(y_flat.shape[0]) * n_words + y_flat
         probw   = probs.flatten()[y_flat_idx]
-        probw   = probw.reshape([y.shape[0], y.shape[1]]) * y_mask
+        probw   = probw.reshape([y.shape[0], y.shape[1]])
+        if y_mask is not None:
+           probw  *= y_mask
         return probw
 
     def compute_cost(prob, y, y_mask, att, t, t_mask, g):
         _y = tensor.eq(y, 1)
         y_mask *= ((1 - _y) + _y * (1 - t_mask))
 
-        # normal loss
-        ccost = -tensor.log(compute_prob(prob, y, y_mask) * (1 - g) +
-                            compute_prob(att, t, t_mask) * g +
-                            1e-7)
-        ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
+        # normal loss ---> maybe neumerically unstable
+        # ccost = -tensor.log(compute_prob(prob, y, y_mask) * (1 - g) +
+        #                     compute_prob(att, t, t_mask) * g +
+        #                     1e-7)
+
+        # alternative loss
+        ccost = -tensor.log(compute_prob(prob, y)) * (1 - g) * y_mask \
+                -tensor.log(compute_prob(att, t))  * g       * t_mask
+        ccost = ccost.sum(0)
 
         # gate loss
         gcost = -(tensor.log(1 - g) * (1 - t_mask) + tensor.log(g) * t_mask)

@@ -112,7 +112,7 @@ def idx2seq(x, ii, pp=None):
 def execute(inps, lrate, info):
     eidx, uidx = info
     cost, g_cost, g2 = funcs['cost'](*inps)
-    print 'Epoch {}: update {}, cost {}, gate-cost {}, grad-s2 {}',.format(eidx, uidx, cost, g_cost, g2)
+    print 'Epoch {0}: update {1}, cost {2:.2f}, gate-cost {3:.2f}, grad-s2 {4:d}'.format(eidx, uidx, cost, g_cost, g2),
 
     # check for bad numbers, usually we remove non-finite elements
     # and continue training - but not done here
