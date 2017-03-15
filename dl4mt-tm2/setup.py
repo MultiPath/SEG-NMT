@@ -3,12 +3,14 @@ def setup_fren():
     # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     home  = '/root/workspace/TMNMT'
     model = '/root/disk/scratch/model-tmnmt'
+    name  = 'TM2.basic.v1'
 
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
         # 'saveto': model + '/10_',
-        'saveto': model + '/TM2.v6_',
+        'name': name,
+        'saveto': model + name + '_',
         'datasets': [home + '/.dataset/tm2.fren/train.fr.top5.shuf.tok',          # source
                      home + '/.dataset/tm2.fren/train.en.top5.shuf.tok',          # target
                      home + '/.dataset/tm2.fren/train.fr.top5.matched.shuf.tok',  # source-TM
@@ -39,7 +41,7 @@ def setup_fren():
         'tm_source':  home + '/.dataset/tm2.fren/devset.fr.matched.tok',
         'tm_target':  home + '/.dataset/tm2.fren/devset.en.matched.tok',
         'trans_ref':  home + '/.dataset/tm2.fren/devset.en.tok',
-        'trans_to':   home + '/.translate/TM2.v6.150k.translate'
+        'trans_to':   home + '/.translate/' + name + '.translate'
     }
     return config
 
@@ -107,12 +109,13 @@ def setup(pair='fren'):
 
         'batch_size':   32,
         'valid_batch_size': 32,
+
         'validFreq':    250,
-        'dispFreq':     10,
-        'saveFreq':     500,
+        'bleuFreq':     5000,
+        'saveFreq':     250,
         'sampleFreq':   20,
 
-        'overwrite':    True,
+        'overwrite':    False,
         'reload_':      True,
 
         'use_pretrain': False,
@@ -130,7 +133,8 @@ def setup(pair='fren'):
         # testing details
         'beamsize':     5,
         'normalize':    True,
-        'd_maxlen':     200
+        'd_maxlen':     200,
+        'check_bleu':   True
     }
 
     # get dataset info

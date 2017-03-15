@@ -4,23 +4,26 @@ Translates a source file using a translation model.
 import argparse
 import theano
 import numpy
+import time
 import cPickle as pkl
 from nmt import (build_sampler, gen_sample, gen_sample_memory, load_params,
                  init_params, init_tparams, build_networks)
 from setup import setup
 
 
-from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
-trng = RandomStreams(19920206)
-
-def translate_model(queue, model, options, k, normalize, m=0, d_maxlen=200):
+def translate_model(queue, model, options, k,
+                    normalize, m=0, d_maxlen=200):
 
     use_noise = theano.shared(numpy.float32(0.))
     from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
-    trng = RandomStreams(1234)
+    trng = RandomStreams(19920206)
 
     # word index
-    funcs, tparams = build_networks(options, model,  train = False)
+    # load model model_options
+    if not isinstance(model, basestring):
+        funcs, tparams, options = model
+    else:
+        funcs, tparams = build_networks(options, model,  train = False)
 
     def _translate(seq_x1, seq_x2, seq_y2):
         # sample given an input sequence and obtain scores
@@ -36,37 +39,46 @@ def translate_model(queue, model, options, k, normalize, m=0, d_maxlen=200):
         if k > 1:
             if normalize:
                 lengths = numpy.array([len(s) for s in sample])
-                score = score / lengths
+                score  /= lengths
+
             sidx   = numpy.argmin(score)
             sample, score, action, gating = \
                     sample[sidx], score[sidx], action[sidx], gating[sidx]
 
         return sample, score, action, gating
 
-
     rqueue = []
+    time1  = time.time()
     for req in queue:
         idx, sx1, sx2, sy2 = req[0], req[1], req[2], req[3]
         x1 = map(lambda ii: ii if ii < options['voc_sizes'][0] else 1, sx1)
         x2 = map(lambda ii: ii if ii < options['voc_sizes'][2] else 1, sx2)
         y2 = map(lambda ii: ii if ii < options['voc_sizes'][3] else 1, sy2)
 
-        print 'translate-', idx
+        if idx % 100 == 1:
+            print 'complete translation:{}, {}s'.format(idx, time.time() - time1)
+
         seq, ss, acts, gs = _translate(x1, x2, y2)
         sseq = map(lambda ii: ii if ii < options['voc_sizes'][1] else sy2[ii-options['voc_sizes'][1]], seq)
 
         rqueue.append((sseq, ss, acts, gs))
 
+    print 'complete translation:{}, {}s'.format(idx, time.time() - time1)
     return rqueue
 
 
-def main(model, dictionary, dictionary_target,
-         source_file_x1, source_file_x2, source_file_y2, saveto,
-         k=5, normalize=False, d_maxlen=200, *args, **kwargs):
+def go(model, dictionary, dictionary_target,
+       source_file_x1, source_file_x2, source_file_y2,
+       saveto,
+       k=5, normalize=False, d_maxlen=200,
+       *args, **kwargs):
 
     # load model model_options
-    with open('%s.pkl' % model, 'rb') as f:
-        options = pkl.load(f)
+    if isinstance(model, basestring):
+        with open('%s.pkl' % model, 'rb') as f:
+            options = pkl.load(f)
+    else:
+        funcs, tparams, options = model
 
     # load source dictionary and invert
     with open(dictionary, 'rb') as f:
@@ -85,7 +97,6 @@ def main(model, dictionary, dictionary_target,
         word_idict_trg[vv] = kk
     word_idict_trg[0] = '<eos>'
     word_idict_trg[1] = 'UNK'
-
 
     # utility function
     def _seqs2words(caps):
@@ -133,7 +144,6 @@ def main(model, dictionary, dictionary_target,
 
         return queue
 
-
     print 'Translating ', source_file_x1, '...to...', saveto
     queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
     rets  = translate_model(queue, model, options, k, normalize, 0, d_maxlen)
@@ -155,15 +165,15 @@ if __name__ == "__main__":
 
     config = setup(args.m)
 
-    main(config['saveto'],
-         config['dictionaries'][0],
-         config['dictionaries'][1],
-         config['trans_from'],
-         config['tm_source'],
-         config['tm_target'],
-         config['trans_to'],
-         config['beamsize'],
-         config['normalize'],
-         config['d_maxlen'])
+    go(config['saveto'],
+       config['dictionaries'][0],
+       config['dictionaries'][1],
+       config['trans_from'],
+       config['tm_source'],
+       config['tm_target'],
+       config['trans_to'],
+       config['beamsize'],
+       config['normalize'],
+       config['d_maxlen'])
 
     print 'all done'

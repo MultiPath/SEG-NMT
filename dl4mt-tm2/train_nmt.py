@@ -4,7 +4,9 @@ from pprint import pprint
 from setup import setup
 from data_iterator import TextIterator, prepare_data, prepare_cross
 from termcolor import colored as clr
+from translate_gpu import go
 
+import threading
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -61,6 +63,7 @@ lrate        = model_options['lrate']
 saveFreq     = model_options['saveFreq']
 sampleFreq   = model_options['sampleFreq']
 validFreq    = model_options['validFreq']
+bleuFreq     = model_options['bleuFreq']
 saveto       = model_options['saveto']
 overwrite    = model_options['overwrite']
 
@@ -105,7 +108,6 @@ def idx2seq(x, ii, pp=None):
     return ' '.join(seq)
 
 
-# compute-update
 @Timeit
 def execute(inps, lrate, info):
     eidx, uidx = info
@@ -156,6 +158,33 @@ def validate(funcs, options, iterator, verbose=False):
     return numpy.array(probs)
 
 
+class BLEU(threading.Thread):
+    def __int__(self, funcs, tparams, options, updates):
+        super(BLEU, self).__init__()
+        self.model   = [funcs, tparams, options]
+        self.updates = updates
+        print '[test] I am Thread: %s.' % (threading.currentThread().getName())
+
+    @Timeit
+    def run(self):
+        options = self.model[2]
+        go(self.model,
+           options['dictionaries'][0],
+           options['dictionaries'][1],
+           options['trans_from'],
+           options['tm_source'],
+           options['tm_target'],
+           options['trans_to'] + '.iter={}'.format(self.updates),
+           options['beamsize'],
+           options['normalize'],
+           options['d_maxlen'])
+
+        hyp = options['trans_to'] + '.iter={}'.format(self.updates)
+        ref = options['trans_ref']
+        os.system('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref, hyp))
+        print 'Done'
+
+
 # start!!
 for eidx in xrange(max_epochs):
     n_samples = 0
@@ -187,6 +216,13 @@ for eidx in xrange(max_epochs):
         except Exception, e:
             print clr(e, 'red')
             continue
+
+        # evaluate BLEU score
+        if numpy.mod(uidx, bleuFreq) == 0:
+            print 'Open a new thread to compute the BLEU score...'
+            bleuer = BLEU(funcs, tparams, model_options, uidx)
+            bleuer.start()
+            bleuer.join()
 
         # save the best model so far, in addition, save the latest model
         # into a separate file with the iteration number for external eval
