@@ -141,7 +141,10 @@ def validate(funcs, options, iterator, verbose=False):
                 x2, x2_mask, y2, y2_mask,
                 ty12, ty12_mask]
         if options['use_coverage']:
-            inps += [numpy.zeros((y2.shape[1], y2.shape[0]), dtype='float32')]
+            if not options['nn_coverage']:
+                inps += [numpy.zeros((y2.shape[1], y2.shape[0]), dtype='float32')]
+            else:
+                inps += [numpy.zeros((y2.shape[1], y2.shape[0], options['cov_dim']), dtype='float32')]
 
         pprobs = funcs['valid'](*inps)
         for pp in pprobs:
@@ -171,8 +174,12 @@ for eidx in xrange(max_epochs):
         inps = [x1, x1_mask, y1, y1_mask,
                 x2, x2_mask, y2, y2_mask,
                 ty12, ty12_mask]
+
         if model_options['use_coverage']:
-            inps += [numpy.zeros((y2.shape[1], y2.shape[0]), dtype='float32')]
+            if not model_options['nn_coverage']:
+                inps += [numpy.zeros((y2.shape[1], y2.shape[0]), dtype='float32')]
+            else:
+                inps += [numpy.zeros((y2.shape[1], y2.shape[0], options['cov_dim']), dtype='float32')]
 
         try:
             execute(inps, lrate, [eidx, uidx])  # train one step.

@@ -451,7 +451,10 @@ def gen_sample_memory(tparams, funcs,
     hids20, ctxs20, _ = funcs['crit_xy'](x2, x2_mask, y2, y2_mask)
 
     # initial coverage vector
-    next_cov = numpy.zeros((live_k, y2.shape[0]), dtype='float32')
+    if options['nn_coverage']:
+        next_cov = numpy.zeros((live_k, y2.shape[0], options['cov_dim']), dtype='float32')
+    else:
+        next_cov = numpy.zeros((live_k, y2.shape[0]), dtype='float32')
 
     for ii in xrange(maxlen):
         ctx   = numpy.tile(ctx0,   [live_k, 1])
@@ -653,10 +656,21 @@ def build_networks(options, model=' ', train=True):
                                          nin1=2 * options['dim'],
                                          nin2=2 * options['dim'])
     else:
-        params_map  = get_layer('bi')[0](options, params_map, prefix='map_bi',
-                                         nin1=2 * options['dim'],
-                                         nin2=2 * options['dim'],
-                                         bias=True)
+        if not options['nn_coverage']:
+            params_map = get_layer('bi')[0](options, params_map, prefix='map_bi',
+                                            nin1=2 * options['dim'],
+                                            nin2=2 * options['dim'],
+                                            bias=True, eye=True)
+        else:
+            params_map = get_layer('bg')[0](options, params_map, prefix='map_bg',
+                                            nin1=2 * options['dim'],
+                                            nin2=2 * options['dim'],
+                                            bias=True, eye=True)
+            params_map = get_layer('gru')[0](options, params_map,
+                                             prefix='gru_map',
+                                             nin=4 * options['dim'] + 1,
+                                             dim=options['cov_dim'])
+
     params_map['tau'] = numpy.float32(1.)    # temperature for copy
 
     # params for gating
@@ -666,10 +680,15 @@ def build_networks(options, model=' ', train=True):
     if not train:
         print 'Reloading mapping parameters'
         params_map = load_params(model, params_map)
+        print 'Done.'
 
     tparams_map = init_tparams(params_map)
 
-    att0 = tensor.matrix('init_atten')
+    if not options['nn_coverage']:
+        att0 = tensor.matrix('init_atten')
+    else:
+        att0 = tensor.tensor3('init_atten')
+
     inps = []
     outs = []
 
@@ -677,9 +696,6 @@ def build_networks(options, model=' ', train=True):
 
         inps += [ret_xy11['ctxs'], ret_xy22['ctxs'], ret_xy11['hids'], ret_xy22['hids'], y2_mask]
 
-        # ctx1: dec_len x batch_size x context_dim
-        # ctx2: dec_tm  x batch_size x context_dim
-        # map : dec_cur x batch_size x dec_tm
         def build_mapping(ctx1, ctx2):
             # ctx1 = normalize(ctx1)
             # ctx2 = normalize(ctx2)
@@ -721,23 +737,54 @@ def build_networks(options, model=' ', train=True):
                                tm_ctx2, tm_hids, tm_mask):
             # normalize
             # cur_ctx1_ = normalize(cur_ctx1)
+            if not options['nn_coverage']:
+                mapping   = get_layer('bi')[1](tparams_map, cur_ctx1[None, :, :],
+                                              tm_ctx2, prev_att[None, :, :],
+                                              prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
+                attens    = softmax(mapping * tparams_map['tau'], mask=tm_mask)
+                coverage  = prev_att + attens
 
-            mapping_  = get_layer('bi')[1](tparams_map, cur_ctx1[None, :, :],
-                                          tm_ctx2, prev_att[None, :, :],
-                                          prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
-            attens_   = softmax(mapping_ * tparams_map['tau'], mask=tm_mask)
-            coverage  = prev_att + attens_
-
-            att_tmh   = tensor.batched_dot(attens_[:, None, :],            # bs x dec_tm
+                att_tmh   = tensor.batched_dot(attens[:, None, :],            # bs x dec_tm
                                            tm_hids.dimshuffle(1, 0, 2))    # dec_tm x bs x hid_dim
                                                                            # bs x 1 x hid_dim
-            att_tmh   = att_tmh[:, 0, :]                                   # bs x hid_dim
+                att_tmh   = att_tmh[:, 0, :]                                   # bs x hid_dim
 
-            gates_    = get_layer('ff')[1](tparams_map,
-                                           concatenate([cur_hid, att_tmh, cur_ctx1], axis=1),
-                                           options, prefix='map_ff', activ='softmax')[:, 0]
+                gates     = get_layer('ff')[1](tparams_map,
+                                               concatenate([cur_hid, att_tmh, cur_ctx1], axis=1),
+                                               options, prefix='map_ff', activ='softmax')[:, 0]
+            else:
 
-            return coverage, attens_, mapping_, gates_
+                mapping  = get_layer('bg')[1](tparams_map, cur_ctx1[None, :, :],
+                                              tm_ctx2, prev_att,
+                                              prefix='map_bg', activ='lambda x: x')[0]  # # 1 x bs x dec_tm
+                attens   = softmax(mapping * tparams_map['tau'], mask=tm_mask)
+
+                tm_ctx2_shape = tm_ctx2.shape
+                tm_ctx2_  = tm_ctx2.reshape((tm_ctx2_shape[0] * tm_ctx2_shape[1], tm_ctx2_shape[2]))
+
+                cur_ctx1  = cur_ctx1[None, :, :]
+                cur_ctx1_ = tensor.repeat(cur_ctx1, tm_ctx2_shape[0], axis=0).reshape(
+                                (tm_ctx2_shape[0] * tm_ctx2_shape[1], tm_ctx2_shape[2]))
+
+                attens_   = attens.dimshuffle(1, 0)
+                attens_   = attens_[:, :, None]
+                attens_   = attens_.reshape((tm_ctx2_shape[0] * tm_ctx2_shape[1], 1))
+
+                state_below = concatenate([tm_ctx2_, cur_ctx1_, attens_], axis=1)
+                state_below = state_below[None, :, :]
+
+                coverage    = get_layer('gru')[1](tparams_map, state_below, options, prefix='gru_map')
+                coverage    = coverage[0].reshape((tm_ctx2_shape[1], tm_ctx2_shape[0], options['cov_dim']))
+                att_tmh     = tensor.batched_dot(attens[:, None, :],  # bs x dec_tm
+                                                 tm_hids.dimshuffle(1, 0, 2))  # dec_tm x bs x hid_dim
+                # bs x 1 x hid_dim
+                att_tmh     = att_tmh[:, 0, :]  # bs x hid_dim
+
+                gates       = get_layer('ff')[1](tparams_map,
+                                                 concatenate([cur_hid, att_tmh, cur_ctx1], axis=1),
+                                                 options, prefix='map_ff', activ='softmax')[:, 0]
+
+            return coverage, attens, mapping, gates
 
         ret, _ = theano.scan(build_mapping_step,
                              sequences=[ret_xy11['ctxs'], ret_xy11['hids']],

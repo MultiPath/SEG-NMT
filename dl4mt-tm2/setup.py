@@ -119,7 +119,8 @@ def setup(pair='fren'):
         'only_train_g': False,
         'diagonal':     True,
         'use_coverage': True,
-        'gru_coverage': True,
+        'nn_coverage':  False,
+        'cov_dim':      10,
 
         'stochastic':   False,
         'build_gate':   True,
