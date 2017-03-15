@@ -111,8 +111,8 @@ def idx2seq(x, ii, pp=None):
 @Timeit
 def execute(inps, lrate, info):
     eidx, uidx = info
-    cost, g_cost = funcs['cost'](*inps)
-    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost, 'G', g_cost,
+    cost, g_cost, g2 = funcs['cost'](*inps)
+    print 'Epoch {}: update {}, cost {}, gate-cost {}, grad-s2 {}',.format(eidx, uidx, cost, g_cost, g2)
 
     # check for bad numbers, usually we remove non-finite elements
     # and continue training - but not done here

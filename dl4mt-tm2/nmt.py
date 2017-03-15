@@ -659,13 +659,13 @@ def build_networks(options, model=' ', train=True):
             params_map = get_layer('bi')[0](options, params_map, prefix='map_bi',
                                             nin1=2 * options['dim'],
                                             nin2=2 * options['dim'],
-                                            bias=True, eye=True)
+                                            bias=True, eye=False)
         else:
             print 'use neural network coverage'
             params_map = get_layer('bg')[0](options, params_map, prefix='map_bg',
                                             nin1=2 * options['dim'],
                                             nin2=2 * options['dim'],
-                                            bias=True, eye=True)
+                                            bias=True, eye=False)
             params_map = get_layer('gru')[0](options, params_map,
                                              prefix='gru_map',
                                              nin=4 * options['dim'] + 1,
@@ -861,16 +861,16 @@ def build_networks(options, model=' ', train=True):
             _tparams = tparams
 
         if options['gate_loss']:
-            grads = clip(tensor.grad(cost + options['gate_lambda'] * g_cost,
+            grads, g2 = clip(tensor.grad(cost + options['gate_lambda'] * g_cost,
                                      wrt=itemlist(_tparams)), options['clip_c'])
         else:
-            grads = clip(tensor.grad(cost,
+            grads, g2 = clip(tensor.grad(cost,
                                      wrt=itemlist(_tparams)), options['clip_c'])
         print 'Done'
 
         # compile the optimizer, the actual computational graph is compiled here
         lr = tensor.scalar(name='lr')
-        outputs = [cost, g_cost]
+        outputs = [cost, g_cost, g2]
 
         print 'Building Optimizers...',
         f_cost, f_update = eval(options['optimizer'])(

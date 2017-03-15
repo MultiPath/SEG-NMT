@@ -10,8 +10,8 @@ profile = False
 
 # apply gradient clipping here
 def clip(grads, clip_c=0):
+    g2 = 0.
     if clip_c > 0.:
-        g2 = 0.
         for g in grads:
             g2 += (g ** 2).sum()
         new_grads = []
@@ -20,7 +20,7 @@ def clip(grads, clip_c=0):
                                            g / tensor.sqrt(g2) * clip_c,
                                            g))
         grads = new_grads
-    return grads
+    return grads, g2
 
 
 # name(hyperp, tparams, grads, inputs (list), cost) = f_grad_shared, f_update
