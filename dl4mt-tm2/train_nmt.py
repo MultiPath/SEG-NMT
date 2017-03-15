@@ -179,7 +179,7 @@ for eidx in xrange(max_epochs):
             if not model_options['nn_coverage']:
                 inps += [numpy.zeros((y2.shape[1], y2.shape[0]), dtype='float32')]
             else:
-                inps += [numpy.zeros((y2.shape[1], y2.shape[0], options['cov_dim']), dtype='float32')]
+                inps += [numpy.zeros((y2.shape[1], y2.shape[0], model_options['cov_dim']), dtype='float32')]
 
         try:
             execute(inps, lrate, [eidx, uidx])  # train one step.
