@@ -4,13 +4,13 @@ def setup_fren():
     home  = '/root/workspace/TMNMT'
     model = '/root/disk/scratch/model-tmnmt'
     name  = 'TM2.basic.v1'
+    # name  = 'TM2.v6'
 
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
-        # 'saveto': model + '/10_',
         'name': name,
-        'saveto': model + name + '_',
+        'saveto': model + '/' + name + '_',
         'datasets': [home + '/.dataset/tm2.fren/train.fr.top5.shuf.tok',          # source
                      home + '/.dataset/tm2.fren/train.en.top5.shuf.tok',          # target
                      home + '/.dataset/tm2.fren/train.fr.top5.matched.shuf.tok',  # source-TM
@@ -37,11 +37,11 @@ def setup_fren():
         'baseline_yx': model + '/baseline_enfr.bs64.npz',
 
         # test phase
-        'trans_from': home + '/.dataset/tm2.fren/devset.fr.tok',
-        'tm_source':  home + '/.dataset/tm2.fren/devset.fr.matched.tok',
-        'tm_target':  home + '/.dataset/tm2.fren/devset.en.matched.tok',
-        'trans_ref':  home + '/.dataset/tm2.fren/devset.en.tok',
-        'trans_to':   home + '/.translate/' + name + '.translate'
+        'trans_from': home + '/.dataset/tm2.fren/devset.fren.fr.tok',
+        'tm_source':  home + '/.dataset/tm2.fren/devset.fren.fr.matched.tok',
+        'tm_target':  home + '/.dataset/tm2.fren/devset.fren.en.matched.tok',
+        'trans_ref':  home + '/.dataset/tm2.fren/devset.fren.en.tok',
+        'trans_to':   home + '/.translate/' + name + '.dev.translate'
     }
     return config
 

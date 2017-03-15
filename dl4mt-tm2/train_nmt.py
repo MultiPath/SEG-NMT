@@ -53,7 +53,7 @@ print clr('-------------------------------------------- Main-Loop --------------
 # ------------------ initlization --------------- #
 best_p       = None
 bad_counter  = 0
-uidx         = 0
+uidx         = -1
 estop        = False
 history_errs = []
 max_epochs   = 100
@@ -143,7 +143,7 @@ def validate(funcs, options, iterator, verbose=False):
                 x2, x2_mask, y2, y2_mask,
                 ty12, ty12_mask]
         if options['use_coverage']:
-            if not options['nn_coverage']:
+            if not options.get('nn_coverage', False):
                 inps += [numpy.zeros((y2.shape[1], y2.shape[0]), dtype='float32')]
             else:
                 inps += [numpy.zeros((y2.shape[1], y2.shape[0], options['cov_dim']), dtype='float32')]
@@ -159,16 +159,15 @@ def validate(funcs, options, iterator, verbose=False):
 
 
 class BLEU(threading.Thread):
-    def __int__(self, funcs, tparams, options, updates):
+    def __init__(self, options, updates):
         super(BLEU, self).__init__()
-        self.model   = [funcs, tparams, options]
+        self.options = options
         self.updates = updates
-        print '[test] I am Thread: %s.' % (threading.currentThread().getName())
 
-    @Timeit
     def run(self):
-        options = self.model[2]
-        go(self.model,
+        print '[test] I am Thread: %s.' % (threading.currentThread().getName())
+        options = self.options
+        go(options['saveto'],
            options['dictionaries'][0],
            options['dictionaries'][1],
            options['trans_from'],
@@ -186,43 +185,12 @@ class BLEU(threading.Thread):
 
 
 # start!!
+bleuers = []
 for eidx in xrange(max_epochs):
     n_samples = 0
 
     for k, (sx1, sy1, sx2, sy2) in enumerate(train):
         uidx += 1
-
-        x1, x1_mask = prepare_data(sx1, model_options['maxlen'], model_options['voc_sizes'][0])
-        y1, y1_mask = prepare_data(sy1, model_options['maxlen'], model_options['voc_sizes'][1])
-        x2, x2_mask = prepare_data(sx2, model_options['maxlen'], model_options['voc_sizes'][2])
-        y2, y2_mask = prepare_data(sy2, model_options['maxlen'], model_options['voc_sizes'][3])
-        ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
-
-        # print 'x1:{}, x2:{}, y1:{}, y2:{}'.format(x1.shape, x2.shape, y1.shape, y2.shape)
-
-        inps = [x1, x1_mask, y1, y1_mask,
-                x2, x2_mask, y2, y2_mask,
-                ty12, ty12_mask]
-
-        if model_options['use_coverage']:
-            if not model_options['nn_coverage']:
-                inps += [numpy.zeros((y2.shape[1], y2.shape[0]), dtype='float32')]
-            else:
-                inps += [numpy.zeros((y2.shape[1], y2.shape[0], model_options['cov_dim']), dtype='float32')]
-
-        try:
-            execute(inps, lrate, [eidx, uidx])  # train one step.
-
-        except Exception, e:
-            print clr(e, 'red')
-            continue
-
-        # evaluate BLEU score
-        if numpy.mod(uidx, bleuFreq) == 0:
-            print 'Open a new thread to compute the BLEU score...'
-            bleuer = BLEU(funcs, tparams, model_options, uidx)
-            bleuer.start()
-            bleuer.join()
 
         # save the best model so far, in addition, save the latest model
         # into a separate file with the iteration number for external eval
@@ -245,6 +213,49 @@ for eidx in xrange(max_epochs):
                 numpy.savez(saveto_uidx, history_errs=history_errs,
                             uidx=uidx, **unzip(tparams))
                 print 'Done'
+
+
+        # evaluate BLEU score
+        if numpy.mod(uidx, bleuFreq) == 0:
+            print 'Open a new thread to compute the BLEU score...'
+            bleuers += [BLEU(model_options, uidx)]
+            bleuers[-1].start()
+
+        # validate model on validation set and early stop if necessary
+        if numpy.mod(uidx, validFreq) == 0:
+            # use_noise.set_value(0.)
+            valid_errs = validate(funcs, model_options, valid, False)
+            valid_err  = valid_errs.mean()
+            history_errs.append(valid_err)
+
+            if numpy.isnan(valid_err):
+                print 'NaN detected'
+                sys.exit(-1)
+
+            print 'Valid ', valid_err
+
+        # training
+        x1, x1_mask = prepare_data(sx1, model_options['maxlen'], model_options['voc_sizes'][0])
+        y1, y1_mask = prepare_data(sy1, model_options['maxlen'], model_options['voc_sizes'][1])
+        x2, x2_mask = prepare_data(sx2, model_options['maxlen'], model_options['voc_sizes'][2])
+        y2, y2_mask = prepare_data(sy2, model_options['maxlen'], model_options['voc_sizes'][3])
+        ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
+
+        inps = [x1, x1_mask, y1, y1_mask,
+                x2, x2_mask, y2, y2_mask,
+                ty12, ty12_mask]
+
+        if model_options['use_coverage']:
+            if not model_options.get('nn_coverage', False):
+                inps += [numpy.zeros((y2.shape[1], y2.shape[0]), dtype='float32')]
+            else:
+                inps += [numpy.zeros((y2.shape[1], y2.shape[0], model_options['cov_dim']), dtype='float32')]
+
+        try:
+            execute(inps, lrate, [eidx, uidx])  # train one step.
+        except Exception, e:
+            print clr(e, 'red')
+            continue
 
         # generate some samples with the model and display them
         if numpy.mod(uidx, sampleFreq) == 0:
@@ -301,27 +312,16 @@ for eidx in xrange(max_epochs):
                         _ss.append(si)
                     else:
                         offset = si - model_options['voc_sizes'][1]
-                        _ss.append(sy2[jj][offset])
+                        if offset < len(sy2[jj]):
+                            _ss.append(sy2[jj][offset])
+                        else:
+                            _ss.append(0)
 
                 # print 'Sample-CR {}: {}'.format(jj, idx2seq(_ss, 1))
                 print 'NMT Model {}: {}'.format(jj, idx2seq(ss0, 1))
                 print 'Copy Prob {}: {}'.format(jj, idx2seq(_ss, 1, act))
                 print 'Copy Gate {}: {}'.format(jj, idx2seq(_ss, 1, gg_))
                 print
-
-        # validate model on validation set and early stop if necessary
-        if numpy.mod(uidx, validFreq) == 0:
-            # use_noise.set_value(0.)
-            valid_errs = validate(funcs, model_options, valid, False)
-            valid_err  = valid_errs.mean()
-            history_errs.append(valid_err)
-
-            if numpy.isnan(valid_err):
-                print 'NaN detected'
-                sys.exit(-1)
-
-            print 'Valid ', valid_err
-
 
         # finish after this many updates
         if uidx >= finish_after:
@@ -339,6 +339,9 @@ if best_p is not None:
 
 valid_err = validate(funcs, model_options, valid).mean()
 print 'Valid ', valid_err
+
+for b in bleuers:
+    b.join()
 
 params = copy.copy(best_p)
 numpy.savez(saveto, zipped_params=best_p,

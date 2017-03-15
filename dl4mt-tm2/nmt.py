@@ -411,8 +411,6 @@ def gen_sample_memory(tparams, funcs,
                       options, rng=None,
                       m=0, k=1, maxlen=200,
                       stochastic=True, argmax=False):
-    # modes
-    modes = ['xy', 'yx']
     l_max = options['voc_sizes'][1-m]
 
     # masks
@@ -451,7 +449,7 @@ def gen_sample_memory(tparams, funcs,
     hids20, ctxs20, _ = funcs['crit_xy'](x2, x2_mask, y2, y2_mask)
 
     # initial coverage vector
-    if options['nn_coverage']:
+    if options.get('nn_coverage', False):
         next_cov = numpy.zeros((live_k, y2.shape[0], options['cov_dim']), dtype='float32')
     else:
         next_cov = numpy.zeros((live_k, y2.shape[0]), dtype='float32')
@@ -656,12 +654,14 @@ def build_networks(options, model=' ', train=True):
                                          nin1=2 * options['dim'],
                                          nin2=2 * options['dim'])
     else:
-        if not options['nn_coverage']:
+        if not options.get('nn_coverage', False):
+            print 'use linguistic coverage'
             params_map = get_layer('bi')[0](options, params_map, prefix='map_bi',
                                             nin1=2 * options['dim'],
                                             nin2=2 * options['dim'],
                                             bias=True, eye=True)
         else:
+            print 'use neural network coverage'
             params_map = get_layer('bg')[0](options, params_map, prefix='map_bg',
                                             nin1=2 * options['dim'],
                                             nin2=2 * options['dim'],
@@ -684,7 +684,7 @@ def build_networks(options, model=' ', train=True):
 
     tparams_map = init_tparams(params_map)
 
-    if not options['nn_coverage']:
+    if not options.get('nn_coverage', False):
         att0 = tensor.matrix('init_atten')
     else:
         att0 = tensor.tensor3('init_atten')
@@ -737,7 +737,7 @@ def build_networks(options, model=' ', train=True):
                                tm_ctx2, tm_hids, tm_mask):
             # normalize
             # cur_ctx1_ = normalize(cur_ctx1)
-            if not options['nn_coverage']:
+            if not options.get('nn_coverage', False):
                 mapping   = get_layer('bi')[1](tparams_map, cur_ctx1[None, :, :],
                                               tm_ctx2, prev_att[None, :, :],
                                               prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
