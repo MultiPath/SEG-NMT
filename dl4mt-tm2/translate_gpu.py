@@ -5,25 +5,20 @@ import argparse
 import theano
 import numpy
 import time
+import os
 import cPickle as pkl
+from layer import *
 from nmt import (build_sampler, gen_sample, gen_sample_memory, load_params,
                  init_params, init_tparams, build_networks)
 from setup import setup
 
 
-def translate_model(queue, model, options, k,
+def translate_model(queue, funcs, tparams, options, k,
                     normalize, m=0, d_maxlen=200):
 
     use_noise = theano.shared(numpy.float32(0.))
     from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
     trng = RandomStreams(19920206)
-
-    # word index
-    # load model model_options
-    if not isinstance(model, basestring):
-        funcs, tparams, options = model
-    else:
-        funcs, tparams = build_networks(options, model,  train = False)
 
     def _translate(seq_x1, seq_x2, seq_y2):
         # sample given an input sequence and obtain scores
@@ -55,30 +50,30 @@ def translate_model(queue, model, options, k,
         x2 = map(lambda ii: ii if ii < options['voc_sizes'][2] else 1, sx2)
         y2 = map(lambda ii: ii if ii < options['voc_sizes'][3] else 1, sy2)
 
-        if idx % 100 == 1:
-            print 'complete translation:{}, {}s'.format(idx, time.time() - time1)
+        if idx % 10 == 0:
+            print '[test] complete:{}, {}s'.format(idx, time.time() - time1)
 
         seq, ss, acts, gs = _translate(x1, x2, y2)
         sseq = map(lambda ii: ii if ii < options['voc_sizes'][1] else sy2[ii-options['voc_sizes'][1]], seq)
 
         rqueue.append((sseq, ss, acts, gs))
 
-    print 'complete translation:{}, {}s'.format(idx, time.time() - time1)
+    print '[test] complete:{}, {}s'.format(idx, time.time() - time1)
     return rqueue
 
 
 def go(model, dictionary, dictionary_target,
        source_file_x1, source_file_x2, source_file_y2,
-       saveto,
-       k=5, normalize=False, d_maxlen=200,
+       saveto, k=5, normalize=False, d_maxlen=200,
+       steps=None, max_steps=None, sleep=1000,
        *args, **kwargs):
 
+    # inter-step
+    step_test = 0
+
     # load model model_options
-    if isinstance(model, basestring):
-        with open('%s.pkl' % model, 'rb') as f:
-            options = pkl.load(f)
-    else:
-        funcs, tparams, options = model
+    with open('%s.pkl' % model, 'rb') as f:
+        options = pkl.load(f)
 
     # load source dictionary and invert
     with open(dictionary, 'rb') as f:
@@ -144,18 +139,65 @@ def go(model, dictionary, dictionary_target,
 
         return queue
 
-    print 'Translating ', source_file_x1, '...to...', saveto
-    queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
-    rets  = translate_model(queue, model, options, k, normalize, 0, d_maxlen)
-    sseqs, ss, acts, gs = zip(*rets)
 
-    trans = _seqs2words(sseqs)
-    with open(saveto, 'w') as f:
-        print >>f, '\n'.join(trans)
-    print 'Done'
+    print '[test] build the model'
+    funcs, tparams = build_networks(options, model, train=False)
 
-    pkl.dump(rets, open(saveto + '.pkl', 'w'))
-    print 'All Done'
+    if steps is None:
+        print '[test] start translating ', source_file_x1, '...to...', saveto
+        queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
+        rets  = translate_model(queue, funcs, tparams, options, k, normalize, 0, d_maxlen)
+        sseqs, ss, acts, gs = zip(*rets)
+
+        trans = _seqs2words(sseqs)
+        with open(saveto, 'w') as f:
+            print >>f, '\n'.join(trans)
+        print 'Done'
+
+        pkl.dump(rets, open(saveto + '.pkl', 'w'))
+        print 'All Done'
+
+    else:
+        step_test = steps
+        while step_test < max_steps:
+
+            # check if the check-point is saved
+            checkpoint = '{}.iter{}.npz'.format(os.path.splitext(model)[0], step_test)
+            if not os.path.exists(checkpoint):
+                print '[test] Did not find checkpoint: {}. I want sleep {}s.'.format(checkpoint, sleep)
+
+                time.sleep(sleep)
+
+            else:
+                print '[test] Load check-point: {}'.format(checkpoint),
+                zipp(load_params(checkpoint, unzip(tparams)), tparams)
+                print 'done.'
+
+                transto = saveto + '.iter={}'.format(step_test)
+                print '[test] start translating ', source_file_x1, '...to...', transto
+
+                queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
+                rets = translate_model(queue, funcs, tparams, options, k, normalize, 0, d_maxlen)
+                sseqs, ss, acts, gs = zip(*rets)
+
+                trans = _seqs2words(sseqs)
+                with open(transto, 'w') as f:
+                    print >> f, '\n'.join(trans)
+                print 'Done'
+
+                pkl.dump(rets, open(transto + '.pkl', 'w'))
+
+                # compute BLEU score.
+                ref = options['trans_ref']
+
+                print '[test] compute BLEU score for {} <-> {}'.format(transto, ref)
+                # os.system("ed -i 's/@@ //g' {}".format(hyp))
+                os.system('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref, transto))
+
+                print 'Done at iter={}'.format(step_test)
+                step_test += steps
+
+            pass
 
 
 if __name__ == "__main__":

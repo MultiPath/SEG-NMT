@@ -162,13 +162,15 @@ def validate(funcs, options, iterator, verbose=False):
 
 
 class BLEU(threading.Thread):
-    def __init__(self, options, updates):
+    def __init__(self, options, steps, max_steps=finish_after, sleep=1000):
         super(BLEU, self).__init__()
-        self.options = options
-        self.updates = updates
+        self.options  = options
+        self.steps    = steps
+        self.maxsteps = max_steps
+        self.sleep    = sleep
 
     def run(self):
-        print '[test] I am Thread: %s.' % (threading.currentThread().getName())
+        print '[test] Hello, I am Thread: %s.' % (threading.currentThread().getName())
         options = self.options
         go(options['saveto'],
            options['dictionaries'][0],
@@ -176,19 +178,20 @@ class BLEU(threading.Thread):
            options['trans_from'],
            options['tm_source'],
            options['tm_target'],
-           options['trans_to'] + '.iter={}'.format(self.updates),
+           options['trans_to'],
            options['beamsize'],
            options['normalize'],
-           options['d_maxlen'])
-
-        hyp = options['trans_to'] + '.iter={}'.format(self.updates)
-        ref = options['trans_ref']
-        os.system('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref, hyp))
-        print 'Done'
+           options['d_maxlen'],
+           steps=self.steps,
+           max_steps=self.maxsteps,
+           sleep=self.sleep)
 
 
-# start!!
-bleuers = []
+print 'start a BLUE tester...'
+bleuer = BLEU(model_options, bleuFreq)
+bleuer.start()
+
+print 'start the main loop...'
 for eidx in xrange(max_epochs):
     n_samples = 0
 
@@ -217,12 +220,6 @@ for eidx in xrange(max_epochs):
                             uidx=uidx, **unzip(tparams))
                 print 'Done'
 
-
-        # evaluate BLEU score
-        if numpy.mod(uidx, bleuFreq) == 0:
-            print 'Open a new thread to compute the BLEU score...'
-            bleuers += [BLEU(model_options, uidx)]
-            bleuers[-1].start()
 
         # validate model on validation set and early stop if necessary
         if numpy.mod(uidx, validFreq) == 0:
@@ -343,9 +340,7 @@ if best_p is not None:
 valid_err = validate(funcs, model_options, valid).mean()
 print 'Valid ', valid_err
 
-for b in bleuers:
-    b.join()
-
+bleuer.join()
 params = copy.copy(best_p)
 numpy.savez(saveto, zipped_params=best_p,
             history_errs=history_errs,
