@@ -3,9 +3,7 @@ def setup_fren():
     # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     home  = '/root/workspace/TMNMT'
     model = '/root/disk/scratch/model-tmnmt'
-    name  = 'TM2.basic.v2'
-    # name  = 'TM3.basic.v1'
-    # name  = 'TM2.v6'
+    name  = 'TM2.fren.v1'
 
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
@@ -45,6 +43,53 @@ def setup_fren():
         'trans_to':   home + '/.translate/' + name + '.dev.translate'
     }
     return config
+
+
+def setup_enfr():
+    home  = '/home/thoma/work/TMNMT'
+    model = '/home/thoma/scratch/tmnmt'
+    name  = 'TM2.enfr.v1'
+
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/tm2.fren/train.en.top5.shuf.tok',          # source
+                     home + '/.dataset/tm2.fren/train.fr.top5.shuf.tok',          # target
+                     home + '/.dataset/tm2.fren/train.en.top5.matched.shuf.tok',  # source-TM
+                     home + '/.dataset/tm2.fren/train.fr.top5.matched.shuf.tok'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/tm2.fren/devset.enfr.en.tok',
+                           home + '/.dataset/tm2.fren/devset.enfr.fr.tok',
+                           home + '/.dataset/tm2.fren/devset.enfr.en.matched.tok',
+                           home + '/.dataset/tm2.fren/devset.enfr.fr.matched.tok'
+                           ],
+
+        'dictionaries': [home + '/.dataset/tm2.fren/train.en.top5.shuf.tok.pkl',
+                         home + '/.dataset/tm2.fren/train.fr.top5.shuf.tok.pkl',
+                         home + '/.dataset/tm2.fren/train.en.top5.shuf.tok.pkl',
+                         home + '/.dataset/tm2.fren/train.fr.top5.shuf.tok.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 50,
+
+        # baseline models
+        'baseline_xy': model + '/baseline_enfr.bs64.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/tm2.fren/devset.enfr.fr.tok',
+        'tm_source':  home + '/.dataset/tm2.fren/devset.enfr.fr.matched.tok',
+        'tm_target':  home + '/.dataset/tm2.fren/devset.enfr.en.matched.tok',
+        'trans_ref':  home + '/.dataset/tm2.fren/devset.enfr.en.tok',
+        'trans_to':   home + '/.translate/' + name + '.dev.translate'
+    }
+    return config
+
+
+
+
 
 
 def setup_fren_bpe():
