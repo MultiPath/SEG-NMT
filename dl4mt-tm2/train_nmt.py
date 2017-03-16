@@ -47,13 +47,12 @@ valid = TextIterator(model_options['valid_datasets'], model_options['dictionarie
                      batch_size=model_options['batch_size'], maxlen=500)
 
 
-print clr('-------------------------------------------- Main-Loop -------------------------------------------------',
-          'yellow')
+print clr('-------------------------------------------- Main-Loop -------------------------------------------------', 'yellow')
 
 # ------------------ initlization --------------- #
 best_p       = None
 bad_counter  = 0
-uidx         = -1
+uidx         = 0
 estop        = False
 history_errs = []
 max_epochs   = 100
@@ -161,12 +160,37 @@ def validate(funcs, options, iterator, verbose=False):
     return numpy.array(probs)
 
 
+@Timeit
+def savemodel(udix=0):
+    print 'Saving the best model...',
+    if best_p is not None:
+        params = best_p
+    else:
+        params = unzip(tparams)
+
+    numpy.savez(saveto, history_errs=history_errs, uidx=uidx, **params)
+    pkl.dump(model_options, open('%s.pkl' % saveto, 'wb'))
+    print 'Done'
+
+    # save with uidx
+    if not overwrite:
+        print 'Saving the model at iteration {}...'.format(uidx),
+        saveto_uidx = '{}.iter{}.npz'.format(
+            os.path.splitext(saveto)[0], uidx)
+        numpy.savez(saveto_uidx, history_errs=history_errs,
+                    uidx=uidx, **unzip(tparams))
+        print 'Done'
+
+
+
 class BLEU(threading.Thread):
-    def __init__(self, options, steps, max_steps=finish_after, sleep=1000):
+    def __init__(self, options, steps, start_steps=0,
+                max_steps=finish_after, sleep=1000):
         super(BLEU, self).__init__()
         self.options  = options
         self.steps    = steps
         self.maxsteps = max_steps
+        self.startsteps = start_steps
         self.sleep    = sleep
 
     def run(self):
@@ -184,11 +208,15 @@ class BLEU(threading.Thread):
            options['d_maxlen'],
            steps=self.steps,
            max_steps=self.maxsteps,
+           start_steps=self.startsteps,
            sleep=self.sleep)
 
 
+print 'save an initial model...'
+savemodel(0)
+
 print 'start a BLUE tester...'
-bleuer = BLEU(model_options, bleuFreq)
+bleuer = BLEU(model_options, bleuFreq, start_steps=(uidx//bleuFreq) * bleuFreq)
 bleuer.start()
 
 print 'start the main loop...'
@@ -201,25 +229,7 @@ for eidx in xrange(max_epochs):
         # save the best model so far, in addition, save the latest model
         # into a separate file with the iteration number for external eval
         if numpy.mod(uidx, saveFreq) == 0:
-            print 'Saving the best model...',
-            if best_p is not None:
-                params = best_p
-            else:
-                params = unzip(tparams)
-
-            numpy.savez(saveto, history_errs=history_errs, uidx=uidx, **params)
-            pkl.dump(model_options, open('%s.pkl' % saveto, 'wb'))
-            print 'Done'
-
-            # save with uidx
-            if not overwrite:
-                print 'Saving the model at iteration {}...'.format(uidx),
-                saveto_uidx = '{}.iter{}.npz'.format(
-                    os.path.splitext(saveto)[0], uidx)
-                numpy.savez(saveto_uidx, history_errs=history_errs,
-                            uidx=uidx, **unzip(tparams))
-                print 'Done'
-
+            savemodel(uidx)
 
         # validate model on validation set and early stop if necessary
         if numpy.mod(uidx, validFreq) == 0:

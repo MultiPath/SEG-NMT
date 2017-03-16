@@ -65,7 +65,7 @@ def translate_model(queue, funcs, tparams, options, k,
 def go(model, dictionary, dictionary_target,
        source_file_x1, source_file_x2, source_file_y2,
        saveto, k=5, normalize=False, d_maxlen=200,
-       steps=None, max_steps=None, sleep=1000,
+       steps=None, max_steps=None, start_steps=0, sleep=1000,
        *args, **kwargs):
 
     # inter-step
@@ -158,7 +158,10 @@ def go(model, dictionary, dictionary_target,
         print 'All Done'
 
     else:
-        step_test = steps
+        step_test = start_steps
+        if step_test == 0:
+            step_test += steps
+
         while step_test < max_steps:
 
             # check if the check-point is saved

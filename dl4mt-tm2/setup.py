@@ -48,7 +48,7 @@ def setup_fren():
 def setup_enfr():
     home  = '/home/thoma/work/TMNMT'
     model = '/home/thoma/scratch/tmnmt'
-    name  = 'TM2.enfr.v1'
+    name  = 'TM2.v1'
 
     config = {
         # train phase
