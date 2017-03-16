@@ -604,7 +604,7 @@ def build_networks(options, model=' ', train=True):
     params_xy0 = copy.copy(params_xy)
     print 'Done.'
 
-    print 'load the pretrained NMT-models...',
+    print 'load the pretrained NMT-models...'
     params_xy0  = load_params2(options['baseline_xy'], params_xy0, mode='xy_')
     tparams_xy0 = init_tparams(params_xy0)  # pre-trained E->F model
     print 'Done.'
@@ -616,7 +616,7 @@ def build_networks(options, model=' ', train=True):
     # reload parameters
     if train:
         if options['reload_'] and os.path.exists(options['saveto']):
-            print 'Reloading model parameters'
+            print 'Reloading pre-saved parameters'
             params_xy = load_params(options['saveto'], params_xy)
         else:
             print 'Start a new model'
@@ -648,15 +648,25 @@ def build_networks(options, model=' ', train=True):
     print 'build mapping (bi-linear model)!'
     params_map  = OrderedDict()
 
+    # use diagonal matrix
+    if options['diagonal']:
+        print 'use diagonal matrix'
+
+        bmap = 'bd'
+    else:
+        print 'use full matrix'
+
+        bmap = 'bi'
+
     # params for copying
     if not options['use_coverage']:
-        params_map  = get_layer('bi')[0](options, params_map, prefix='map_bi',
+        params_map  = get_layer(bmap)[0](options, params_map, prefix='map_bi',
                                          nin1=2 * options['dim'],
                                          nin2=2 * options['dim'])
     else:
         if not options.get('nn_coverage', False):
             print 'use linguistic coverage'
-            params_map = get_layer('bi')[0](options, params_map, prefix='map_bi',
+            params_map = get_layer(bmap)[0](options, params_map, prefix='map_bi',
                                             nin1=2 * options['dim'],
                                             nin2=2 * options['dim'],
                                             bias=True, eye=False)
@@ -677,7 +687,14 @@ def build_networks(options, model=' ', train=True):
     params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',
                                     nin=4 * options['dim'], nout=2)
 
-    if not train:
+    # reload parameters
+    if train:
+        if options['reload_'] and os.path.exists(options['saveto']):
+            print 'Reloading pre-saved parameters'
+            params_map = load_params(model, params_map)
+            print 'Done.'
+
+    else:
         print 'Reloading mapping parameters'
         params_map = load_params(model, params_map)
         print 'Done.'
@@ -699,7 +716,7 @@ def build_networks(options, model=' ', train=True):
         def build_mapping(ctx1, ctx2):
             # ctx1 = normalize(ctx1)
             # ctx2 = normalize(ctx2)
-            return get_layer('bi')[1](tparams_map, ctx1, ctx2,
+            return get_layer(bmap)[1](tparams_map, ctx1, ctx2,
                                       prefix='map_bi', activ='lambda x: x')
 
         mapping = build_mapping(inps[0], inps[1])
@@ -738,7 +755,7 @@ def build_networks(options, model=' ', train=True):
             # normalize
             # cur_ctx1_ = normalize(cur_ctx1)
             if not options.get('nn_coverage', False):
-                mapping   = get_layer('bi')[1](tparams_map, cur_ctx1[None, :, :],
+                mapping   = get_layer(bmap)[1](tparams_map, cur_ctx1[None, :, :],
                                               tm_ctx2, prev_att[None, :, :],
                                               prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
                 attens    = softmax(mapping * tparams_map['tau'], mask=tm_mask)
@@ -820,14 +837,14 @@ def build_networks(options, model=' ', train=True):
         y_mask *= ((1 - _y) + _y * (1 - t_mask))
 
         # normal loss ---> maybe neumerically unstable
-        # ccost = -tensor.log(compute_prob(prob, y, y_mask) * (1 - g) +
-        #                     compute_prob(att, t, t_mask) * g +
-        #                     1e-7)
-
+        ccost = -tensor.log(tensor.clip(
+                            compute_prob(prob, y, y_mask) * (1 - g) +
+                            compute_prob(att, t, t_mask) * g, 1e-7, 1 - 1e-7))
+        ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
         # alternative loss
-        ccost = -tensor.log(compute_prob(prob, y)) * (1 - g) * y_mask \
-                -tensor.log(compute_prob(att, t))  * g       * t_mask
-        ccost = ccost.sum(0)
+        # ccost = -tensor.log(compute_prob(prob, y)) * (1 - g) * y_mask \
+        #         -tensor.log(compute_prob(att, t))  * g       * t_mask
+        # ccost = ccost.sum(0)
 
         # gate loss
         gcost = -(tensor.log(1 - g) * (1 - t_mask) + tensor.log(g) * t_mask)

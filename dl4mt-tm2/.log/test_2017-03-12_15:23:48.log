@@ -1,0 +1,3 @@
+BLEU = 21.69, 46.2/25.8/16.6/11.2 (BP=1.000, ratio=1.235, hyp_len=88469, ref_len=71619)
+compute BLEU score for /root/workspace/TMNMT/.translate/TM2.v5.translate
+done

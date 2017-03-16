@@ -94,11 +94,14 @@ def init_tparams(params):
 # load parameters
 def load_params(path, params):
     pp = numpy.load(path)
-    for kk, vv in params.iteritems():
+    print 'loading ...'
+    for it, (kk, vv) in enumerate(params.iteritems()):
         if kk not in pp:
             warnings.warn('%s is not in the archive' % kk)
             continue
-        print 'load ...', kk
+        print kk,
+        if it % 5 == 0:
+            print ''
         params[kk] = pp[kk]
 
     return params
@@ -107,12 +110,16 @@ def load_params(path, params):
 # load parameters-2
 def load_params2(path, params, mode=''):
     pp = numpy.load(path)
-    for kk, vv in params.iteritems():
+    print 'loading ...'
+    for it, (kk, vv) in enumerate(params.iteritems()):
         if kk[:3] == mode:
             if kk[3:] not in pp:
                 warnings.warn('%s is not in the archive' % kk)
                 continue
-            print 'load ...', kk
+
+            print kk,
+            if it % 5 == 0:
+                print ''
             params[kk] = pp[kk[3:]]
 
     return params
@@ -325,9 +332,10 @@ def bglayer(tparams, input1, input2, cov=None, prefix='bg',
 
 # bi-linear layer with diagonal weights:
 def param_init_bdlayer(options, params, prefix='bd',
-                       nin1=None, bias=False):
+                       nin1=None, nin2=None, eye=False, bias=False):
 
-    params[_p(prefix, 'Md')] = 0.01 * numpy.random.randn((nin1,)).astype('float32')
+    # params[_p(prefix, 'Md')] = 0.01 * numpy.random.randn((nin1,)).astype('float32')
+    params[_p(prefix, 'Md')] = 0.01 * numpy.ones((nin1,), dtype='float32')
     if bias:
         params[_p(prefix, 'b')] = numpy.float32(0.)
 

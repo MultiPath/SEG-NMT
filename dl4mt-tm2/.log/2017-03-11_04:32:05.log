@@ -1,0 +1,2758 @@
+{'baseline_xy': '/root/disk/scratch/model-tmnmt/baseline_fren.npz',
+ 'baseline_yx': '/root/disk/scratch/model-tmnmt/baseline_enfr.bs64.npz',
+ 'batch_size': 16,
+ 'beamsize': 1,
+ 'build_gate': True,
+ 'clip_c': 1.0,
+ 'd_maxlen': 200,
+ 'datasets': ['/root/workspace/TMNMT/.dataset/tm2.fren/train.fr.top5.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm2.fren/train.en.top5.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm2.fren/train.fr.top5.matched.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm2.fren/train.en.top5.matched.shuf.tok'],
+ 'decay_c': 0.0,
+ 'decoder': 'gru_cond',
+ 'dictionaries': ['/root/workspace/TMNMT/.dataset/tm2.fren/train.fr.top5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm2.fren/train.en.top5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm2.fren/train.fr.top5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm2.fren/train.en.top5.shuf.tok.pkl'],
+ 'dim': 1024,
+ 'dim_word': 512,
+ 'dispFreq': 10,
+ 'encoder': 'gru',
+ 'gate_lambda': 0.1,
+ 'gate_loss': True,
+ 'lrate': 2e-06,
+ 'maxlen': 50,
+ 'normalize': True,
+ 'optimizer': 'adam',
+ 'overwrite': True,
+ 'patience': 1000,
+ 'reload_': True,
+ 'sampleFreq': 20,
+ 'saveFreq': 500,
+ 'saveto': '/root/disk/scratch/model-tmnmt/TM2.v1_fren.ff.16-50.npz',
+ 'stochastic': False,
+ 'tm_source': '/root/workspace/TMNMT/.dataset/tm2.fren/devset.fr.matched.tok',
+ 'tm_target': '/root/workspace/TMNMT/.dataset/tm2.fren/devset.en.matched.tok',
+ 'trans_from': '/root/workspace/TMNMT/.dataset/tm2.fren/devset.fr.tok',
+ 'trans_ref': '/root/workspace/TMNMT/.dataset/tm2.fren/devset.en.tok',
+ 'trans_to': '/root/workspace/TMNMT/.translate/TM2.v1.translate',
+ 'use_dropout': False,
+ 'use_pretrain': True,
+ 'validFreq': 100,
+ 'valid_batch_size': 32,
+ 'valid_datasets': ['/root/workspace/TMNMT/.dataset/tm2.fren/devset.fr.tok',
+                    '/root/workspace/TMNMT/.dataset/tm2.fren/devset.en.tok',
+                    '/root/workspace/TMNMT/.dataset/tm2.fren/devset.fr.matched.tok',
+                    '/root/workspace/TMNMT/.dataset/tm2.fren/devset.en.matched.tok'],
+ 'voc_sizes': [20000, 20000, 20000, 20000]}
+Building model: X -> Y & Y -> X model
+Done.
+load the pretrained NMT-models... load ... xy_Wemb
+load ... xy_Wemb_dec
+load ... xy_encoder_W
+load ... xy_encoder_b
+load ... xy_encoder_U
+load ... xy_encoder_Wx
+load ... xy_encoder_bx
+load ... xy_encoder_Ux
+load ... xy_encoder_r_W
+load ... xy_encoder_r_b
+load ... xy_encoder_r_U
+load ... xy_encoder_r_Wx
+load ... xy_encoder_r_bx
+load ... xy_encoder_r_Ux
+load ... xy_ff_state_W
+load ... xy_ff_state_b
+load ... xy_decoder_W
+load ... xy_decoder_b
+load ... xy_decoder_U
+load ... xy_decoder_Wx
+load ... xy_decoder_Ux
+load ... xy_decoder_bx
+load ... xy_decoder_U_nl
+load ... xy_decoder_b_nl
+load ... xy_decoder_Ux_nl
+load ... xy_decoder_bx_nl
+load ... xy_decoder_Wc
+load ... xy_decoder_Wcx
+load ... xy_decoder_W_comb_att
+load ... xy_decoder_Wc_att
+load ... xy_decoder_b_att
+load ... xy_decoder_U_att
+load ... xy_decoder_c_tt
+load ... xy_ff_logit_lstm_W
+load ... xy_ff_logit_lstm_b
+load ... xy_ff_logit_prev_W
+load ... xy_ff_logit_prev_b
+load ... xy_ff_logit_ctx_W
+load ... xy_ff_logit_ctx_b
+load ... xy_ff_logit_W
+load ... xy_ff_logit_b
+Done.
+build forward-attention models (2 models simultaneously)...
+Build f_critic... Done
+build mapping (bi-linear model)!
+Building Mapping functions, ... Done.
+build loss function (w/o gate)
+build sampler (one-step)
+Building f_init... Done
+Building f_next... Done
+build old sampler
+Building f_init... Done
+Building f_next... Done
+build Cost Function... build Gradient (backward)... Done
+Building Optimizers... Done
+Build Networks... done!
+build_networks: elapsed 350.5676 secs.
+
+Loading data
+[33m-------------------------------------------- Main-Loop -------------------------------------------------[0m
+Epoch  0 Update  1 Cost  173.113525391 G 31.4858493805 execute: elapsed 1.8270 secs.
+
+Epoch  0 Update  2 Cost  158.441757202 G 26.2633285522 execute: elapsed 1.7079 secs.
+
+Epoch  0 Update  3 Cost  124.115951538 G 24.2917747498 execute: elapsed 1.6929 secs.
+
+Epoch  0 Update  4 Cost  134.858856201 G 22.6215591431 execute: elapsed 1.4028 secs.
+
+Epoch  0 Update  5 Cost  100.583747864 G 20.3356456757 execute: elapsed 1.3597 secs.
+
+Epoch  0 Update  6 Cost  92.0695419312 G 18.2438735962 execute: elapsed 1.2067 secs.
+
+Epoch  0 Update  7 Cost  73.0042800903 G 15.882229805 execute: elapsed 1.1526 secs.
+
+Epoch  0 Update  8 Cost  48.8355636597 G 13.5919923782 execute: elapsed 1.0267 secs.
+
+Epoch  0 Update  9 Cost  60.0515518188 G 11.7942276001 execute: elapsed 0.9599 secs.
+
+Epoch  0 Update  10 Cost  42.3959579468 G 10.1747455597 execute: elapsed 0.8146 secs.
+
+Epoch  0 Update  11 Cost  33.9300231934 G 8.83335208893 execute: elapsed 0.8140 secs.
+
+Epoch  0 Update  12 Cost  25.182466507 G 7.22351455688 execute: elapsed 0.7417 secs.
+
+Epoch  0 Update  13 Cost  22.6122932434 G 6.4127497673 execute: elapsed 0.7320 secs.
+
+Epoch  0 Update  14 Cost  18.701007843 G 5.35607242584 execute: elapsed 0.7148 secs.
+
+Epoch  0 Update  15 Cost  25.6394004822 G 4.21485185623 execute: elapsed 0.6794 secs.
+
+Epoch  0 Update  16 Cost  66.5185012817 G 11.9768466949 execute: elapsed 1.5363 secs.
+
+Epoch  0 Update  17 Cost  155.296295166 G 29.0540046692 execute: elapsed 1.4497 secs.
+
+Epoch  0 Update  18 Cost  137.494049072 G 27.0281505585 execute: elapsed 1.5848 secs.
+
+Epoch  0 Update  19 Cost  153.263061523 G 24.8809833527 execute: elapsed 1.7202 secs.
+
+Epoch  0 Update  20 Cost  134.418243408 G 21.8162155151 execute: elapsed 1.6343 secs.
+
+[ 0.50605845] (1,)
+[ 0.50605893  0.50730664  0.50809973  0.51346827] (4,)
+[ 0.50741005  0.50785023  0.50824416] (3,)
+[ 0.50860465  0.50828201] (2,)
+[ 0.51148713] (1,)
+[ 0.50933242] (1,)
+[ 0.51344353] (1,)
+[ 0.5123319] (1,)
+[ 0.5087117] (1,)
+[ 0.50420022] (1,)
+[ 0.51087791] (1,)
+[ 0.50927192] (1,)
+[ 0.51019925] (1,)
+=============================
+Target-TM 0: - has been checked and found to show no symptoms of the relevant viruses , [32mvirus-like[0m organisms or diseases listed in the Annex hereto ,
+Source-TM 0: - qui auront été contrôlés et qui ne présentaient aucun des symptômes des virus , [32mmycoplasmes[0m ou maladies énumérés dans l &apos; annexe ,
+Source-CR 0: B ) ils doivent avoir été contrôlés et être effectivement indemnes de tels virus , [32mmycoplasmes[0m ou maladies depuis le début du dernier cycle de végétation ;
+Target-CR 0: ( B ) it shall have been checked and found to be substantially free of such viruses , [32mvirus-like[0m organisms or disease since the beginning of the last cycle of vegetation ; and
+-----------------------------
+NMT Model 0: ( B ) they must have been που and matter permanent of
+[9, 94, 8, 132, 112, 78, 92, 2608, 10, 1023, 1658, 3, 0]
+[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.97302216, 1.0, 0.9721179, 1.0, 1.0, 0.97027034, 6.3179932e-06]
+Copy Prob 0: [34m([0m [34mB[0m [34m)[0m [34mthey[0m [34mmust[0m [34mhave[0m [34mbeen[0m [34mπου[0m [34mand[0m [34mmatter[0m [34mpermanent[0m [34mof[0m
+Copy Gate 0: [36m([0m [36mB[0m [36m)[0m [36mthey[0m [36mmust[0m [36mhave[0m [36mbeen[0m [36mπου[0m [36mand[0m [36mmatter[0m [36mpermanent[0m [36mof[0m
+
+[ 0.51274866] (1,)
+[ 0.5130527   0.51263368  0.51916081  0.51673132] (4,)
+[ 0.51657659  0.51764518  0.51612312] (3,)
+[ 0.51366001  0.51477671] (2,)
+[ 0.51927251] (1,)
+[ 0.51162869] (1,)
+[ 0.51528275] (1,)
+[ 0.51803637] (1,)
+[ 0.51267028] (1,)
+[ 0.51611972] (1,)
+[ 0.51885021] (1,)
+[ 0.51301289] (1,)
+[ 0.51769418] (1,)
+[ 0.51885098] (1,)
+[ 0.5143041] (1,)
+[ 0.51706833] (1,)
+[ 0.51621205] (1,)
+[ 0.51680487] (1,)
+[ 0.51243663] (1,)
+[ 0.5166533] (1,)
+[ 0.51855326] (1,)
+[ 0.51358306] (1,)
+[ 0.51668644] (1,)
+[ 0.51584882] (1,)
+[ 0.51715207] (1,)
+[ 0.51252383] (1,)
+[ 0.51429987] (1,)
+[ 0.51156831] (1,)
+[ 0.51125973] (1,)
+[ 0.51217794] (1,)
+[ 0.51396894] (1,)
+[ 0.51632184] (1,)
+[ 0.51333892] (1,)
+[ 0.51825714] (1,)
+[ 0.51772958] (1,)
+[ 0.51227427] (1,)
+[ 0.51681864] (1,)
+[ 0.5143187] (1,)
+[ 0.51645195] (1,)
+[ 0.51215798] (1,)
+[ 0.50594831] (1,)
+[ 0.50771773] (1,)
+[ 0.51366109] (1,)
+[ 0.5123902] (1,)
+[ 0.51040745] (1,)
+[ 0.5125249] (1,)
+[ 0.50980729] (1,)
+[ 0.5107047] (1,)
+[ 0.50757217] (1,)
+[ 0.50677943] (1,)
+[ 0.51001179] (1,)
+[ 0.50818056] (1,)
+[ 0.51145661] (1,)
+=============================
+Target-TM 1: On 22 March 2005 the Council decided to consult the European Economic and Social Committee , under Article 262 of the Treaty establishing the European Community , on the abovementioned proposal .
+Source-TM 1: Le 22 mars 2005 , conformément à l &apos; article 262 du traité instituant la Communauté européenne , le Conseil a décidé de consulter le Comité économique et social européen sur la proposition susmentionnée .
+Source-CR 1: Le 4 avril 2005 , le Conseil a décidé , conformément à l &apos; article 262 du traité instituant la Communauté européenne , de consulter le Comité économique et social européen sur la proposition susmentionnée .
+Target-CR 1: On 4 April 2005 the Council decided to consult the European Economic and Social Committee , under Article 262 of the Treaty establishing the European Community , on the abovementioned proposal .
+-----------------------------
+NMT Model 1: On 4 April 2005 the Council of the Council of the Council of the European Communities , the Council of the European Communities , the European Chapter and published Committee , the Committee of the European Communities , to authentic the European Chapter and published Committee , on the indirect proposal ,
+[299, 49, 419, 72, 2, 47, 3, 2, 47, 3, 2, 47, 3, 2, 46, 340, 4, 2, 47, 3, 2, 46, 340, 4, 2, 46, 387, 10, 670, 105, 4, 2, 105, 3, 2, 46, 340, 4, 7, 1919, 2, 46, 387, 10, 670, 105, 4, 18, 2, 2118, 275, 4, 0]
+[0.9699021, 1.0, 1.0, 0.9724912, 0.81702572, 0.97258508, 0.90440023, 0.50346589, 0.95854861, 0.93262261, 0.60500371, 0.92803359, 0.93706417, 0.74538577, 0.90964603, 1.0, 0.91804111, 0.67722082, 0.96486783, 0.91214979, 0.74257821, 0.90416396, 1.0, 0.93255925, 0.67793572, 0.86741143, 1.0, 0.97310638, 1.0, 0.97295159, 0.94111317, 0.70917982, 0.95255274, 0.93878114, 0.68648863, 0.94559342, 1.0, 0.94283694, 0.93044156, 1.0, 0.82653123, 0.79961324, 1.0, 0.97300124, 1.0, 0.97293937, 0.92202073, 0.97126764, 0.85881013, 1.0, 0.97134894, 0.9131763, 0.39915147]
+Copy Prob 1: [34mOn[0m [34m4[0m [34mApril[0m [34m2005[0m [34mthe[0m [34mCouncil[0m [34mof[0m [36mthe[0m [34mCouncil[0m [34mof[0m [36mthe[0m [34mCouncil[0m [34mof[0m [36mthe[0m [34mEuropean[0m [34mCommunities[0m [34m,[0m [36mthe[0m [34mCouncil[0m [34mof[0m [36mthe[0m [34mEuropean[0m [34mCommunities[0m [34m,[0m [36mthe[0m [34mEuropean[0m [34mChapter[0m [34mand[0m [34mpublished[0m [34mCommittee[0m [34m,[0m [36mthe[0m [34mCommittee[0m [34mof[0m [36mthe[0m [34mEuropean[0m [34mCommunities[0m [34m,[0m [34mto[0m [34mauthentic[0m [34mthe[0m [34mEuropean[0m [34mChapter[0m [34mand[0m [34mpublished[0m [34mCommittee[0m [34m,[0m [34mon[0m [34mthe[0m [34mindirect[0m [34mproposal[0m [34m,[0m
+Copy Gate 1: [36mOn[0m [36m4[0m [36mApril[0m [36m2005[0m [36mthe[0m [36mCouncil[0m [36mof[0m [36mthe[0m [36mCouncil[0m [36mof[0m [36mthe[0m [36mCouncil[0m [36mof[0m [36mthe[0m [36mEuropean[0m [36mCommunities[0m [36m,[0m [36mthe[0m [36mCouncil[0m [36mof[0m [36mthe[0m [36mEuropean[0m [36mCommunities[0m [36m,[0m [36mthe[0m [36mEuropean[0m [36mChapter[0m [36mand[0m [36mpublished[0m [36mCommittee[0m [36m,[0m [36mthe[0m [36mCommittee[0m [36mof[0m [36mthe[0m [36mEuropean[0m [36mCommunities[0m [36m,[0m [36mto[0m [36mauthentic[0m [36mthe[0m [36mEuropean[0m [36mChapter[0m [36mand[0m [36mpublished[0m [36mCommittee[0m [36m,[0m [36mon[0m [36mthe[0m [36mindirect[0m [36mproposal[0m [36m,[0m
+
+[ 0.50902528] (1,)
+[ 0.50770015  0.50902504  0.5114398   0.51131785] (4,)
+[ 0.51019001  0.51009196  0.51029325] (3,)
+[ 0.51019937  0.5118103   0.51033014] (3,)
+[ 0.51187307  0.50933862  0.51129442] (3,)
+[ 0.50930768  0.50874835] (2,)
+[ 0.50831217  0.50660604] (2,)
+[ 0.50649911] (1,)
+[ 0.50806725] (1,)
+[ 0.51238066] (1,)
+[ 0.50567722] (1,)
+[ 0.50508028] (1,)
+[ 0.50670314] (1,)
+[ 0.50821501] (1,)
+[ 0.50823629] (1,)
+[ 0.50598371] (1,)
+[ 0.50662565] (1,)
+[ 0.51080167] (1,)
+[ 0.50827199] (1,)
+[ 0.50798988] (1,)
+[ 0.50924015] (1,)
+=============================
+Target-TM 2: - Community framework for State aid for research and development ( OJ C 45 , 17.2.1996 , p . 5 and OJ C 111 , [32m8.5.2002[0m , p . 3 ) ;
+Source-TM 2: - Community [32mframework[0m for State aid for research and development ( OJ C 45 , [32m17.2.1996[0m , p. 5 and OJ C 111 , [32m8.5.2002[0m , p. 3 ) ;
+Source-CR 2: - du 23 novembre 1990 relative à l &apos; amélioration de l &apos; assistance mutuelle entre États membres en cas de catastrophe naturelle ou d &apos; origine humaine ( JO C 315 du [32m14.12.1990[0m , p. 3 ) ,
+Target-CR 2: - 23 November 1990 on improving mutual aid between Member States in the event of a natural or man-made disaster ( OJ C 315 , [32m14.12.1990[0m , p . 3 ) ,
+-----------------------------
+NMT Model 2: - from the 23 to whole trade with regard to the investment of the mutual 36 between Member States ,
+[25, 41, 2, 344, 7, 1028, 248, 26, 104, 7, 2, 522, 3, 2, 1212, 1082, 101, 34, 42, 4, 0]
+[0.97452801, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.75731403, 0.31749251]
+Copy Prob 2: [34m-[0m [34mfrom[0m [34mthe[0m [34m23[0m [34mto[0m [34mwhole[0m [34mtrade[0m [34mwith[0m [34mregard[0m [34mto[0m [34mthe[0m [34minvestment[0m [34mof[0m [34mthe[0m [34mmutual[0m [34m36[0m [34mbetween[0m [34mMember[0m [34mStates[0m [34m,[0m
+Copy Gate 2: [36m-[0m [36mfrom[0m [36mthe[0m [36m23[0m [36mto[0m [36mwhole[0m [36mtrade[0m [36mwith[0m [36mregard[0m [36mto[0m [36mthe[0m [36minvestment[0m [36mof[0m [36mthe[0m [36mmutual[0m [36m36[0m [36mbetween[0m [36mMember[0m [36mStates[0m [36m,[0m
+
+[ 0.51171052] (1,)
+[ 0.50776488  0.50791466  0.50802755  0.50800461] (4,)
+[ 0.50679576  0.50781316  0.50689715] (3,)
+[ 0.50788242  0.50684583] (2,)
+[ 0.50812489] (1,)
+=============================
+Target-TM 3: ( 34 ) The following financial measures were granted by the public authorities to Kahla II from the time of its creation until 1999 ( amounts in DEM million ) :
+Source-TM 3: ( 34 ) Les pouvoirs publics ont accordé les mesures financières suivantes à Kahla II , depuis sa constitution jusqu &apos; en 1999 ( millions de DEM ) -
+Source-CR 3: ( 22 ) Les pouvoirs publics ont accordé les mesures financières suivantes à Kahla I , de sa constitution jusqu &apos; à sa mise en faillite ( millions de DEM ) -
+Target-CR 3: ( 22 ) The following financial measures were granted by the public authorities to Kahla I from the time of its creation until its bankruptcy ( amounts in DEM million ) :
+-----------------------------
+NMT Model 3: ( 22 ) The
+[9, 312, 8, 21, 0]
+[0.94716328, 1.0, 0.94897908, 0.96354109, 5.9835234e-05]
+Copy Prob 3: [34m([0m [34m22[0m [34m)[0m [34mThe[0m
+Copy Gate 3: [36m([0m [36m22[0m [36m)[0m [36mThe[0m
+
+[ 0.50783235] (1,)
+[ 0.50351799  0.50848597  0.50373775  0.50388193] (4,)
+[ 0.50582445  0.50923669  0.51042795] (3,)
+[ 0.50668859  0.50301307] (2,)
+[ 0.50602281] (1,)
+=============================
+Target-TM 4: 2 . The data bases referred to in the third indent of Article 1 shall be organized and operated as specified in Annex III .
+Source-TM 4: 2 . La tenue et l &apos; exploitation des bases de données visées à l &apos; article 1er troisième tiret sont organisées selon les principes indiqués à l &apos; annexe III .
+Source-CR 4: 2 . Les édulcorants visés au paragraphe 1 deuxième tiret ne peuvent être employés que pour la fabrication des denrées alimentaires énumérées à l &apos; annexe et dans les conditions qui y sont précisées .
+Target-CR 4: 2 . [32mSweeteners[0m referred to in the second indent of paragraph 1 may only be used in the manufacture of the foodstuffs listed in the Annex under the conditions specified therein .
+-----------------------------
+NMT Model 4: 2 . The
+[29, 6, 21, 0]
+[0.97247535, 0.94997209, 0.97259861, 1.6461621e-05]
+Copy Prob 4: [34m2[0m [34m.[0m [34mThe[0m
+Copy Gate 4: [36m2[0m [36m.[0m [36mThe[0m
+
+Epoch  0 Update  21 Cost  97.1778106689 G 18.3527069092 execute: elapsed 1.3865 secs.
+
+Epoch  0 Update  22 Cost  80.9659347534 G 16.6703910828 execute: elapsed 1.3661 secs.
+
+Epoch  0 Update  23 Cost  78.8284606934 G 15.3195400238 execute: elapsed 1.2824 secs.
+
+Epoch  0 Update  24 Cost  65.9773788452 G 13.3356723785 execute: elapsed 1.1885 secs.
+
+Epoch  0 Update  25 Cost  55.3686943054 G 11.4488620758 execute: elapsed 0.9844 secs.
+
+Epoch  0 Update  26 Cost  46.1474151611 G 9.99886512756 execute: elapsed 0.8569 secs.
+
+Epoch  0 Update  27 Cost  34.2806053162 G 8.84960460663 execute: elapsed 0.8372 secs.
+
+Epoch  0 Update  28 Cost  23.0278434753 G 7.39876365662 execute: elapsed 0.8244 secs.
+
+Epoch  0 Update  29 Cost  18.6024265289 G 6.48376178741 execute: elapsed 0.7936 secs.
+
+Epoch  0 Update  30 Cost  17.2849369049 G 5.09302139282 execute: elapsed 0.7493 secs.
+
+Epoch  0 Update  31 Cost  19.8453731537 G 3.58809447289 execute: elapsed 0.6071 secs.
+
+Epoch  0 Update  32 Cost  102.386207581 G 24.4645462036 execute: elapsed 1.7519 secs.
+
+Epoch  0 Update  33 Cost  129.233520508 G 27.5919303894 execute: elapsed 1.5883 secs.
+
+Epoch  0 Update  34 Cost  119.45664978 G 24.979227066 execute: elapsed 1.3753 secs.
+
+Epoch  0 Update  35 Cost  121.110649109 G 21.8727817535 execute: elapsed 1.3469 secs.
+
+Epoch  0 Update  36 Cost  97.4751281738 G 20.4312610626 execute: elapsed 1.0526 secs.
+
+Epoch  0 Update  37 Cost  69.8930358887 G 18.4159507751 execute: elapsed 1.1997 secs.
+
+Epoch  0 Update  38 Cost  82.9996109009 G 16.7020759583 execute: elapsed 1.3632 secs.
+
+Epoch  0 Update  39 Cost  84.3020248413 G 14.3070859909 execute: elapsed 1.2566 secs.
+
+Epoch  0 Update  40 Cost  46.9628601074 G 13.1597328186 execute: elapsed 1.2293 secs.
+
+[ 0.50238502] (1,)
+[ 0.50522786  0.50441384  0.50830907  0.51456958] (4,)
+[ 0.51309341  0.51136506  0.51486266] (3,)
+[ 0.5127055   0.50449526] (2,)
+[ 0.5077526   0.50445086] (2,)
+[ 0.50468159  0.50732142] (2,)
+[ 0.50315273  0.5039506 ] (2,)
+[ 0.51050138  0.51048535] (2,)
+[ 0.5065648   0.50640416] (2,)
+[ 0.50425452  0.50606787] (2,)
+[ 0.50856513  0.50429064] (2,)
+[ 0.51499939  0.50687873] (2,)
+[ 0.51515335  0.51275313] (2,)
+[ 0.51310921  0.51301545] (2,)
+[ 0.51249367  0.51012021] (2,)
+[ 0.51018029  0.5076797 ] (2,)
+[ 0.51580709  0.5117504 ] (2,)
+[ 0.5172832   0.51175404] (2,)
+[ 0.51011932  0.51755607] (2,)
+[ 0.50772119  0.51787305] (2,)
+[ 0.51740009  0.51380992] (2,)
+[ 0.51791477  0.51265961] (2,)
+[ 0.51374555  0.51270515] (2,)
+[ 0.51274067] (1,)
+[ 0.51235342] (1,)
+=============================
+Target-TM 0: ( G ) dairy premium and additional payments provided for in Title IV Chapter 7 of that Regulation ;
+Source-TM 0: G ) prime aux produits laitiers et paiements supplémentaires , prévue au titre IV , chapitre 7 , dudit règlement ;
+Source-CR 0: G ) prime aux produits laitiers et paiements supplémentaires , prévus au titre IV , chapitre 7 , dudit règlement .
+Target-CR 0: ( G ) dairy premium and additional payments provided for in Title IV Chapter 7 of that Regulation .
+-----------------------------
+NMT Model 0: ( A ) NOT to the products responsible and proceedings , as provided for in Economic 7 of Title IV of that Regulation .
+[9, 65, 8, 2344, 7, 2, 73, 408, 10, 685, 4, 31, 85, 12, 11, 386, 103, 3, 378, 507, 3, 30, 32, 6, 0]
+[0.90445614, 1.0, 0.9525333, 1.0, 1.0, 1.0, 1.0, 1.0, 0.92117089, 1.0, 1.0, 1.0, 0.93665636, 0.95080715, 0.95236772, 1.0, 1.5930593e-05, 0.93920285, 0.95133126, 0.95426518, 0.94809407, 0.93126673, 0.95036274, 1.0, 0.90793306]
+Copy Prob 0: [34m([0m [34mA[0m [34m)[0m [34mNOT[0m [34mto[0m [34mthe[0m [34mproducts[0m [34mresponsible[0m [34mand[0m [34mproceedings[0m [34m,[0m [34mas[0m [34mprovided[0m [34mfor[0m [34min[0m [34mEconomic[0m [33m7[0m [34mof[0m [34mTitle[0m [34mIV[0m [34mof[0m [34mthat[0m [34mRegulation[0m [34m.[0m
+Copy Gate 0: [36m([0m [36mA[0m [36m)[0m [36mNOT[0m [36mto[0m [36mthe[0m [36mproducts[0m [36mresponsible[0m [36mand[0m [36mproceedings[0m [36m,[0m [36mas[0m [36mprovided[0m [36mfor[0m [36min[0m [36mEconomic[0m [36m7[0m [36mof[0m [36mTitle[0m [36mIV[0m [36mof[0m [36mthat[0m [36mRegulation[0m [36m.[0m
+
+[ 0.50755715] (1,)
+[ 0.51783347  0.50568539  0.51056081  0.50630015] (4,)
+[ 0.50893939  0.50597274  0.50693613  0.51620549] (4,)
+[ 0.50880158  0.51154023  0.50955266  0.51403993] (4,)
+[ 0.51117563  0.50945455  0.50973845  0.51506758] (4,)
+[ 0.51383239  0.51441056  0.521254  ] (3,)
+[ 0.51630872  0.52106875] (2,)
+[ 0.51266593  0.52194595] (2,)
+[ 0.51184368  0.51760763] (2,)
+[ 0.5157882] (1,)
+[ 0.50776619] (1,)
+=============================
+Target-TM 1: The Council shall no later than 30 September 2006 evaluate whether the EU supporting action should be continued .
+Source-TM 1: Le Conseil procède , au plus tard le 30 septembre 2006 , à une évaluation afin de déterminer si l &apos; action de soutien de l &apos; Union européenne doit être poursuivie .
+Source-CR 1: De concert avec les autorités américaines , la Commission évaluera l &apos; adéquation des subventions octroyées dans le cadre du programme [32mFulbright[0m / UE .
+Target-CR 1: The Commission , together with the US authorities , will evaluate the adequacy of the [32mFulbright-EU[0m programme grants .
+-----------------------------
+NMT Model 1: 2006 to avoid with the 1901 authorities , the Commission
+[99, 7, 1308, 26, 2, 12720, 108, 4, 2, 33, 0]
+[5.2201756e-07, 1.0, 1.0, 1.0, 0.014295287, 1.0, 1.0, 1.0, 0.00017894083, 1.0, 0.0024844033]
+Copy Prob 1: [33m2006[0m [34mto[0m [34mavoid[0m [34mwith[0m [33mthe[0m [34m1901[0m [34mauthorities[0m [34m,[0m [33mthe[0m [34mCommission[0m
+Copy Gate 1: [36m2006[0m [36mto[0m [36mavoid[0m [36mwith[0m [36mthe[0m [36m1901[0m [36mauthorities[0m [36m,[0m [36mthe[0m [36mCommission[0m
+
+[ 0.51210713] (1,)
+[ 0.51577234  0.51296246  0.50775462  0.50775462] (4,)
+[ 0.52161551  0.51763344  0.51763344  0.51765853] (4,)
+[ 0.52551234  0.52544427  0.52544427  0.52584976] (4,)
+[ 0.52296871  0.52243781  0.52243781  0.521393  ] (4,)
+[ 0.52089453  0.5206669   0.5206669   0.52063358] (4,)
+[ 0.52056527  0.52038461  0.52038461  0.52045363] (4,)
+[ 0.52052718  0.52057385  0.52057385  0.52045774] (4,)
+[ 0.52044421  0.52053118  0.52053118  0.52034706] (4,)
+[ 0.52035147  0.52024889  0.52024889  0.51991993] (4,)
+[ 0.5201149   0.51968831  0.51968831  0.51924425] (4,)
+[ 0.51957953  0.51892418  0.51892418  0.51857978] (4,)
+[ 0.5189653   0.51836932  0.51836932  0.51820564] (4,)
+[ 0.51846856  0.51799345  0.51799345  0.5178898 ] (4,)
+[ 0.51811475  0.51740009  0.51740009  0.51737374] (4,)
+[ 0.51769626  0.51671726  0.51671726  0.51682729] (4,)
+[ 0.51706487  0.51618415  0.51618415  0.51647246] (4,)
+[ 0.5164212   0.51592815  0.51592815  0.51630968] (4,)
+[ 0.51593703  0.51582211  0.51582211  0.51623827] (4,)
+[ 0.51565158  0.51570714  0.51570714  0.51616406] (4,)
+[ 0.51550007  0.51551497  0.51551497  0.51605618] (4,)
+[ 0.51538932  0.51523054  0.51523054  0.51591957] (4,)
+[ 0.51526636  0.51490045  0.51490045  0.51575458] (4,)
+[ 0.51508945  0.51460189  0.51460189  0.51555496] (4,)
+[ 0.51485962  0.51438558  0.51438558  0.51532423] (4,)
+[ 0.51461786  0.51424599  0.51424599  0.51507902] (4,)
+[ 0.51440275  0.51413947  0.51413947  0.51484621] (4,)
+[ 0.51423371  0.51402968  0.51402968  0.5146507 ] (4,)
+[ 0.51410758  0.51390839  0.51390839  0.51449978] (4,)
+[ 0.5140062   0.51378739  0.51378739  0.51438022] (4,)
+[ 0.51391423  0.51368392  0.51368392  0.51427376] (4,)
+[ 0.51382828  0.51360774  0.51360774  0.51417094] (4,)
+[ 0.51375204  0.51355416  0.51355416  0.51407278] (4,)
+[ 0.51368976  0.51350933  0.51350933  0.51398414] (4,)
+[ 0.51364112  0.51346457  0.51346457  0.51390815] (4,)
+[ 0.5136013   0.51342416  0.51342416  0.51384389] (4,)
+[ 0.513565    0.51339591  0.51339591  0.51378673] (4,)
+[ 0.51353163  0.51338047  0.51338047  0.51373273] (4,)
+[ 0.51350421  0.51337093  0.51337093  0.51368153] (4,)
+[ 0.51348531  0.51336104  0.51336104  0.51363623] (4,)
+[ 0.51347339  0.51335019  0.51335019  0.51359993] (4,)
+[ 0.51346415  0.51334101  0.51334101  0.51357257] (4,)
+[ 0.51345372  0.51333517  0.51333517  0.51355141] (4,)
+[ 0.51344228  0.51333141  0.51333141  0.51353282] (4,)
+[ 0.51343238  0.5133279   0.5133279   0.51351517] (4,)
+[ 0.51342571  0.51332366  0.51332366  0.5134995 ] (4,)
+[ 0.5134216   0.51331919  0.51331919  0.51348776] (4,)
+[ 0.51341778  0.51331508  0.51331508  0.51348025] (4,)
+[ 0.51341242  0.51331156  0.51331156  0.51347572] (4,)
+[ 0.51340568  0.51330841  0.51330841  0.51347256] (4,)
+[ 0.51339871  0.51330525  0.51330525  0.5134697 ] (4,)
+[ 0.51339257  0.51330221  0.51330221  0.51346731] (4,)
+[ 0.51338756  0.51329917  0.51329917  0.51346618] (4,)
+[ 0.51338291  0.51329648  0.51329648  0.5134663 ] (4,)
+[ 0.5133779   0.5132941   0.5132941   0.51346749] (4,)
+[ 0.51337224  0.51329201  0.51329201  0.51346904] (4,)
+[ 0.51336622  0.51329017  0.51329017  0.51347053] (4,)
+[ 0.51336044  0.51328862  0.51328862  0.51347208] (4,)
+[ 0.51335537  0.51328743  0.51328743  0.51347393] (4,)
+[ 0.51335084  0.51328647  0.51328647  0.51347601] (4,)
+[ 0.51334673  0.51328588  0.51328588  0.51347834] (4,)
+[ 0.5133425   0.51328558  0.51328558  0.51348084] (4,)
+[ 0.51333809  0.51328552  0.51328552  0.51348329] (4,)
+[ 0.5133338   0.51328588  0.51328588  0.51348567] (4,)
+[ 0.51332986  0.51328641  0.51328641  0.51348805] (4,)
+[ 0.51332664  0.51328731  0.51349056  0.51328731] (4,)
+[ 0.5133239   0.51349312  0.51328844  0.51328844] (4,)
+[ 0.5133214   0.51349568  0.51328981  0.51328981] (4,)
+[ 0.51331896  0.51349819  0.51329142  0.51329142] (4,)
+[ 0.51331669  0.51350069  0.51329327  0.51329327] (4,)
+[ 0.51331466  0.51350319  0.51329529  0.51329529] (4,)
+[ 0.51331311  0.51350576  0.51329756  0.51329756] (4,)
+[ 0.5133121   0.51350826  0.51329994  0.51329994] (4,)
+[ 0.51331151  0.51351076  0.51330251  0.51330251] (4,)
+[ 0.51331103  0.51351333  0.51330519  0.51330519] (4,)
+[ 0.51331079  0.51351577  0.51330805  0.51330805] (4,)
+[ 0.51331079  0.51351827  0.51331097  0.51331097] (4,)
+[ 0.51331109  0.51352078  0.51331407] (3,)
+[ 0.51331186  0.51352322] (2,)
+[ 0.513313    0.51352572] (2,)
+[ 0.51331443  0.51352823] (2,)
+[ 0.51331598  0.51353073] (2,)
+[ 0.51331776  0.51353317] (2,)
+[ 0.51331991  0.51353568] (2,)
+[ 0.51332223] (1,)
+[ 0.51332486] (1,)
+[ 0.51332778] (1,)
+[ 0.51333082] (1,)
+[ 0.5133341] (1,)
+[ 0.51333749] (1,)
+[ 0.51334119] (1,)
+[ 0.513345] (1,)
+[ 0.51334906] (1,)
+[ 0.51335317] (1,)
+[ 0.51335752] (1,)
+[ 0.51336193] (1,)
+[ 0.51336646] (1,)
+[ 0.51337117] (1,)
+[ 0.513376] (1,)
+[ 0.51338089] (1,)
+[ 0.51338589] (1,)
+[ 0.51339096] (1,)
+[ 0.51339602] (1,)
+[ 0.51340127] (1,)
+[ 0.51340652] (1,)
+[ 0.51341188] (1,)
+[ 0.51341724] (1,)
+[ 0.51342261] (1,)
+[ 0.51342815] (1,)
+[ 0.51343358] (1,)
+[ 0.51343912] (1,)
+[ 0.5134446] (1,)
+[ 0.51345015] (1,)
+[ 0.51345575] (1,)
+[ 0.51346129] (1,)
+[ 0.51346689] (1,)
+[ 0.51347244] (1,)
+[ 0.51347804] (1,)
+[ 0.51348358] (1,)
+[ 0.51348919] (1,)
+[ 0.51349473] (1,)
+[ 0.51350027] (1,)
+[ 0.51350582] (1,)
+[ 0.51351136] (1,)
+[ 0.51351684] (1,)
+[ 0.51352233] (1,)
+[ 0.51352781] (1,)
+[ 0.51353323] (1,)
+[ 0.51353866] (1,)
+[ 0.51354402] (1,)
+[ 0.51354945] (1,)
+[ 0.51355475] (1,)
+[ 0.51356006] (1,)
+[ 0.51356536] (1,)
+=============================
+Target-TM 2: [32m2004PL16CPE011[0m &#124; Water and waste water management in [32mMyslowice[0m &#124; [32m24153759[0m &#124; [32m15458406[0m &#124; 2005 &#124; 31.12.2009 &#124; 14.12.2004 &#124;
+Source-TM 2: [32m2004PL16CPE011[0m &#124; Gestion des eaux et des eaux usées de [32mMyslowice[0m &#124; [32m24153759[0m &#124; [32m15458406[0m &#124; 2005 &#124; 31.12.2009 &#124; 14.12.2004 &#124;
+Source-CR 2: [32m2004PL16CPE023[0m &#124; Système municipal de gestion des déchets de [32mTorun[0m &#124; [32m15264000[0m &#124; [32m10837440[0m &#124; 1.10.2006 &#124; 31.12.2009 &#124; 19.12.2005 &#124;
+Target-CR 2: [32m2004PL16CPE023[0m &#124; Municipal waste management in [32mTorun[0m &#124; [32m15264000[0m &#124; [32m10837440[0m &#124; 1.10.2006 &#124; 31.12.2009 &#124; 19.12.2005 &#124;
+-----------------------------
+NMT Model 2: &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124; &#124;
+[5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0]
+[8.5390078e-05, 1.81502e-05, 1.8997112e-05, 6.5073655e-05, 3.2304135e-05, 0.00025404754, 0.00033875511, 0.00048438305, 0.00041451168, 0.00042046444, 0.00079475669, 0.001101925, 0.0012317963, 0.0014632222, 0.0018879926, 0.0024129234, 0.00260518, 0.0024708989, 0.0023471783, 0.0024771271, 0.0029083893, 0.0034996332, 0.0041443454, 0.0047549875, 0.0052307588, 0.0055275513, 0.0056816423, 0.005759974, 0.005817675, 0.0058910735, 0.0059960037, 0.0061263256, 0.006266736, 0.0064077117, 0.0065500485, 0.0066965078, 0.0068395836, 0.0069584707, 0.0070317346, 0.0070559597, 0.0070500723, 0.0070383456, 0.0070303013, 0.0070150523, 0.0069741909, 0.0069024195, 0.0068150414, 0.0067347195, 0.0066724671, 0.0066208299, 0.0065640709, 0.0064946278, 0.0064200903, 0.0063551827, 0.0063084462, 0.0062758555, 0.0062461686, 0.0062115905, 0.0061738999, 0.006141392, 0.0061207144, 0.0061113397, 0.0061068903, 0.0061012446, 0.0060935086, 0.0060877912, 0.0060888152, 0.0060978052, 0.0061118216, 0.0061268816, 0.0061413217, 0.0061566737, 0.0061758966, 0.0062004407, 0.0062293275, 0.0062602828, 0.0062917923, 0.0063242093, 0.0063590389, 0.0063974322, 0.0064392611, 0.006483343, 0.0065286355, 0.006575047, 0.0066232216, 0.0066738985, 0.0067271716, 0.0067825187, 0.0068392842, 0.0068972674, 0.0069567589, 0.0070181373, 0.0070815119, 0.0071466989, 0.0072133429, 0.0072812401, 0.007350496, 0.0074213059, 0.0074937916, 0.0075678984, 0.0076434454, 0.0077202735, 0.00779843, 0.0078780297, 0.0079591619, 0.0080418373, 0.0081259627, 0.0082114609, 0.0082983375, 0.0083867013, 0.0084765935, 0.0085680522, 0.0086611193, 0.0087556588, 0.0088517377, 0.008949385, 0.0090486528, 0.0091496715, 0.0092523396, 0.0093567492, 0.0094628409, 0.0095706498, 0.0096802432, 0.0097916676, 0.0099049546, 0.010020063, 0.010137056, 0.010255887, 0.010376688, 0.010499359, 0.010623961, 0.01075052, 0.010878975, 0.85345334]
+Copy Prob 2: [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m
+Copy Gate 2: [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m
+
+[ 0.51099646] (1,)
+[ 0.51431721  0.51499009  0.51193428  0.51688302] (4,)
+[ 0.51747721  0.51350254  0.51452368] (3,)
+[ 0.51187921  0.51188469  0.5121327 ] (3,)
+[ 0.51139808  0.5114302   0.51153433] (3,)
+[ 0.51578778  0.51707858  0.51546866] (3,)
+[ 0.51444268  0.51469916  0.51461083] (3,)
+[ 0.51690024  0.51501709] (2,)
+[ 0.50751579  0.51198864] (2,)
+[ 0.51444942  0.51533121] (2,)
+[ 0.51930261  0.51218009] (2,)
+[ 0.51155764  0.51416332] (2,)
+[ 0.51467943  0.51667196] (2,)
+[ 0.51229167  0.51464838] (2,)
+[ 0.51395589  0.51218736] (2,)
+[ 0.51648116  0.51699412] (2,)
+[ 0.51464474] (1,)
+[ 0.51254994] (1,)
+[ 0.51707304] (1,)
+=============================
+Target-TM 3: ( 2 ) OJ No L 164 , 29 . 6 . 1985 , p . 1 .
+Source-TM 3: ( 2 ) JO no L 164 du 29 . 6 . 1985 , p . 1 .
+Source-CR 3: ( 2 ) JO n L 154 du 5 . 6 . 1992 , p. 1 .
+Target-CR 3: ( 2 ) OJ No L 154 , 5 . 6 . 1992 , p . 1 .
+-----------------------------
+NMT Model 3: ( 2 ) OJ No L message , 5 . 6 . 1992 , p . 1 .
+[9, 29, 8, 239, 35, 261, 7066, 4, 70, 6, 87, 6, 804, 4, 270, 6, 19, 6, 0]
+[0.95147353, 0.95308632, 0.95112771, 0.95146066, 0.94624263, 0.95007974, 1.0, 0.0024224613, 1.0, 0.83308882, 0.95127916, 0.83341521, 1.0, 0.90722734, 0.95132238, 0.83049834, 0.95195436, 0.83210891, 0.86582857]
+Copy Prob 3: [34m([0m [34m2[0m [34m)[0m [34mOJ[0m [34mNo[0m [34mL[0m [34mmessage[0m [33m,[0m [34m5[0m [34m.[0m [34m6[0m [34m.[0m [34m1992[0m [34m,[0m [34mp[0m [34m.[0m [34m1[0m [34m.[0m
+Copy Gate 3: [36m([0m [36m2[0m [36m)[0m [36mOJ[0m [36mNo[0m [36mL[0m [36mmessage[0m [36m,[0m [36m5[0m [36m.[0m [36m6[0m [36m.[0m [36m1992[0m [36m,[0m [36mp[0m [36m.[0m [36m1[0m [36m.[0m
+
+[ 0.51819301] (1,)
+[ 0.51507223  0.51821071  0.51651222  0.51630104] (4,)
+[ 0.51516849  0.51485598  0.51954293] (3,)
+[ 0.51627636  0.51518816] (2,)
+[ 0.51434791] (1,)
+[ 0.51197469] (1,)
+[ 0.51608765] (1,)
+[ 0.5074501] (1,)
+[ 0.51308876] (1,)
+[ 0.51578331] (1,)
+[ 0.51243377] (1,)
+[ 0.5111531] (1,)
+[ 0.51376802] (1,)
+[ 0.51490325] (1,)
+[ 0.5114736] (1,)
+[ 0.51549071] (1,)
+[ 0.50911832] (1,)
+[ 0.51824391] (1,)
+[ 0.51735765] (1,)
+=============================
+Target-TM 4: Whereas [32mtriclabendazole[0m should be inserted into Annex I to Regulation ( EEC ) No 2377 / 90 ;
+Source-TM 4: Considérant que [32mtriclabendazole[0m doit être inséré à l &apos; annexe I du règlement ( CEE ) n ° 2377 / 90 ;
+Source-CR 4: Considérant que la [32msarafloxacine[0m doit être insérée à l &apos; annexe I du règlement ( CEE ) n ° 2377 / 90 ;
+Target-CR 4: Whereas [32msarafloxacin[0m should be inserted into Annex I to Regulation ( EEC ) No 2377 / 90 ;
+-----------------------------
+NMT Model 4: Whereas ) should be placing into Annex I to Regulation ( EEC ) No reflect / 90 ;
+[97, 8, 62, 15, 974, 83, 57, 141, 7, 32, 9, 51, 8, 35, 2649, 13, 376, 24, 0]
+[0.95088726, 3.0222702e-07, 0.24218392, 0.94965184, 1.0, 0.95008415, 0.94978356, 0.95178896, 0.94899356, 0.95056218, 0.95111978, 0.95390296, 0.95170313, 0.95088542, 1.0, 0.95021904, 0.95270896, 0.95007735, 0.86417663]
+Copy Prob 4: [34mWhereas[0m [33m)[0m [33mshould[0m [34mbe[0m [34mplacing[0m [34minto[0m [34mAnnex[0m [34mI[0m [34mto[0m [34mRegulation[0m [34m([0m [34mEEC[0m [34m)[0m [34mNo[0m [34mreflect[0m [34m/[0m [34m90[0m [34m;[0m
+Copy Gate 4: [36mWhereas[0m [36m)[0m [36mshould[0m [36mbe[0m [36mplacing[0m [36minto[0m [36mAnnex[0m [36mI[0m [36mto[0m [36mRegulation[0m [36m([0m [36mEEC[0m [36m)[0m [36mNo[0m [36mreflect[0m [36m/[0m [36m90[0m [36m;[0m
+
+Epoch  0 Update  41 Cost  46.1606445312 G 12.0083084106 execute: elapsed 1.0549 secs.
+
+Epoch  0 Update  42 Cost  43.1352920532 G 10.0864582062 execute: elapsed 0.9283 secs.
+
+Epoch  0 Update  43 Cost  22.8138008118 G 8.60450077057 execute: elapsed 0.8961 secs.
+
+Epoch  0 Update  44 Cost  27.2838859558 G 7.38512611389 execute: elapsed 0.9231 secs.
+
+Epoch  0 Update  45 Cost  17.2971916199 G 6.08300256729 execute: elapsed 0.7676 secs.
+
+Epoch  0 Update  46 Cost  24.5932121277 G 4.32841444016 execute: elapsed 0.6749 secs.
+
+Epoch  0 Update  47 Cost  37.2055587769 G 6.40978765488 execute: elapsed 1.6515 secs.
+
+Epoch  0 Update  48 Cost  143.060333252 G 29.5073814392 execute: elapsed 1.7170 secs.
+
+Epoch  0 Update  49 Cost  129.094573975 G 25.7019996643 execute: elapsed 1.5819 secs.
+
+Epoch  0 Update  50 Cost  129.49710083 G 23.669834137 execute: elapsed 1.5415 secs.
+
+Epoch  0 Update  51 Cost  118.393463135 G 21.3937091827 execute: elapsed 1.4448 secs.
+
+Epoch  0 Update  52 Cost  124.702880859 G 18.9832572937 execute: elapsed 1.1900 secs.
+
+Epoch  0 Update  53 Cost  108.238952637 G 16.5074367523 execute: elapsed 1.2754 secs.
+
+Epoch  0 Update  54 Cost  81.7933273315 G 14.7702026367 execute: elapsed 0.9467 secs.
+
+Epoch  0 Update  55 Cost  57.2680702209 G 12.959236145 execute: elapsed 0.6283 secs.
+
+Epoch  0 Update  56 Cost  42.0998573303 G 10.8420724869 execute: elapsed 1.0709 secs.
+
+Epoch  0 Update  57 Cost  38.5739593506 G 9.53750038147 execute: elapsed 0.9340 secs.
+
+Epoch  0 Update  58 Cost  39.3213043213 G 7.88408470154 execute: elapsed 0.9264 secs.
+
+Epoch  0 Update  59 Cost  27.9602775574 G 6.78901433945 execute: elapsed 0.8257 secs.
+
+Epoch  0 Update  60 Cost  20.3624076843 G 5.90485858917 execute: elapsed 0.8074 secs.
+
+[ 0.51781291] (1,)
+[ 0.51503003  0.51500815  0.50986767  0.51662409  0.51462561] (5,)
+[ 0.51124471  0.51141161  0.51461387  0.50751603  0.51498371] (5,)
+[ 0.50821948  0.50788468  0.51113278  0.50794059  0.51133519] (5,)
+[ 0.50793529  0.50669879  0.5064944   0.50793821  0.50820899] (5,)
+[ 0.50662673  0.50606942  0.50794238  0.5079366   0.50664794] (5,)
+[ 0.50961387  0.50960916  0.5066269   0.50663251  0.50801569] (5,)
+[ 0.50441635  0.50960815  0.50961465  0.50402611  0.50961328] (5,)
+[ 0.50533134  0.509866    0.50505924  0.5059768   0.50449753] (5,)
+[ 0.5051316   0.50501525  0.50544536] (3,)
+=============================
+Target-TM 0: ( 2006 / C 194 / 02 )
+Source-TM 0: ( 2006 / C 194 / 02 )
+Source-CR 0: ( 2006 / C 116 / 02 )
+Target-CR 0: ( 2006 / C 116 / 02 )
+-----------------------------
+NMT Model 0: ( 2006 / C agli / Section )
+[9, 99, 13, 93, 9218, 13, 638, 8, 0]
+[0.89285922, 0.89028555, 0.81074154, 0.8971889, 1.0, 0.81230581, 1.0, 0.89846051, 0.89868057]
+Copy Prob 0: [34m([0m [34m2006[0m [34m/[0m [34mC[0m [34magli[0m [34m/[0m [34mSection[0m [34m)[0m
+Copy Gate 0: [36m([0m [36m2006[0m [36m/[0m [36mC[0m [36magli[0m [36m/[0m [36mSection[0m [36m)[0m
+
+[ 0.50525999] (1,)
+[ 0.51548123  0.50728339  0.51417816  0.51546669] (4,)
+[ 0.50548702  0.50540954  0.50509489  0.50529587] (4,)
+[ 0.50611401  0.50722492  0.50470197] (3,)
+[ 0.50863069  0.50923169  0.5094834 ] (3,)
+[ 0.50932157  0.51131845  0.50947839] (3,)
+[ 0.50841266  0.51132941] (2,)
+[ 0.51170015] (1,)
+=============================
+Target-TM 1: PLN &#124; New Polish [32mZloty[0m &#124; [32m1851323[0m &#124;
+Source-TM 1: PLN &#124; Nouveau zloty polonais &#124; [32m1851323[0m &#124;
+Source-CR 1: PLN &#124; Nouveau zloty polonais &#124; [32m4387020[0m &#124;
+Target-CR 1: PLN &#124; New Polish [32mZloty[0m &#124; [32m4387020[0m &#124;
+-----------------------------
+NMT Model 1: posts &#124; &#124; 30.6.2006 &#124; &#124;
+[2772, 5, 5, 2968, 5, 5, 0]
+[1.0, 0.73786592, 0.00032853411, 1.0, 0.00070448872, 4.4644189e-06, 0.0088003566]
+Copy Prob 1: [34mposts[0m [36m&#124;[0m [33m&#124;[0m [34m30.6.2006[0m [33m&#124;[0m [33m&#124;[0m
+Copy Gate 1: [36mposts[0m [36m&#124;[0m [36m&#124;[0m [36m30.6.2006[0m [36m&#124;[0m [36m&#124;[0m
+
+[ 0.50893599] (1,)
+[ 0.51185524  0.51538694  0.51542395  0.51530582] (4,)
+[ 0.50622743  0.50620657  0.50616288  0.50618964] (4,)
+[ 0.50946152  0.50947708  0.50947738  0.50947809] (4,)
+[ 0.50882322  0.50884414  0.50884306  0.5088377 ] (4,)
+[ 0.51372707  0.51794851  0.51796103  0.51795805] (4,)
+[ 0.5141232   0.51402974  0.51399732  0.51400793] (4,)
+[ 0.51185828  0.51415908  0.51415503  0.51415318] (4,)
+[ 0.51188517  0.51187152  0.5118705 ] (3,)
+=============================
+Target-TM 2: [32mPremier[0m &#124; a FR 12567 &#124; &#124; &#124;
+Source-TM 2: Premier &#124; a FR 12567 &#124; &#124; &#124;
+Source-CR 2: [32mCallisto[0m &#124; a FR 12567 &#124; &#124; &#124;
+Target-CR 2: [32mCallisto[0m &#124; a FR 12567 &#124; &#124; &#124;
+-----------------------------
+NMT Model 2: &#124; &#124; a FR warrants &#124; &#124; &#124;
+[5, 5, 14, 293, 8633, 5, 5, 5, 0]
+[2.5574063e-06, 0.35657948, 0.89551592, 0.89773583, 1.0, 0.67858148, 0.67841917, 7.1616323e-06, 0.88919818]
+Copy Prob 2: [33m&#124;[0m [32m&#124;[0m [34ma[0m [34mFR[0m [34mwarrants[0m [36m&#124;[0m [36m&#124;[0m [33m&#124;[0m
+Copy Gate 2: [36m&#124;[0m [36m&#124;[0m [36ma[0m [36mFR[0m [36mwarrants[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m
+
+[ 0.5088951] (1,)
+[ 0.50999904  0.50846547  0.50996327  0.50999248  0.50892353] (5,)
+[ 0.50693142  0.50689322  0.50697041  0.50694269  0.50827891] (5,)
+[ 0.50935858  0.50755751  0.50980496  0.50789326] (4,)
+[ 0.51019496  0.51423472  0.51329815  0.50980443] (4,)
+[ 0.50784987  0.51018053  0.51252455  0.5150907 ] (4,)
+[ 0.5119198   0.51350898  0.5178473   0.51471388] (4,)
+[ 0.51751798  0.51553518  0.51492953  0.51746148] (4,)
+[ 0.51514208  0.51492816] (2,)
+[ 0.51613486] (1,)
+=============================
+Target-TM 3: 341 &#124; Proposed instruments : Regulation . &#124;
+Source-TM 3: &#124; Instrument proposé : Règlement &#124;
+Source-CR 3: 341 &#124; Instrument proposé : Règlement . &#124;
+Target-CR 3: 341 &#124; Proposed instruments : Regulation . &#124;
+-----------------------------
+NMT Model 3: Vocational &#124; PRODUCT port : Regulation . &#124;
+[6702, 5, 5630, 1621, 23, 32, 6, 5, 0]
+[1.0, 0.81162941, 1.0, 1.0, 0.89777267, 0.89450532, 0.88055277, 0.80313396, 0.88749498]
+Copy Prob 3: [34mVocational[0m [34m&#124;[0m [34mPRODUCT[0m [34mport[0m [34m:[0m [34mRegulation[0m [34m.[0m [34m&#124;[0m
+Copy Gate 3: [36mVocational[0m [36m&#124;[0m [36mPRODUCT[0m [36mport[0m [36m:[0m [36mRegulation[0m [36m.[0m [36m&#124;[0m
+
+[ 0.51277512] (1,)
+[ 0.50813389  0.50800198  0.50751823  0.50772566  0.50614733] (5,)
+[ 0.50579941  0.50619     0.50698239  0.5080514   0.50808448] (5,)
+[ 0.50802422  0.50804698  0.508358    0.5106042   0.51060736] (5,)
+[ 0.51060128  0.51069129  0.50832164  0.51062799  0.51051271] (5,)
+[ 0.51036185  0.51036292  0.51060039  0.51039839  0.51039219] (5,)
+[ 0.50926459  0.50926608  0.50719404  0.51038224  0.50926501] (5,)
+[ 0.50668013  0.50926071  0.50706792  0.50926554  0.50781631] (5,)
+[ 0.50705212  0.50670511  0.50912809  0.50669098] (4,)
+[ 0.50704193  0.5067414   0.5068984 ] (3,)
+=============================
+Target-TM 4: ( 2005 / C 137 / 11 )
+Source-TM 4: ( 2005 / C 137 / 11 )
+Source-CR 4: ( 2005 / C 334 / 11 )
+Target-CR 4: ( 2005 / C 334 / 11 )
+-----------------------------
+NMT Model 4: ( 2005 / C OSCE / 11 )
+[9, 72, 13, 93, 6452, 13, 182, 8, 0]
+[0.89177465, 0.89689142, 0.81577766, 0.89837545, 1.0, 0.81095111, 0.89372522, 0.89791173, 0.89871985]
+Copy Prob 4: [34m([0m [34m2005[0m [34m/[0m [34mC[0m [34mOSCE[0m [34m/[0m [34m11[0m [34m)[0m
+Copy Gate 4: [36m([0m [36m2005[0m [36m/[0m [36mC[0m [36mOSCE[0m [36m/[0m [36m11[0m [36m)[0m
+
+Epoch  0 Update  61 Cost  19.1187515259 G 4.60629463196 execute: elapsed 0.8201 secs.
+
+Epoch  0 Update  62 Cost  31.0587005615 G 4.83876419067 execute: elapsed 1.5737 secs.
+
+Epoch  0 Update  63 Cost  166.193618774 G 30.3644447327 execute: elapsed 1.8074 secs.
+
+Epoch  0 Update  64 Cost  123.782302856 G 26.1077461243 execute: elapsed 1.6931 secs.
+
+Epoch  0 Update  65 Cost  137.276031494 G 23.9494857788 execute: elapsed 1.5895 secs.
+
+Epoch  0 Update  66 Cost  140.799636841 G 21.749546051 execute: elapsed 1.4210 secs.
+
+Epoch  0 Update  67 Cost  115.015724182 G 19.9294662476 execute: elapsed 1.3957 secs.
+
+Epoch  0 Update  68 Cost  84.577583313 G 17.567237854 execute: elapsed 1.2637 secs.
+
+Epoch  0 Update  69 Cost  79.5153045654 G 15.569316864 execute: elapsed 1.2129 secs.
+
+Epoch  0 Update  70 Cost  43.8318710327 G 14.2518806458 execute: elapsed 0.9762 secs.
+
+Epoch  0 Update  71 Cost  59.285900116 G 12.2330093384 execute: elapsed 1.0488 secs.
+
+Epoch  0 Update  72 Cost  48.8490333557 G 10.7101726532 execute: elapsed 0.9676 secs.
+
+Epoch  0 Update  73 Cost  39.9995803833 G 8.73386096954 execute: elapsed 0.8187 secs.
+
+Epoch  0 Update  74 Cost  26.1358776093 G 7.27901744843 execute: elapsed 0.7481 secs.
+
+Epoch  0 Update  75 Cost  20.7036743164 G 6.45435810089 execute: elapsed 0.7644 secs.
+
+Epoch  0 Update  76 Cost  19.02734375 G 5.61809062958 execute: elapsed 0.7160 secs.
+
+Epoch  0 Update  77 Cost  21.9279670715 G 4.4188542366 execute: elapsed 0.6770 secs.
+
+Epoch  0 Update  78 Cost  25.0387878418 G 4.67336463928 execute: elapsed 1.3845 secs.
+
+Epoch  0 Update  79 Cost  172.648773193 G 32.3533554077 execute: elapsed 1.5969 secs.
+
+Epoch  0 Update  80 Cost  143.2918396 G 27.5158119202 execute: elapsed 1.5730 secs.
+
+[ 0.51291984] (1,)
+[ 0.522403    0.51281369  0.51669776  0.52000397  0.5134697 ] (5,)
+[ 0.52361888  0.52267051  0.52509677  0.5227828   0.52067131] (5,)
+[ 0.51760924  0.52305198  0.52138466  0.52129489  0.52109498] (5,)
+[ 0.51272559  0.51704252  0.51774138  0.5210439   0.51595271] (5,)
+[ 0.51871723  0.51271504  0.51270336  0.52106291  0.5145852 ] (5,)
+[ 0.51756936  0.51275015  0.51915914  0.51860899  0.51692098] (5,)
+[ 0.51320255  0.51765317  0.51270974  0.51779145  0.5145269 ] (5,)
+[ 0.51657063  0.51543707  0.51959479  0.51994526  0.51310116] (5,)
+[ 0.51434022  0.50853091  0.50802547  0.51267999  0.51675159] (5,)
+[ 0.50843555  0.51521796  0.51525241  0.51656467  0.51466107] (5,)
+[ 0.51522422  0.50993639  0.51016212  0.51410079  0.51508516] (5,)
+[ 0.51069129  0.50840878  0.51116842  0.50954574  0.5101971 ] (5,)
+[ 0.51027727  0.51524633  0.50943369  0.51518631  0.51269633] (5,)
+[ 0.5106467   0.50923628  0.50881588  0.51119095  0.5152092 ] (5,)
+[ 0.51031542  0.50923777  0.50915569  0.51055294  0.50698423] (5,)
+[ 0.50921524  0.51048291  0.51066554  0.51579696  0.51092094] (5,)
+[ 0.51284748  0.50983226  0.51573265  0.51321775  0.51525778] (5,)
+[ 0.51277363  0.5128082   0.50995141  0.50978529  0.51039571] (5,)
+[ 0.51336515  0.51275229  0.51005799  0.51379645  0.51370722] (5,)
+[ 0.51351815  0.51094145  0.51494622  0.51087838  0.51304239] (5,)
+[ 0.51089001  0.51125783  0.51094532  0.51714092  0.51427031] (5,)
+[ 0.51671487  0.5109266   0.51162678  0.51389766  0.51527393] (5,)
+[ 0.51572287  0.51539463  0.51578468  0.51165646  0.52015364] (5,)
+[ 0.51434284  0.51250958  0.51596546  0.51581031  0.51920986] (5,)
+[ 0.51494676  0.51567543  0.5184117   0.51449931  0.51893103] (5,)
+[ 0.51669192  0.51468462  0.51818442  0.51459533  0.51581389] (5,)
+[ 0.51065052  0.51473475  0.51977414  0.51670098  0.5155915 ] (5,)
+[ 0.51828867  0.5166679   0.51063871  0.51882184  0.51474953] (5,)
+[ 0.51991469  0.51830506  0.5106408   0.52395183  0.51571006] (5,)
+[ 0.52110392  0.51830238  0.51991582  0.52056712  0.51453048] (5,)
+[ 0.52376038  0.51991665  0.52105021  0.52061391  0.51462984] (5,)
+[ 0.51658893  0.52146423  0.52374136  0.51779026  0.52260238] (5,)
+[ 0.51700985  0.51831424  0.51663023  0.52387887  0.51901323] (5,)
+[ 0.51304513  0.51666415  0.51700598  0.51627409  0.51898992] (5,)
+[ 0.51451975  0.51309878  0.51700777  0.52023506  0.51649648] (5,)
+[ 0.5174017   0.51696652  0.51452059  0.51929098  0.5129962 ] (5,)
+[ 0.51749325  0.51802635  0.5145207   0.51816183  0.51742518] (5,)
+[ 0.52782714  0.52665395  0.51751113  0.51767361  0.51741344] (5,)
+[ 0.51586235  0.51556492  0.51443279  0.5277124   0.51747066] (5,)
+[ 0.51186103  0.52727181  0.52091289] (3,)
+[ 0.5164519   0.51429993  0.52249652] (3,)
+[ 0.51251405  0.51207966  0.51278281] (3,)
+[ 0.52372533  0.51643056  0.51630569] (3,)
+[ 0.51961857  0.5125227   0.52849138] (3,)
+[ 0.52470493  0.52382553  0.51912749] (3,)
+[ 0.52332896  0.51970756  0.52293545] (3,)
+[ 0.52107906  0.52424932  0.52470833] (3,)
+[ 0.51525581  0.52291721  0.51509196] (3,)
+[ 0.52215707  0.52110791] (2,)
+[ 0.5154084   0.51508588] (2,)
+[ 0.52251494] (1,)
+[ 0.51539981] (1,)
+=============================
+Target-TM 0: 2. that from the date of the present Decision no authorizations for plant protection products containing [32mpropham[0m will be granted or renewed under the derogation provided for in Article 8 ( 2 ) of Directive 91 / 414 / EEC .
+Source-TM 0: 2 ) à partir de la date de la présente décision , aucune autorisation de produits pharmaceutiques contenant du [32mprophame[0m ne soit accordée ou reconduite au titre de la dérogation prévue à l &apos; article 8 paragraphe 2 de la directive 91 / 414 / CEE .
+Source-CR 0: 2 ) à partir de la date de la présente décision , aucune autorisation de produits phytopharmaceutiques contenant du [32mdinoterb[0m ne soit accordée ou reconduite au titre de la dérogation prévue à l &apos; article 8 , paragraphe 2 , de la directive 91 / 414 / CEE .
+Target-CR 0: 2. that from the date of the present Decision no authorisations for plant protection products containing [32mdinoterb[0m will be granted or renewed under the derogation provided for in Article 8 ( 2 ) of Directive 91 / 414 / EEC .
+-----------------------------
+NMT Model 0: ( 2 ) as from the date of this Decision , no marine for the drinks products guarantees guarantees granted under the conformity the conformity provided for in Article 8 ( 2 ) of Directive 91 / B / EEC have been granted or under the date of the applicant Decision .
+[9, 29, 8, 31, 41, 2, 156, 3, 39, 95, 4, 185, 1951, 12, 2, 3607, 73, 1377, 1377, 251, 63, 2, 729, 85, 12, 11, 22, 122, 9, 29, 8, 3, 48, 428, 13, 94, 13, 51, 78, 92, 251, 20, 63, 2, 156, 3, 603, 6, 0]
+[0.83227158, 2.2581411e-05, 9.1729453e-06, 1.0, 0.0058532595, 0.87943906, 0.78822309, 8.6581713e-05, 1.0, 1.7128912e-05, 1.0, 0.001436045, 1.0, 7.266039e-05, 0.80381751, 1.0, 0.16753773, 1.0, 1.0, 0.82256943, 0.59008348, 9.9193654e-05, 1.0, 0.97231996, 0.9501915, 0.97576243, 0.97508657, 0.9756152, 0.97464448, 0.97434115, 0.97419035, 0.95016086, 0.97425294, 0.97467881, 0.95118964, 1.0, 0.95011139, 0.97369289, 1.0, 1.0, 0.97348887, 0.97366971, 0.94077188, 0.9194448, 0.97210175, 0.94662315, 1.0, 0.00020006532, 0.97501588]
+Copy Prob 0: [34m([0m [33m2[0m [33m)[0m [34mas[0m [33mfrom[0m [34mthe[0m [34mdate[0m [33mof[0m [34mthis[0m [33mDecision[0m [34m,[0m [33mno[0m [34mmarine[0m [33mfor[0m [34mthe[0m [34mdrinks[0m [33mproducts[0m [34mguarantees[0m [34mguarantees[0m [34mgranted[0m [36munder[0m [33mthe[0m [34mconformity[0m [34mprovided[0m [34mfor[0m [34min[0m [34mArticle[0m [34m8[0m [34m([0m [34m2[0m [34m)[0m [34mof[0m [34mDirective[0m [34m91[0m [34m/[0m [34mB[0m [34m/[0m [34mEEC[0m [34mhave[0m [34mbeen[0m [34mgranted[0m [34mor[0m [34munder[0m [34mthe[0m [34mdate[0m [34mof[0m [34missue[0m [33m.[0m
+Copy Gate 0: [36m([0m [36m2[0m [36m)[0m [36mas[0m [36mfrom[0m [36mthe[0m [36mdate[0m [36mof[0m [36mthis[0m [36mDecision[0m [36m,[0m [36mno[0m [36mmarine[0m [36mfor[0m [36mthe[0m [36mdrinks[0m [36mproducts[0m [36mguarantees[0m [36mguarantees[0m [36mgranted[0m [36munder[0m [36mthe[0m [36mconformity[0m [36mprovided[0m [36mfor[0m [36min[0m [36mArticle[0m [36m8[0m [36m([0m [36m2[0m [36m)[0m [36mof[0m [36mDirective[0m [36m91[0m [36m/[0m [36mB[0m [36m/[0m [36mEEC[0m [36mhave[0m [36mbeen[0m [36mgranted[0m [36mor[0m [36munder[0m [36mthe[0m [36mdate[0m [36mof[0m [36missue[0m [36m.[0m
+
+[ 0.51805216] (1,)
+[ 0.51128894  0.51355177  0.50955576  0.52278066] (4,)
+[ 0.50726742  0.51077229  0.51314294] (3,)
+[ 0.51254672  0.50727648] (2,)
+[ 0.51203227  0.51273704] (2,)
+[ 0.51180559  0.51201248] (2,)
+[ 0.51055175  0.51169348] (2,)
+[ 0.51160759  0.51151949] (2,)
+[ 0.51345539  0.51460725] (2,)
+[ 0.51093149] (1,)
+[ 0.51197505] (1,)
+[ 0.51409203] (1,)
+=============================
+Target-TM 1: Stocks required to be maintained by Article 1 may be maintained in the form of crude oil and intermediate products , as well as in the form of finished products .
+Source-TM 1: Les stocks à maintenir dans le cadre de l &apos; obligation définie à l &apos; article 1er peuvent se présenter sous la forme de pétrole brut et de produits intermédiaires , ainsi que sous la forme de produits finis .
+Source-CR 1: Considérant que les entreprises de transformation doivent inscrire dans leur comptabilité matières les produits qu &apos; elles utilisent dans la fabrication de mélanges ainsi que l &apos; influence que ces produits exercent sur le taux de protéines brutes totales des fourrages séchés qu &apos; elles produisent ;
+Target-CR 1: Whereas processing undertaking should be required to enter in their stock accounts the products they use in the manufacture of mixtures and the effect such products have on the total crude protein content of the dried fodder they produce ;
+-----------------------------
+NMT Model 1: Whereas processing risk must have the same meaning to the products
+[97, 390, 487, 112, 78, 2, 240, 582, 7, 2, 73, 0]
+[1.0, 1.0, 1.0, 1.0, 1.0, 0.87503982, 1.0, 1.0, 0.7136755, 0.92461216, 0.94816601, 0.00016528986]
+Copy Prob 1: [34mWhereas[0m [34mprocessing[0m [34mrisk[0m [34mmust[0m [34mhave[0m [34mthe[0m [34msame[0m [34mmeaning[0m [36mto[0m [34mthe[0m [34mproducts[0m
+Copy Gate 1: [36mWhereas[0m [36mprocessing[0m [36mrisk[0m [36mmust[0m [36mhave[0m [36mthe[0m [36msame[0m [36mmeaning[0m [36mto[0m [36mthe[0m [36mproducts[0m
+
+[ 0.51618457] (1,)
+[ 0.50900805  0.50926799  0.50939     0.50967979] (4,)
+[ 0.50800616  0.50783485  0.50884515] (3,)
+[ 0.50933826  0.50803632] (2,)
+[ 0.51260066] (1,)
+=============================
+Target-TM 2: ( 112 ) W związku z [32mpowyższym[0m Komisja :
+Source-TM 2: ( 112 ) W związku z [32mpowyższym[0m Komisja :
+Source-CR 2: ( 25 ) Z [32mzasady[0m [32mpodawane[0m przez [32mpierwszy[0m [32mkraj[0m [32mrejestrujący[0m . [32mWartości[0m [32mpowinny[0m być z [32mzasady[0m [32mwyliczane[0m zgodnie z [32msystemem[0m [32mklasyfikacji[0m FAO . W [32mprzypadkach[0m [32moznaczonych[0m [32mgwiazdką[0m ( * ) , zostały one [32mwyliczone[0m zgodnie z [32mnarodowym[0m [32msystemem[0m [32mklasyfikacji[0m .
+Target-CR 2: ( 25 ) Z [32mzasady[0m [32mpodawane[0m przez [32mpierwszy[0m [32mkraj[0m [32mrejestrujący[0m . [32mWartości[0m [32mpowinny[0m być z [32mzasady[0m [32mwyliczane[0m zgodnie z [32msystemem[0m [32mklasyfikacji[0m FAO . W [32mprzypadkach[0m [32moznaczonych[0m [32mgwiazdką[0m ( * ) , zostały one [32mwyliczone[0m zgodnie z [32mnarodowym[0m [32msystemem[0m [32mklasyfikacji[0m .
+-----------------------------
+NMT Model 2: ( 25 )
+[9, 334, 8, 0]
+[0.97483736, 1.0, 0.97642624, 1.1547816e-05]
+Copy Prob 2: [34m([0m [34m25[0m [34m)[0m
+Copy Gate 2: [36m([0m [36m25[0m [36m)[0m
+
+[ 0.51321316] (1,)
+[ 0.51394373  0.51591349  0.51589137  0.51634294] (4,)
+[ 0.51297414  0.51585978  0.51559883] (3,)
+[ 0.51562446  0.51571631] (2,)
+[ 0.51573682] (1,)
+[ 0.51387656] (1,)
+[ 0.51673216] (1,)
+[ 0.51900792] (1,)
+[ 0.52024871] (1,)
+[ 0.51118135] (1,)
+=============================
+Target-TM 3: Having regard to Council Regulation ( EEC ) No 404 / 93 of 13 February 1993 on the common organisation of the market in bananas ( 1 ) , and in particular Article 20 thereof ,
+Source-TM 3: Vu le règlement ( CEE ) n ° 404 / 93 du Conseil du 13 février 1993 portant organisation commune des marchés dans le secteur de la banane ( 1 ) , et notamment son article 20 ,
+Source-CR 3: Vu le règlement ( CEE ) n ° 739 / 93 du Conseil , du 17 mars 1993 , relatif à l &apos; application du prix commun de la poudre de lait au Portugal ( 14 ) , et notamment son article 3 ,
+Target-CR 3: Having regard to Council Regulation ( EEC ) No 739 / 93 of 17 March 1993 on the application of the common price for milk powder in Portugal ( 14 ) , and in particular Article 3 thereof ,
+-----------------------------
+NMT Model 3: Having regard to Council Regulation ( EEC ) No
+[163, 104, 7, 47, 32, 9, 51, 8, 35, 0]
+[0.97497708, 0.97487992, 0.97498548, 0.97430873, 0.97432864, 0.95097715, 0.97480321, 0.95081902, 0.97315902, 1.5219522e-09]
+Copy Prob 3: [34mHaving[0m [34mregard[0m [34mto[0m [34mCouncil[0m [34mRegulation[0m [34m([0m [34mEEC[0m [34m)[0m [34mNo[0m
+Copy Gate 3: [36mHaving[0m [36mregard[0m [36mto[0m [36mCouncil[0m [36mRegulation[0m [36m([0m [36mEEC[0m [36m)[0m [36mNo[0m
+
+[ 0.50971895] (1,)
+[ 0.50796962  0.51102167  0.51485455  0.51408374] (4,)
+[ 0.50900263  0.51934493  0.51181144] (3,)
+[ 0.51043892] (1,)
+[ 0.51198137] (1,)
+[ 0.5087108] (1,)
+=============================
+Target-TM 4: Whereas for the protection of users and other parties concerned it is important to ensure that air carriers are sufficiently insured in respect of liability risks ;
+Source-TM 4: Considérant que , pour des raisons tenant à la protection des usagers et des autres parties concernées , il importe que les transporteurs aériens aient une couverture suffisante pour les risques encourus ;
+Source-CR 4: Considérant qu &apos; il convient d &apos; accorder aux membres de la famille du preneur , du conducteur ou de toute autre personne responsable , une protection comparable à celle des autres tiers victimes , en tout cas en ce qui concerne leurs dommages corporels ;
+Target-CR 4: Whereas the members of the family of the insured person , driver or any other person liable should be afforded protection comparable to that of other third parties , in any event in respect of their personal injuries ;
+-----------------------------
+NMT Model 4: Whereas it is appropriate to
+[97, 61, 28, 139, 7, 0]
+[0.97632289, 0.94890583, 0.97416359, 1.0, 0.96141583, 1.34863e-06]
+Copy Prob 4: [34mWhereas[0m [34mit[0m [34mis[0m [34mappropriate[0m [34mto[0m
+Copy Gate 4: [36mWhereas[0m [36mit[0m [36mis[0m [36mappropriate[0m [36mto[0m
+
+Epoch  0 Update  81 Cost  140.938659668 G 24.0141181946 execute: elapsed 1.6797 secs.
+
+Epoch  0 Update  82 Cost  99.6415328979 G 21.8211097717 execute: elapsed 1.4548 secs.
+
+Epoch  0 Update  83 Cost  104.235198975 G 19.9161643982 execute: elapsed 1.3948 secs.
+
+Epoch  0 Update  84 Cost  70.2729644775 G 17.7901496887 execute: elapsed 1.3473 secs.
+
+Epoch  0 Update  85 Cost  102.947570801 G 15.8080940247 execute: elapsed 1.1623 secs.
+
+Epoch  0 Update  86 Cost  78.9988632202 G 14.2859888077 execute: elapsed 1.2449 secs.
+
+Epoch  0 Update  87 Cost  57.4940452576 G 12.7577066422 execute: elapsed 1.0881 secs.
+
+Epoch  0 Update  88 Cost  37.5828857422 G 10.4198093414 execute: elapsed 1.0365 secs.
+
+Epoch  0 Update  89 Cost  38.5373725891 G 9.25107288361 execute: elapsed 0.8215 secs.
+
+Epoch  0 Update  90 Cost  34.8514823914 G 7.3314332962 execute: elapsed 0.8568 secs.
+
+Epoch  0 Update  91 Cost  18.198802948 G 6.52544879913 execute: elapsed 0.7580 secs.
+
+Epoch  0 Update  92 Cost  23.1412029266 G 5.89129495621 execute: elapsed 0.7482 secs.
+
+Epoch  0 Update  93 Cost  25.2026329041 G 4.38787698746 execute: elapsed 0.7093 secs.
+
+Epoch  0 Update  94 Cost  15.8109369278 G 2.97790670395 execute: elapsed 0.5523 secs.
+
+Epoch  0 Update  95 Cost  124.75756073 G 29.0348548889 execute: elapsed 0.7164 secs.
+
+Epoch  0 Update  96 Cost  142.063415527 G 26.3201599121 execute: elapsed 0.6575 secs.
+
+Epoch  0 Update  97 Cost  112.222351074 G 23.3834857941 execute: elapsed 0.6157 secs.
+
+Epoch  0 Update  98 Cost  90.9323883057 G 20.8391799927 execute: elapsed 1.9489 secs.
+
+Epoch  0 Update  99 Cost  81.906829834 G 18.8378257751 execute: elapsed 1.3148 secs.
+
+Epoch  0 Update  100 Cost  82.9499969482 G 16.7733917236 execute: elapsed 1.1316 secs.
+
+[ 0.51308733] (1,)
+[ 0.51548982  0.51626801  0.51735842  0.51478857] (4,)
+[ 0.51454139  0.51431519  0.51447141] (3,)
+[ 0.51961976] (1,)
+[ 0.51441944] (1,)
+[ 0.52316922] (1,)
+[ 0.52551025] (1,)
+=============================
+Target-TM 0: However , for transport by rail it shall apply from 1 January 2006 .
+Source-TM 0: Toutefois , il n &apos; est applicable aux transports par chemin de fer qu &apos; à dater du 1er janvier 2006 .
+Source-CR 0: Une décision a pris en compte pour la première fois les limites sonores pour le matériel roulant par rail , afin de réduire progressivement le bruit du transport ferroviaire .
+Target-CR 0: A Decision set out , for the first time , noise limits for rail rolling stock to progressively reduce noise from rail transport .
+-----------------------------
+NMT Model 0: A vote for the first time
+[65, 0]
+[1.0, 5.2585091e-07]
+Copy Prob 0: [34mA[0m
+Copy Gate 0: [36mA[0m
+
+[ 0.51615047] (1,)
+[ 0.5168801   0.51626271  0.51710004  0.51450264] (4,)
+[ 0.51770908  0.51797199  0.51800245] (3,)
+[ 0.51738906  0.52073944] (2,)
+[ 0.5228225] (1,)
+[ 0.51698244] (1,)
+[ 0.5140267] (1,)
+[ 0.5211435] (1,)
+[ 0.52174008] (1,)
+[ 0.51891732] (1,)
+[ 0.51302516] (1,)
+[ 0.51825553] (1,)
+[ 0.51750702] (1,)
+=============================
+Target-TM 1: ( 4 ) The justification has been [32mscrutinised[0m by the Commission with the assistance of experts in the Member States .
+Source-TM 1: ( 4 ) Les pièces justificatives fournies ont été examinées par la Commission avec l &apos; assistance d &apos; experts des États membres .
+Source-CR 1: Compte tenu des termes de la position commune , la Commission a défini 5 obligations distinctes qui ont été imposées aux États membres :
+Target-CR 1: Given the terms of the Common Position , the Commission has identified 5 distinct obligations that have been placed upon the Member States :
+-----------------------------
+NMT Model 1: As final the terms of the Common contracting , the Commission has
+[538, 359, 2, 508, 3, 2, 635, 1614, 4, 2, 33, 77, 0]
+[1.0, 1.0, 4.1906234e-05, 1.0, 0.97113365, 0.91859055, 1.0, 1.0, 1.0, 0.91874701, 0.97322166, 0.9510867, 0.00016836656]
+Copy Prob 1: [34mAs[0m [34mfinal[0m [33mthe[0m [34mterms[0m [34mof[0m [34mthe[0m [34mCommon[0m [34mcontracting[0m [34m,[0m [34mthe[0m [34mCommission[0m [34mhas[0m
+Copy Gate 1: [36mAs[0m [36mfinal[0m [36mthe[0m [36mterms[0m [36mof[0m [36mthe[0m [36mCommon[0m [36mcontracting[0m [36m,[0m [36mthe[0m [36mCommission[0m [36mhas[0m
+
+[ 0.51915306] (1,)
+[ 0.51485413  0.51590753  0.51544744  0.52102011] (4,)
+[ 0.51494515  0.51640165  0.51464003] (3,)
+[ 0.52806532  0.51408458] (2,)
+[ 0.52274472] (1,)
+[ 0.51333195] (1,)
+[ 0.5274654] (1,)
+[ 0.52382624] (1,)
+=============================
+Target-TM 2: - name and address of the manufacturer or his authorized [32mrespresentative[0m established within the Community ,
+Source-TM 2: - nom et adresse du fabricant ou de son mandataire établi dans la Communauté ,
+Source-CR 2: - fournisseur : Le fabricant ou son représentant agréé dans la Communauté ou la personne qui place le produit sur le marché de la Communauté ,
+Target-CR 2: - supplier means the manufacturer or his authorized representative in the Community or the person who places the product on the Community market ,
+-----------------------------
+NMT Model 2: - continued : The manufacturer or his
+[25, 2232, 23, 21, 1446, 20, 439, 0]
+[0.97303402, 1.0, 1.0, 1.0, 0.97194982, 0.97244614, 0.97031403, 2.1180384e-05]
+Copy Prob 2: [34m-[0m [34mcontinued[0m [34m:[0m [34mThe[0m [34mmanufacturer[0m [34mor[0m [34mhis[0m
+Copy Gate 2: [36m-[0m [36mcontinued[0m [36m:[0m [36mThe[0m [36mmanufacturer[0m [36mor[0m [36mhis[0m
+
+[ 0.51112586] (1,)
+[ 0.51630223  0.52379274  0.5185439   0.52174675] (4,)
+[ 0.52085096  0.5215717   0.52359915] (3,)
+[ 0.51436818  0.51664954] (2,)
+[ 0.51978379] (1,)
+=============================
+Target-TM 3: The Commission shall adopt detailed rules on payments in accordance with the procedure laid down in Article 14 .
+Source-TM 3: La Commission peut fixer des règles détaillées concernant les paiements selon la procédure établie à l &apos; article 14 .
+Source-CR 3: 3 . La Commission , agissant selon la procédure prévue à l &apos; article 22 , arrête les modalités d &apos; application du présent article .
+Target-CR 3: 3 . The Commission shall adopt detailed rules for implementing this Article in accordance with the procedure laid down in Article 22 .
+-----------------------------
+NMT Model 3: 3 .
+[37, 6, 0]
+[1.0, 0.97195768, 6.3759777e-05]
+Copy Prob 3: [34m3[0m [34m.[0m
+Copy Gate 3: [36m3[0m [36m.[0m
+
+[ 0.51029176] (1,)
+[ 0.51018888  0.51058906  0.51161754  0.51539171] (4,)
+[ 0.50973111  0.51093584] (2,)
+[ 0.51180196] (1,)
+=============================
+Target-TM 4: The model passport must comply with the additional requirements set out in Annex II .
+Source-TM 4: Le passeport type est conforme aux exigences supplémentaires figurant à l &apos; annexe II .
+Source-CR 4: Les lots de produits à base de viande répondent aux exigences du modèle de certificat de police sanitaire et de santé publique prévu à l &apos; annexe III .
+Target-CR 4: Consignments of meat products shall comply with the requirements of the model public and animal health certificate set out in Annex III .
+-----------------------------
+NMT Model 4: 3763 of products
+[14066, 3, 73, 0]
+[1.0, 1.0, 1.0, 0.0016874601]
+Copy Prob 4: [34m3763[0m [34mof[0m [34mproducts[0m
+Copy Gate 4: [36m3763[0m [36mof[0m [36mproducts[0m
+
+Epoch  0 Update  101 Cost  66.9082489014 G 14.9310112 execute: elapsed 1.1037 secs.
+
+Epoch  0 Update  102 Cost  53.4613037109 G 13.4963092804 execute: elapsed 1.0543 secs.
+
+Epoch  0 Update  103 Cost  57.1605758667 G 11.8081579208 execute: elapsed 0.9357 secs.
+
+Epoch  0 Update  104 Cost  48.464012146 G 10.5022678375 execute: elapsed 0.8596 secs.
+
+Epoch  0 Update  105 Cost  28.3190593719 G 9.26641464233 execute: elapsed 0.7631 secs.
+
+Epoch  0 Update  106 Cost  28.0863552094 G 7.65073633194 execute: elapsed 0.7013 secs.
+
+Epoch  0 Update  107 Cost  23.3572044373 G 6.50173854828 execute: elapsed 0.6117 secs.
+
+Epoch  0 Update  108 Cost  18.0981063843 G 6.01102924347 execute: elapsed 0.5821 secs.
+
+Epoch  0 Update  109 Cost  16.7811470032 G 4.66982841492 execute: elapsed 0.8022 secs.
+
+Epoch  0 Update  110 Cost  55.0438156128 G 10.6202278137 execute: elapsed 1.7868 secs.
+
+Epoch  0 Update  111 Cost  149.31350708 G 29.2714767456 execute: elapsed 1.8703 secs.
+
+Epoch  0 Update  112 Cost  131.370758057 G 25.452703476 execute: elapsed 1.7988 secs.
+
+Epoch  0 Update  113 Cost  135.191253662 G 23.1970939636 execute: elapsed 1.6701 secs.
+
+Epoch  0 Update  114 Cost  124.100097656 G 21.2164859772 execute: elapsed 1.5945 secs.
+
+Epoch  0 Update  115 Cost  96.7741699219 G 19.8301315308 execute: elapsed 1.4998 secs.
+
+Epoch  0 Update  116 Cost  87.5449066162 G 17.764541626 execute: elapsed 1.4327 secs.
+
+Epoch  0 Update  117 Cost  74.9358520508 G 15.0488052368 execute: elapsed 1.2914 secs.
+
+Epoch  0 Update  118 Cost  68.7693023682 G 13.164478302 execute: elapsed 1.2101 secs.
+
+Epoch  0 Update  119 Cost  45.9583511353 G 11.5926446915 execute: elapsed 0.9599 secs.
+
+Epoch  0 Update  120 Cost  40.5994949341 G 10.0076560974 execute: elapsed 0.9976 secs.
+
+[ 0.51370102] (1,)
+[ 0.52623403  0.51529598  0.52610141  0.52613062] (4,)
+[ 0.51513332  0.51853949  0.51513076] (3,)
+[ 0.51851517  0.5219816 ] (2,)
+[ 0.51902449] (1,)
+[ 0.51921636] (1,)
+=============================
+Target-TM 0: [32m8428[0m &#124; Saatzucht [32mSteinach[0m GmbH &#124; [32mWittelsbache[0m Strasse 15 , [32mD-8441[0m [32mSteinach[0m &#124;
+Source-TM 0: [32m8428[0m &#124; Saatzucht [32mSteinach[0m GmbH &#124; [32mWittelsbache[0m Strasse 15 , [32mD-8441[0m [32mSteinach[0m &#124;
+Source-CR 0: 101 &#124; Saatzucht [32mSteinach[0m GmbH &#124; [32mWittelsbacherstrasse[0m 15 , [32m94377[0m [32mSteinach[0m , Germany &#124;
+Target-CR 0: 101 &#124; Saatzucht [32mSteinach[0m GmbH &#124; [32mWittelsbacherstrasse[0m 15 , [32m94377[0m [32mSteinach[0m , Germany &#124;
+-----------------------------
+NMT Model 0: 493 &#124; interventions
+[2713, 5, 4384, 0]
+[1.0, 0.84489816, 1.0, 2.3887189e-06]
+Copy Prob 0: [34m493[0m [34m&#124;[0m [34minterventions[0m
+Copy Gate 0: [36m493[0m [36m&#124;[0m [36minterventions[0m
+
+[ 0.5137859] (1,)
+[ 0.51490474  0.51622438  0.51787984  0.51498872] (4,)
+[ 0.52524489  0.5150972   0.51574409] (3,)
+[ 0.52764088  0.52513713] (2,)
+[ 0.52507091] (1,)
+[ 0.524261] (1,)
+[ 0.52298713] (1,)
+=============================
+Target-TM 1: COM Oct 2004 &#124; [32m-3,4[0m &#124; [32m-2,4[0m &#124; [32m-2,1[0m &#124; - &#124; - &#124;
+Source-TM 1: COM octobre 2004 &#124; [32m-3,4[0m &#124; [32m-2,4[0m &#124; [32m-2,1[0m &#124; - &#124; - &#124;
+Source-CR 1: COM Octobre 2004 &#124; [32m106,0[0m &#124; [32m104,6[0m &#124; [32m104,4[0m &#124; - &#124; - &#124;
+Target-CR 1: COM Oct 2004 &#124; [32m106,0[0m &#124; [32m104,6[0m &#124; [32m104,4[0m &#124; - &#124; - &#124;
+-----------------------------
+NMT Model 1: COM &#124; &#124; &#124; - &#124;
+[395, 5, 5, 5, 25, 5, 0]
+[0.94576627, 0.00016448497, 4.1099636e-07, 3.9267408e-05, 0.82341892, 0.73900634, 0.46921352]
+Copy Prob 1: [34mCOM[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m [34m-[0m [36m&#124;[0m
+Copy Gate 1: [36mCOM[0m [36m&#124;[0m [36m&#124;[0m [36m&#124;[0m [36m-[0m [36m&#124;[0m
+
+[ 0.50718403] (1,)
+[ 0.50707483  0.50684935  0.51146561  0.50756991] (4,)
+[ 0.50943655  0.51018137  0.5103873 ] (3,)
+[ 0.50960314  0.51235062] (2,)
+[ 0.50860429] (1,)
+=============================
+Target-TM 2: ( A ) Volume and market share of imports
+Source-TM 2: A ) Volume et part de marché des importations
+Source-CR 2: A ) Volume , prix et part de marché des importations de CD-R originaires de Taïwan
+Target-CR 2: ( A ) Volume , price and market share of imports originating in Taiwan
+-----------------------------
+NMT Model 2: ( A )
+[9, 65, 8, 0]
+[0.94789594, 0.94831586, 0.94752687, 0.00049950619]
+Copy Prob 2: [34m([0m [34mA[0m [34m)[0m
+Copy Gate 2: [36m([0m [36mA[0m [36m)[0m
+
+[ 0.5138694] (1,)
+[ 0.50910866  0.51198369  0.51879454  0.51808512] (4,)
+[ 0.51157796  0.52016401  0.51160979] (3,)
+[ 0.50420398  0.50418699] (2,)
+[ 0.51005805] (1,)
+[ 0.51455152] (1,)
+[ 0.51509374] (1,)
+[ 0.51788884] (1,)
+[ 0.51792938] (1,)
+[ 0.51313668] (1,)
+=============================
+Target-TM 3: Articles 8 and 9 shall apply .
+Source-TM 3: Les articles 8 et 9 sont applicables .
+Source-CR 3: Les articles 6 et 7 s &apos; appliquent à la mesure en question &quot; . ;
+Target-CR 3: Articles 6 and 7 shall apply to the measure in question &quot; . ;
+-----------------------------
+NMT Model 3: Articles 6 and 7 shall apply to the measure
+[191, 87, 10, 103, 16, 115, 7, 2, 624, 0]
+[0.94542652, 1.0, 0.94706827, 1.0, 0.94494957, 0.94637305, 1.0, 1.0, 1.0, 0.0014071637]
+Copy Prob 3: [34mArticles[0m [34m6[0m [34mand[0m [34m7[0m [34mshall[0m [34mapply[0m [34mto[0m [34mthe[0m [34mmeasure[0m
+Copy Gate 3: [36mArticles[0m [36m6[0m [36mand[0m [36m7[0m [36mshall[0m [36mapply[0m [36mto[0m [36mthe[0m [36mmeasure[0m
+
+[ 0.52164602] (1,)
+[ 0.51843399  0.52087373  0.52071989  0.51950336] (4,)
+[ 0.51854253  0.51857632  0.52321887] (3,)
+[ 0.51115322  0.51093316] (2,)
+[ 0.51011294] (1,)
+[ 0.51785129] (1,)
+=============================
+Target-TM 4: &#91; 2 &#93; P6 _ [32mTA-PROV[0m ( 2004 ) [32m0022[0m [32mA6-0010[0m / 2004 .
+Source-TM 4: &#91; 2 &#93; P6 _ [32mTA-PROV[0m ( 2004 ) [32m0022[0m [32mA6-0010[0m / 2004 .
+Source-CR 4: &#91; 5 &#93; P6 _ [32mTA-PROV[0m ( 2004 ) [32m0022[0m [32mA6-0010[0m / 2004 .
+Target-CR 4: &#91; 5 &#93; P6 _ [32mTA-PROV[0m ( 2004 ) [32m0022[0m [32mA6-0010[0m / 2004 .
+-----------------------------
+NMT Model 4: &#91; 5 &#93;
+[58, 70, 59, 0]
+[0.94724202, 1.0, 0.94615316, 3.5971123e-05]
+Copy Prob 4: [34m&#91;[0m [34m5[0m [34m&#93;[0m
+Copy Gate 4: [36m&#91;[0m [36m5[0m [36m&#93;[0m
+
+Epoch  0 Update  121 Cost  33.8643798828 G 8.65553283691 execute: elapsed 0.8848 secs.
+
+Epoch  0 Update  122 Cost  20.3312911987 G 7.6309337616 execute: elapsed 0.7417 secs.
+
+Epoch  0 Update  123 Cost  17.2296218872 G 6.78991222382 execute: elapsed 0.7462 secs.
+
+Epoch  0 Update  124 Cost  26.7626438141 G 5.93817138672 execute: elapsed 0.7459 secs.
+
+Epoch  0 Update  125 Cost  22.9446678162 G 4.47047662735 execute: elapsed 0.6965 secs.
+
+Epoch  0 Update  126 Cost  40.2399597168 G 8.57273292542 execute: elapsed 1.6271 secs.
+
+Epoch  0 Update  127 Cost  150.278045654 G 29.634563446 execute: elapsed 1.6810 secs.
+
+Epoch  0 Update  128 Cost  121.034584045 G 26.097196579 execute: elapsed 1.5664 secs.
+
+Epoch  0 Update  129 Cost  125.408096313 G 22.5084552765 execute: elapsed 1.4085 secs.
+
+Epoch  0 Update  130 Cost  104.884315491 G 20.3778343201 execute: elapsed 1.3252 secs.
+
+Epoch  0 Update  131 Cost  111.950012207 G 18.1365375519 execute: elapsed 1.3075 secs.
+
+Epoch  0 Update  132 Cost  94.3710403442 G 16.2780036926 execute: elapsed 1.1945 secs.
+
+Epoch  0 Update  133 Cost  75.0454101562 G 14.8066234589 execute: elapsed 1.2511 secs.
+
+Epoch  0 Update  134 Cost  62.0443649292 G 12.8748378754 execute: elapsed 1.1797 secs.
+
+Epoch  0 Update  135 Cost  42.4051132202 G 11.165019989 execute: elapsed 1.0476 secs.
+
+Epoch  0 Update  136 Cost  38.700881958 G 10.1471281052 execute: elapsed 1.0363 secs.
+
+Epoch  0 Update  137 Cost  22.2612190247 G 8.68802547455 execute: elapsed 0.9412 secs.
+
+Epoch  0 Update  138 Cost  21.4836425781 G 7.36470794678 execute: elapsed 0.8659 secs.
+
+Epoch  0 Update  139 Cost  20.5999641418 G 6.10036897659 execute: elapsed 0.8106 secs.
+
+Epoch  0 Update  140 Cost  24.2792034149 G 4.93288993835 execute: elapsed 0.7649 secs.
+
+[ 0.50454652] (1,)
+[ 0.51278365  0.51314318  0.51379192  0.5159077 ] (4,)
+[ 0.51526958  0.51466131] (2,)
+[ 0.51008552] (1,)
+[ 0.51126665] (1,)
+[ 0.51222467] (1,)
+=============================
+Target-TM 0: - lead [32mhydrocarbonate[0m
+Source-TM 0: - [32mhydrocarbonate[0m de plomb
+Source-CR 0: Il n &apos; y a pas de risque de surcompensation .
+Target-CR 0: It will not lead to [32mover-compensation[0m .
+-----------------------------
+NMT Model 0: There are no bodies of
+[1471, 44, 185, 488, 3, 0]
+[1.0, 1.0, 1.0, 1.0, 1.0, 0.0001165885]
+Copy Prob 0: [34mThere[0m [34mare[0m [34mno[0m [34mbodies[0m [34mof[0m
+Copy Gate 0: [36mThere[0m [36mare[0m [36mno[0m [36mbodies[0m [36mof[0m
+
+[ 0.51375985] (1,)
+[ 0.52102768  0.52029133  0.52021706  0.5195781 ] (4,)
+[ 0.51604331  0.52065504  0.52308714] (3,)
+[ 0.51481652] (1,)
+[ 0.51482785] (1,)
+=============================
+Target-TM 1: - pleasure craft ,
+Source-TM 1: - bateaux de plaisance ,
+Source-CR 1: - sont des engins de guerre ou destinés aux transports de troupes ,
+Target-CR 1: - craft of war and [32mtroopcraft[0m ,
+-----------------------------
+NMT Model 1: -
+[25, 0]
+[0.87986177, 2.8147726e-05]
+Copy Prob 1: [34m-[0m
+Copy Gate 1: [36m-[0m
+
+[ 0.51827151] (1,)
+[ 0.51827633  0.51839799  0.52104682  0.51934344] (4,)
+[ 0.52006733  0.51873469  0.51930732  0.51595145] (4,)
+[ 0.51769143  0.51834893  0.51962793  0.513704  ] (4,)
+[ 0.51365495  0.51365608  0.51370215  0.5146746 ] (4,)
+[ 0.52124971  0.52507401  0.52211058  0.52191365] (4,)
+[ 0.51350796  0.52842712  0.51470423  0.51524991] (4,)
+[ 0.53048205  0.510423  ] (2,)
+[ 0.53005153] (1,)
+=============================
+Target-TM 2: 14 . Article 822 is deleted .
+Source-TM 2: 14 ) L &apos; article 822 est supprimé .
+Source-CR 2: 24 ) L &apos; article 337 est supprimé .
+Target-CR 2: 24 . Article 337 is deleted .
+-----------------------------
+NMT Model 2: ( N ) Article 332 is . .
+[9, 527, 8, 22, 5800, 28, 6, 0]
+[1.0, 1.0, 1.0, 0.87997669, 1.0, 0.86782992, 0.0061088391, 0.86999071]
+Copy Prob 2: [34m([0m [34mN[0m [34m)[0m [34mArticle[0m [34m332[0m [34mis[0m [33m.[0m
+Copy Gate 2: [36m([0m [36mN[0m [36m)[0m [36mArticle[0m [36m332[0m [36mis[0m [36m.[0m
+
+[ 0.51303935] (1,)
+[ 0.50756603  0.50765735  0.51070219  0.50791198] (4,)
+[ 0.50694561  0.5067454   0.50883073] (3,)
+[ 0.50280601  0.5028218 ] (2,)
+[ 0.51203942] (1,)
+[ 0.5128203] (1,)
+=============================
+Target-TM 3: Certification procedure
+Source-TM 3: Procédure de certification
+Source-CR 3: Nom : &#124; [32mCMI[0m Certification Ltd &#124;
+Target-CR 3: Name : &#124; [32mCMI[0m Certification Ltd &#124;
+-----------------------------
+NMT Model 3: Name : &#124;
+[1206, 23, 5, 0]
+[1.0, 1.0, 1.0, 0.00022222755]
+Copy Prob 3: [34mName[0m [34m:[0m [34m&#124;[0m
+Copy Gate 3: [36mName[0m [36m:[0m [36m&#124;[0m
+
+[ 0.5108819] (1,)
+[ 0.51096874  0.51543748  0.51578939  0.51474661  0.51619428] (5,)
+[ 0.51548034  0.51298195  0.51106638  0.51487064  0.51254743] (5,)
+[ 0.5142079   0.51500082  0.5146836   0.51395142  0.5137254 ] (5,)
+[ 0.5199911   0.51494718  0.51997662  0.51693314  0.51648045] (5,)
+[ 0.51529694  0.51560372  0.51542562  0.52042133  0.51790142] (5,)
+[ 0.51000398  0.50991869  0.51522422  0.51546878] (4,)
+[ 0.51346099  0.51312965  0.51029307  0.51465619] (4,)
+[ 0.51540262] (1,)
+=============================
+Target-TM 4: Aid No : XT 86 / 02
+Source-TM 4: Numéro de dossier : [32mXT86[0m / 02
+Source-CR 4: Numéro de l &apos; aide : XT 30 / 02
+Target-CR 4: Aid No : XT 30 / 02
+-----------------------------
+NMT Model 4: Aid No : mit 30 / Section
+[421, 35, 23, 4942, 210, 13, 638, 0]
+[0.87901008, 0.88376933, 0.88390696, 1.0, 1.0, 0.88029778, 1.0, 0.82475191]
+Copy Prob 4: [34mAid[0m [34mNo[0m [34m:[0m [34mmit[0m [34m30[0m [34m/[0m [34mSection[0m
+Copy Gate 4: [36mAid[0m [36mNo[0m [36m:[0m [36mmit[0m [36m30[0m [36m/[0m [36mSection[0m
+
+Epoch  0 Update  141 Cost  25.75340271 G 4.70652866364 execute: elapsed 1.6176 secs.
+
+Epoch  0 Update  142 Cost  153.277099609 G 30.259771347 execute: elapsed 1.8871 secs.
+
+Epoch  0 Update  143 Cost  154.091201782 G 26.8883686066 execute: elapsed 1.8531 secs.
+
+Epoch  0 Update  144 Cost  109.75466156 G 24.3378334045 execute: elapsed 1.7005 secs.
+
+Epoch  0 Update  145 Cost  93.4081878662 G 22.4711894989 execute: elapsed 1.5641 secs.
+
+Epoch  0 Update  146 Cost  121.061782837 G 20.2230453491 execute: elapsed 1.4459 secs.
+
+Epoch  0 Update  147 Cost  95.2120513916 G 17.9059181213 execute: elapsed 1.3603 secs.
+
+Epoch  0 Update  148 Cost  72.0230331421 G 16.4512062073 execute: elapsed 1.2575 secs.
+
+Epoch  0 Update  149 Cost  61.9873733521 G 14.6612815857 execute: elapsed 1.1751 secs.
+
+Epoch  0 Update  150 Cost  69.0303497314 G 12.7707557678 execute: elapsed 0.9993 secs.
+
+Epoch  0 Update  151 Cost  37.9511642456 G 10.7770805359 execute: elapsed 0.9422 secs.
+
+Epoch  0 Update  152 Cost  33.3491821289 G 8.95948219299 execute: elapsed 0.8111 secs.
+
+Epoch  0 Update  153 Cost  22.7401695251 G 7.39787101746 execute: elapsed 0.7978 secs.
+
+Epoch  0 Update  154 Cost  18.0875930786 G 6.39542102814 execute: elapsed 0.7419 secs.
+
+Epoch  0 Update  155 Cost  16.2576789856 G 5.52208137512 execute: elapsed 0.7133 secs.
+
+Epoch  0 Update  156 Cost  23.4087257385 G 3.69731640816 execute: elapsed 0.6454 secs.
+
+Epoch  0 Update  157 Cost  98.7619857788 G 24.088809967 execute: elapsed 1.6244 secs.
+
+Epoch  0 Update  158 Cost  141.352233887 G 28.6568126678 execute: elapsed 1.6088 secs.
+
+Epoch  0 Update  159 Cost  138.492294312 G 24.0353450775 execute: elapsed 1.6392 secs.
+
+Epoch  0 Update  160 Cost  125.330154419 G 21.1308250427 execute: elapsed 1.4738 secs.
+
+[ 0.51453859] (1,)
+[ 0.5124014   0.51710433  0.51311678  0.51266235] (4,)
+[ 0.51211143  0.51393473] (2,)
+[ 0.51408529] (1,)
+[ 0.51931041] (1,)
+[ 0.5221591] (1,)
+[ 0.51754481] (1,)
+[ 0.51871186] (1,)
+=============================
+Target-TM 0: 2 . The Commission may also adopt safeguard measures on its own initiative , after consulting the Member States .
+Source-TM 0: 2 . La Commission peut également adopter des mesures de sauvegarde de sa propre initiative , après avoir consulté les États membres .
+Source-CR 0: Il arrive également que la Commission décide d &apos; [32minstruire[0m des cas d &apos; infraction de sa propre initiative , sur la base des informations dont elle a connaissance par tout moyen disponible ( cas décelés d &apos; office ) .
+Target-CR 0: [32mOccasionally[0m , the Commission also decides to institute infringement proceedings on its own initiative on the basis of information which has come to its notice , regardless of the source .
+-----------------------------
+NMT Model 0: It also also also that the Commission
+[181, 154, 154, 154, 30, 2, 33, 0]
+[1.0, 0.95498377, 0.95726484, 0.92147601, 1.0, 0.96613973, 0.96780217, 4.7431222e-05]
+Copy Prob 0: [34mIt[0m [34malso[0m [34malso[0m [34malso[0m [34mthat[0m [34mthe[0m [34mCommission[0m
+Copy Gate 0: [36mIt[0m [36malso[0m [36malso[0m [36malso[0m [36mthat[0m [36mthe[0m [36mCommission[0m
+
+[ 0.5121007] (1,)
+[ 0.51505262  0.52137613  0.51490211  0.51209712] (4,)
+[ 0.51381898  0.51185012  0.51841915] (3,)
+[ 0.51244289] (1,)
+[ 0.51359892] (1,)
+=============================
+Target-TM 1: 3 . Without prejudice to other Community legislation , the Member States shall immediately notify the Commission under the rapid alert system of :
+Source-TM 1: 3 . Sans préjudice d &apos; autres dispositions de la législation communautaire , les États membres notifient immédiatement à la Commission par le système d &apos; alerte rapide :
+Source-CR 1: 2 ) Favoriser une mise en oeuvre et une application plus efficaces de la législation communautaire sur l &apos; environnement , sans préjudice du droit de la Commission d &apos; entamer des procédures d &apos; infraction . À cette fin , il faut :
+Target-CR 1: 2 . Encouraging more effective implementation and enforcement of Community legislation on the environment and without prejudice to the Commission &apos; s right to initiate infringement proceedings . This requires :
+-----------------------------
+NMT Model 1: 2 .
+[1426, 0]
+[1.0, 4.5660643e-05]
+Copy Prob 1: [34m2.[0m
+Copy Gate 1: [36m2.[0m
+
+[ 0.50606912] (1,)
+[ 0.51505154  0.51967227  0.5178659   0.51482171  0.51486897] (5,)
+[ 0.52247107  0.51878625  0.51684684  0.52286673  0.52469748] (5,)
+[ 0.51906943  0.51989692  0.51929313  0.52128184] (4,)
+[ 0.51742983  0.51980746  0.51992381  0.51871544] (4,)
+[ 0.51954973  0.51592171  0.51856059  0.51923746] (4,)
+[ 0.51782429  0.51780558  0.51930034  0.51916122] (4,)
+[ 0.51818204  0.51881522  0.51976728  0.51746404] (4,)
+[ 0.52131575  0.52151525  0.51842463  0.52295768] (4,)
+[ 0.51538527  0.51586241  0.52165788  0.51924318] (4,)
+[ 0.50954485  0.51575476  0.50963497  0.51896715] (4,)
+[ 0.51603657  0.51657963  0.51938897  0.50959283] (4,)
+[ 0.52207512  0.52419698  0.51648253  0.521891  ] (4,)
+[ 0.51654392  0.5167585   0.52173644  0.51654363] (4,)
+[ 0.51337051  0.51352429  0.51339531  0.51654601] (4,)
+[ 0.51384592  0.51420701  0.51386547  0.51342201] (4,)
+[ 0.51390851  0.51392055  0.51390809  0.51378369] (4,)
+[ 0.52720475  0.52718943  0.52720165  0.51391441] (4,)
+[ 0.52329242  0.5232867   0.52329046  0.52720565] (4,)
+[ 0.51971596  0.51964509  0.51970845  0.52328241] (4,)
+[ 0.51930392  0.51932245  0.51930547  0.51965755] (4,)
+[ 0.51931     0.51782072  0.5177449   0.5169189 ] (4,)
+[ 0.52364105  0.52369112  0.51651615  0.51772612] (4,)
+[ 0.52333891  0.52645206  0.52553207  0.52411592] (4,)
+[ 0.52580255  0.5277496   0.52597129  0.52298391] (4,)
+[ 0.526097    0.51331556  0.51333785  0.52426809] (4,)
+[ 0.52437431  0.51324499  0.51529765  0.53743082] (4,)
+[ 0.51516604  0.5158726   0.51376945] (3,)
+[ 0.51584685  0.52316207  0.51600373] (3,)
+[ 0.52364671  0.51502907  0.52352828] (3,)
+[ 0.52532905  0.53070164  0.52990049] (3,)
+[ 0.51765931  0.5211851   0.51214135] (3,)
+[ 0.51678222  0.52910036  0.52506661] (3,)
+[ 0.53714418  0.51986229  0.52709651] (3,)
+[ 0.53604066  0.5347985 ] (2,)
+[ 0.53623599] (1,)
+=============================
+Target-TM 2: This appropriation is intended to cover the liquidation of commitments contracted under Item 19 01 04 12 ( former Article [32mB7-8[0m 7 2 A ) that previously carried differentiated appropriations .
+Source-TM 2: CE crédit est destiné à couvrir la liquidation d &apos; engagements contractés dans le cadre du poste 19 01 04 12 ( ancien article [32mB7-8[0m 7 2 A ) , qui comportait antérieurement des crédits dissociés .
+Source-CR 2: CE crédit est destiné à couvrir la liquidation d &apos; engagements contractés dans le cadre du poste 19 01 04 01 ( ancien article [32mB7-6[0m 6 5 A ) , qui comportait antérieurement des crédits dissociés .
+Target-CR 2: This appropriation is intended to cover the liquidation of commitments contracted under Item 19 01 04 01 ( former Article [32mB7-6[0m 6 5 A ) that previously carried differentiated appropriations .
+-----------------------------
+NMT Model 2: This BE is intended to mean the power of performance securing under SIS 19 01 04 01 ( former Article former 6 5 A ) , which are cycle incorporated of 1500000 .
+[106, 941, 28, 267, 7, 769, 2, 1345, 3, 972, 6040, 63, 3455, 324, 513, 608, 513, 9, 1835, 22, 1835, 87, 70, 65, 8, 6, 0]
+[0.96692568, 1.0, 0.96637785, 0.96432388, 0.9619723, 1.0, 0.92963308, 1.0, 0.00022194457, 1.0, 1.0, 0.95798916, 1.0, 0.96713001, 0.96798474, 0.96816379, 0.96770996, 0.96484846, 0.95899028, 0.96385187, 2.1443875e-06, 1.0, 1.0, 0.96035141, 8.4681029e-05, 0.39778519, 0.151412]
+Copy Prob 2: [34mThis[0m [34mBE[0m [34mis[0m [34mintended[0m [34mto[0m [34mmean[0m [34mthe[0m [34mpower[0m [33mof[0m [34mperformance[0m [34msecuring[0m [34munder[0m [34mSIS[0m [34m19[0m [34m01[0m [34m04[0m [34m01[0m [34m([0m [34mformer[0m [34mArticle[0m [33mformer[0m [34m6[0m [34m5[0m [34mA[0m [33m)[0m [32m.[0m
+Copy Gate 2: [36mThis[0m [36mBE[0m [36mis[0m [36mintended[0m [36mto[0m [36mmean[0m [36mthe[0m [36mpower[0m [36mof[0m [36mperformance[0m [36msecuring[0m [36munder[0m [36mSIS[0m [36m19[0m [36m01[0m [36m04[0m [36m01[0m [36m([0m [36mformer[0m [36mArticle[0m [36mformer[0m [36m6[0m [36m5[0m [36mA[0m [36m)[0m [36m.[0m
+
+[ 0.51690644] (1,)
+[ 0.53632486  0.53835082  0.5371744   0.53744984] (4,)
+[ 0.53084809  0.51949722  0.52463192] (3,)
+[ 0.51929259  0.51922059] (2,)
+[ 0.52002388] (1,)
+[ 0.51756501] (1,)
+[ 0.5249235] (1,)
+[ 0.51932168] (1,)
+=============================
+Target-TM 3: Whereas these new provisions are all the more necessary in that inspection at internal frontiers is to be discontinued ;
+Source-TM 3: Considérant que ces nouvelles dispositions sont d &apos; autant plus nécessaires que les contrôles frontaliers internes seront supprimés ;
+Source-CR 3: Considérant que , à la lumière notamment de l &apos; évolution favorable de l &apos; harmonisation dans le domaine vétérinaire , il convient de prévoir la suppression au 1er juillet 1992 des contrôles vétérinaires aux frontières internes effectués sur l &apos; ensemble des produits animaux ,
+Target-CR 3: Whereas , given the favourable progress of harmonization on veterinary matters , all veterinary checks at internal frontiers on animal products should be discontinued with effect from 1 July 1992 ,
+-----------------------------
+NMT Model 3: Whereas , to , in particular ,
+[97, 4, 7, 0]
+[0.96709347, 1.0, 0.95151716, 0.0002692533]
+Copy Prob 3: [34mWhereas[0m [34m,[0m [34mto[0m
+Copy Gate 3: [36mWhereas[0m [36m,[0m [36mto[0m
+
+[ 0.52295071] (1,)
+[ 0.52165735  0.52833843  0.53299099  0.53076297] (4,)
+[ 0.52205914  0.52532369  0.53679341] (3,)
+[ 0.52022046  0.52744263] (2,)
+[ 0.52157164] (1,)
+[ 0.52234012] (1,)
+[ 0.51985937] (1,)
+[ 0.5168938] (1,)
+[ 0.51297557] (1,)
+[ 0.50995898] (1,)
+[ 0.51678216] (1,)
+=============================
+Target-TM 4: ( 1 ) Whereas the production of ornamental plants occupies an important place in the agriculture of the Community ;
+Source-TM 4: ( 1 ) considérant que la production de plantes ornementales tient une place importante dans l &apos; agriculture de la Communauté ;
+Source-CR 4: ( 2 ) considérant que les résultats satisfaisants de la culture de plantes ornementales dépendent , dans une large mesure , de la qualité et de l &apos; état sanitaire des matériels utilisés pour la multiplication des plantes ornementales ;
+Target-CR 4: ( 2 ) Whereas satisfactory results in the cultivation of ornamental plants depend to a large extent on the quality and health of the material used for their propagation ;
+-----------------------------
+NMT Model 4: ( 2 ) Whereas the results of the qualify of
+[9, 29, 8, 97, 2, 463, 3, 2, 2798, 3, 0]
+[0.96588165, 1.0, 0.96744674, 0.96744204, 0.89777136, 1.0, 0.93486714, 0.86488831, 1.0, 0.93793333, 8.5735201e-06]
+Copy Prob 4: [34m([0m [34m2[0m [34m)[0m [34mWhereas[0m [34mthe[0m [34mresults[0m [34mof[0m [34mthe[0m [34mqualify[0m [34mof[0m
+Copy Gate 4: [36m([0m [36m2[0m [36m)[0m [36mWhereas[0m [36mthe[0m [36mresults[0m [36mof[0m [36mthe[0m [36mqualify[0m [36mof[0m
+
+Epoch  0 Update  161 Cost  118.254249573 G 19.4385795593 execute: elapsed 1.4209 secs.
+
+Epoch  0 Update  162 Cost  99.3053283691 G 17.7743415833 execute: elapsed 1.4210 secs.
+
+Epoch  0 Update  163 Cost  74.6580657959 G 15.9317569733 execute: elapsed 1.0818 secs.
+
+Epoch  0 Update  164 Cost  68.1095962524 G 14.3283557892 execute: elapsed 1.1071 secs.
+
+Epoch  0 Update  165 Cost  56.8314743042 G 13.0247268677 execute: elapsed 1.0905 secs.
+
+Epoch  0 Update  166 Cost  56.2456970215 G 11.4571485519 execute: elapsed 1.0129 secs.
+
+Epoch  0 Update  167 Cost  36.5470962524 G 10.2235736847 execute: elapsed 0.9880 secs.
+
+Epoch  0 Update  168 Cost  27.5561141968 G 8.47496032715 execute: elapsed 0.7845 secs.
+
+Epoch  0 Update  169 Cost  25.8498058319 G 7.14299106598 execute: elapsed 0.7746 secs.
+
+Epoch  0 Update  170 Cost  17.6419239044 G 6.37105560303 execute: elapsed 0.7125 secs.
+
+Epoch  0 Update  171 Cost  20.4423980713 G 5.63535690308 execute: elapsed 0.6878 secs.
+
+Epoch  0 Update  172 Cost  15.4671258926 G 3.57125353813 execute: elapsed 0.7194 secs.
+
+Epoch  0 Update  173 Cost  129.556488037 G 21.6998901367 execute: elapsed 1.7003 secs.
+
+Epoch  0 Update  174 Cost  150.059356689 G 27.5342464447 execute: elapsed 1.6721 secs.
+
+Epoch  0 Update  175 Cost  117.316375732 G 24.3780784607 execute: elapsed 1.4761 secs.
+
+Epoch  0 Update  176 Cost  118.757705688 G 21.6695728302 execute: elapsed 1.3087 secs.
+
+Epoch  0 Update  177 Cost  92.087387085 G 19.3948287964 execute: elapsed 1.4656 secs.
+
+Epoch  0 Update  178 Cost  84.6817474365 G 17.1478996277 execute: elapsed 1.3576 secs.
+
+Epoch  0 Update  179 Cost  71.2551651001 G 15.3169612885 execute: elapsed 1.3831 secs.
+
+Epoch  0 Update  180 Cost  48.612701416 G 13.3480005264 execute: elapsed 1.1949 secs.
+
+[ 0.51586682] (1,)
+[ 0.52358764  0.52711779  0.52651799  0.5284152 ] (4,)
+[ 0.52506185  0.52953786  0.53159153] (3,)
+[ 0.52057034  0.51660192] (2,)
+[ 0.52187246] (1,)
+[ 0.51168805] (1,)
+=============================
+Target-TM 0: The European Parliament gave its opinion at first reading on 11 May 2005 . &#91; 4 &#93;
+Source-TM 0: Le Parlement européen a donné son avis en première lecture le 11 mai 2005 &#91; 4 &#93; .
+Source-CR 0: 4 . Le Parlement européen a donné son avis en première lecture le 6 septembre 2005 &#91; 4 &#93; .
+Target-CR 0: 4 . The European Parliament gave its opinion at first reading on 6 September 2005 &#91; 4 &#93; .
+-----------------------------
+NMT Model 0: 4 . The European Parliament
+[49, 6, 21, 46, 203, 0]
+[0.95281088, 0.95136309, 0.95138818, 0.94662982, 0.95330971, 0.0028952654]
+Copy Prob 0: [34m4[0m [34m.[0m [34mThe[0m [34mEuropean[0m [34mParliament[0m
+Copy Gate 0: [36m4[0m [36m.[0m [36mThe[0m [36mEuropean[0m [36mParliament[0m
+
+[ 0.52368313] (1,)
+[ 0.51736361  0.51980925  0.52081656  0.51899731] (4,)
+[ 0.52618748  0.52963805  0.52107596] (3,)
+[ 0.5200271  0.5256725] (2,)
+[ 0.51325309] (1,)
+[ 0.5159694] (1,)
+=============================
+Target-TM 1: ( B ) giving details of the contact point for further information .
+Source-TM 1: B ) précisant les coordonnées à contacter pour tout complément d &apos; information .
+Source-CR 1: L &apos; article 3 présente le contenu des actions et renvoie le [32mlecteur[0m à l &apos; annexe pour plus de détails .
+Target-CR 1: Article 3 presents the content of the actions and refers the [32mreader[0m to the Annex for further details .
+-----------------------------
+NMT Model 1: Article 3
+[22, 37, 0]
+[1.0, 1.0, 7.9583733e-06]
+Copy Prob 1: [34mArticle[0m [34m3[0m
+Copy Gate 1: [36mArticle[0m [36m3[0m
+
+[ 0.52176476] (1,)
+[ 0.53472364  0.52622861  0.53528816  0.53436512] (4,)
+[ 0.53011674  0.5220229   0.52923924] (3,)
+[ 0.5256657   0.52777886] (2,)
+[ 0.52250618] (1,)
+[ 0.5126825] (1,)
+[ 0.51969218] (1,)
+[ 0.52180833] (1,)
+[ 0.52817202] (1,)
+[ 0.52647775] (1,)
+[ 0.53505355] (1,)
+[ 0.52616888] (1,)
+[ 0.51372355] (1,)
+[ 0.52126455] (1,)
+[ 0.51575559] (1,)
+=============================
+Target-TM 2: Whereas the Community may become a member of the Fund ;
+Source-TM 2: Considérant que la Communauté peut devenir membre du Fonds ;
+Source-CR 2: Considérant que , depuis l &apos; entrée en vigueur de ce règlement , la réglementation communautaire en matière agricole est devenue applicable à l &apos; Irlande ;
+Target-CR 2: Whereas since the entry into force of this Regulation Community rules on agriculture have become applicable to Ireland ;
+-----------------------------
+NMT Model 2: Whereas , 1990 the entry into force of that Regulation , the Community fishing
+[97, 4, 1112, 2, 385, 83, 180, 3, 30, 32, 4, 2, 40, 400, 0]
+[0.95333117, 1.0, 1.0, 0.90034789, 1.0, 1.0, 1.0, 0.95341438, 1.0, 1.0, 1.0, 0.89483815, 0.95159495, 1.0, 7.5611206e-05]
+Copy Prob 2: [34mWhereas[0m [34m,[0m [34m1990[0m [34mthe[0m [34mentry[0m [34minto[0m [34mforce[0m [34mof[0m [34mthat[0m [34mRegulation[0m [34m,[0m [34mthe[0m [34mCommunity[0m [34mfishing[0m
+Copy Gate 2: [36mWhereas[0m [36m,[0m [36m1990[0m [36mthe[0m [36mentry[0m [36minto[0m [36mforce[0m [36mof[0m [36mthat[0m [36mRegulation[0m [36m,[0m [36mthe[0m [36mCommunity[0m [36mfishing[0m
+
+[ 0.52010483] (1,)
+[ 0.51382375  0.51654333  0.52950454  0.52559936] (4,)
+[ 0.52595991  0.52479804  0.51707882] (3,)
+[ 0.5264222   0.52738398] (2,)
+[ 0.51536965] (1,)
+[ 0.52508068] (1,)
+[ 0.5270378] (1,)
+[ 0.51657075] (1,)
+[ 0.51139206] (1,)
+[ 0.51790971] (1,)
+[ 0.51717329] (1,)
+[ 0.5152297] (1,)
+[ 0.51668155] (1,)
+[ 0.52293354] (1,)
+[ 0.51817328] (1,)
+[ 0.51961833] (1,)
+[ 0.51793748] (1,)
+[ 0.52829623] (1,)
+[ 0.52610582] (1,)
+[ 0.52458686] (1,)
+[ 0.53204495] (1,)
+[ 0.52832365] (1,)
+=============================
+Target-TM 3: Whereas the Commission should report regularly on the implementation of this Directive by the Member States ,
+Source-TM 3: Considérant que la Commission doit régulièrement rendre compte de l &apos; application de la présente directive par les États membres ,
+Source-CR 3: ( 12 ) La Commission devrait présenter un rapport sur la mise en oeuvre de la présente directive , accompagné de propositions appropriées .
+Target-CR 3: ( 12 ) The Commission should report on the implementation of this Directive and make appropriate proposals .
+-----------------------------
+NMT Model 3: ( 12 ) The Commission should submit a report on the implementation of this Directive , together with an Slovenia of
+[9, 177, 8, 21, 33, 62, 565, 14, 249, 18, 2, 172, 3, 39, 48, 4, 753, 26, 50, 2215, 3, 0]
+[1.0, 1.0, 1.0, 1.0, 0.95372832, 0.95219517, 1.0, 1.0, 0.95623076, 0.95135254, 0.86878389, 0.95290703, 0.95334053, 0.95308715, 0.95288581, 0.90112996, 1.0, 1.0, 1.0, 1.0, 0.93408787, 0.0059320084]
+Copy Prob 3: [34m([0m [34m12[0m [34m)[0m [34mThe[0m [34mCommission[0m [34mshould[0m [34msubmit[0m [34ma[0m [34mreport[0m [34mon[0m [34mthe[0m [34mimplementation[0m [34mof[0m [34mthis[0m [34mDirective[0m [34m,[0m [34mtogether[0m [34mwith[0m [34man[0m [34mSlovenia[0m [34mof[0m
+Copy Gate 3: [36m([0m [36m12[0m [36m)[0m [36mThe[0m [36mCommission[0m [36mshould[0m [36msubmit[0m [36ma[0m [36mreport[0m [36mon[0m [36mthe[0m [36mimplementation[0m [36mof[0m [36mthis[0m [36mDirective[0m [36m,[0m [36mtogether[0m [36mwith[0m [36man[0m [36mSlovenia[0m [36mof[0m
+
+[ 0.51580405] (1,)
+[ 0.51022196  0.51530719  0.51989156  0.51742321] (4,)
+[ 0.51769638  0.51984394  0.51735651  0.5173564 ] (4,)
+[ 0.51468652  0.51499826  0.51839823] (3,)
+[ 0.51957959  0.51611829] (2,)
+[ 0.52201366] (1,)
+[ 0.52342868] (1,)
+[ 0.52384001] (1,)
+[ 0.52443981] (1,)
+[ 0.52506572] (1,)
+[ 0.52579194] (1,)
+[ 0.52674508] (1,)
+[ 0.52779835] (1,)
+[ 0.52928323] (1,)
+[ 0.53145266] (1,)
+[ 0.53284508] (1,)
+[ 0.53425264] (1,)
+[ 0.53408134] (1,)
+[ 0.5329842] (1,)
+[ 0.5323928] (1,)
+[ 0.53240019] (1,)
+[ 0.53266597] (1,)
+[ 0.53332144] (1,)
+[ 0.53435725] (1,)
+[ 0.53467089] (1,)
+[ 0.53269148] (1,)
+[ 0.53300714] (1,)
+[ 0.5358125] (1,)
+=============================
+Target-TM 4: &#124; Article 3 4 0 - Total &#124; 115000 &#124; 115000 &#124; 170000 &#124; 170000 &#124; [32m116272,47[0m &#124; [32m116272,47[0m &#124;
+Source-TM 4: &#124; Total de l &apos; article 3 4 0 &#124; 115000 &#124; 115000 &#124; 170000 &#124; 170000 &#124; [32m116272,47[0m &#124; [32m116272,47[0m &#124;
+Source-CR 4: 3 4 &#124; FRAIS DE [32mRÉUNION[0m &#124; 115000 &#124; 115000 &#124; 170000 &#124; 170000 &#124; [32m116272,47[0m &#124; [32m116272,47[0m &#124;
+Target-CR 4: 3 4 &#124; MEETING EXPENSES &#124; 115000 &#124; 115000 &#124; 170000 &#124; 170000 &#124; [32m116272,47[0m &#124; [32m116272,47[0m &#124;
+-----------------------------
+NMT Model 4: 3 4 &#124;
+[37, 49, 5, 0]
+[0.95242697, 0.95486677, 0.7175929, 0.015095861]
+Copy Prob 4: [34m3[0m [34m4[0m [36m&#124;[0m
+Copy Gate 4: [36m3[0m [36m4[0m [36m&#124;[0m
+
+Epoch  0 Update  181 Cost  50.537147522 G 11.5636339188 execute: elapsed 1.0932 secs.
+
+Epoch  0 Update  182 Cost  40.5622940063 G 9.67342567444 execute: elapsed 0.9316 secs.
+
+Epoch  0 Update  183 Cost  33.8002853394 G 8.53122711182 execute: elapsed 0.8760 secs.
+
+Epoch  0 Update  184 Cost  21.7374267578 G 7.34861755371 execute: elapsed 0.8000 secs.
+
+Epoch  0 Update  185 Cost  18.2258605957 G 6.82278251648 execute: elapsed 0.7982 secs.
+
+Epoch  0 Update  186 Cost  21.2038631439 G 6.02632522583 execute: elapsed 0.7119 secs.
+
+Epoch  0 Update  187 Cost  14.5741891861 G 4.95498228073 execute: elapsed 0.8023 secs.
+
+Epoch  0 Update  188 Cost  34.5099143982 G 6.53521633148 execute: elapsed 1.5358 secs.
+
+Epoch  0 Update  189 Cost  175.547454834 G 28.9879112244 execute: elapsed 1.8228 secs.
+
+Epoch  0 Update  190 Cost  136.141815186 G 26.2689933777 execute: elapsed 1.7426 secs.
+
+Epoch  0 Update  191 Cost  135.873962402 G 24.4033432007 execute: elapsed 1.5657 secs.
+
+Epoch  0 Update  192 Cost  129.97227478 G 22.3813095093 execute: elapsed 1.5708 secs.
+
+Epoch  0 Update  193 Cost  87.4078521729 G 20.7564926147 execute: elapsed 1.3888 secs.
+
+Epoch  0 Update  194 Cost  99.480796814 G 18.1856842041 execute: elapsed 1.2298 secs.
+
+Epoch  0 Update  195 Cost  84.9990539551 G 16.4999351501 execute: elapsed 1.2389 secs.
+
+Epoch  0 Update  196 Cost  51.9857978821 G 14.4204263687 execute: elapsed 1.0641 secs.
+
+Epoch  0 Update  197 Cost  62.9900588989 G 12.7976207733 execute: elapsed 0.9816 secs.
+
+Epoch  0 Update  198 Cost  44.0888214111 G 11.2302417755 execute: elapsed 0.8929 secs.
+
+Epoch  0 Update  199 Cost  31.3145256042 G 9.43514633179 execute: elapsed 0.8069 secs.
+
+Epoch  0 Update  200 Cost  30.5756263733 G 7.97123098373 execute: elapsed 0.8130 secs.
+
+[ 0.50475627] (1,)
+[ 0.50878656  0.51187438  0.51467609  0.5090887 ] (4,)
+[ 0.51932895  0.52211422  0.52040267] (3,)
+[ 0.51988488  0.5149464 ] (2,)
+[ 0.51845211] (1,)
+=============================
+Target-TM 0: Ê 2001 / 792 recital 4 ( adapted )
+Source-TM 0: Ê 2001 / 792 considérant 4 ( adapté )
+Source-CR 0: Ê 2001 / 792 considérants 11 et 13 ( adapté )
+Target-CR 0: Ê 2001 / 792 recitals 11 and 13 ( adapted )
+-----------------------------
+NMT Model 0: &lt; ( 2001 )
+[12059, 9, 155, 8, 0]
+[1.0, 0.82780778, 0.90495777, 0.92611283, 0.022941453]
+Copy Prob 0: [34m&lt;[0m [34m([0m [34m2001[0m [34m)[0m
+Copy Gate 0: [36m&lt;[0m [36m([0m [36m2001[0m [36m)[0m
+
+[ 0.51694882] (1,)
+[ 0.51870763  0.51872379  0.51768565  0.51849109] (4,)
+[ 0.51477551  0.52223855  0.51622671] (3,)
+[ 0.51805282  0.52359492] (2,)
+[ 0.51989126  0.52076781] (2,)
+[ 0.52252024  0.52253497] (2,)
+[ 0.52270722  0.52304924] (2,)
+[ 0.52727759  0.52731121] (2,)
+[ 0.51832741  0.51833403] (2,)
+[ 0.51867348] (1,)
+=============================
+Target-TM 1: ( Notified under document number C ( 2001 ) 120 )
+Source-TM 1: &#91; Notifiée sous le numéro C ( 2001 ) 120 &#93;
+Source-CR 1: &#91; Notifiée sous le numéro C ( 2001 ) [32m3685[0m &#93;
+Target-CR 1: ( Notified under document number C ( 2001 ) [32m3685[0m )
+-----------------------------
+NMT Model 1: ( Notified under document C ( 2001 )
+[9, 1176, 63, 348, 93, 9, 155, 8, 0]
+[0.86481643, 0.92703044, 0.93038464, 0.76952869, 0.0038617242, 0.86304843, 0.92718267, 0.8617236, 3.7375612e-05]
+Copy Prob 1: [34m([0m [34mNotified[0m [34munder[0m [34mdocument[0m [33mC[0m [34m([0m [34m2001[0m [34m)[0m
+Copy Gate 1: [36m([0m [36mNotified[0m [36munder[0m [36mdocument[0m [36mC[0m [36m([0m [36m2001[0m [36m)[0m
+
+[ 0.51893198] (1,)
+[ 0.5347029   0.52358329  0.52052993  0.53663534] (4,)
+[ 0.5198943   0.51462442  0.53820372] (3,)
+[ 0.52256024  0.53322816] (2,)
+[ 0.52637726] (1,)
+[ 0.53023338] (1,)
+[ 0.51420462] (1,)
+[ 0.51483345] (1,)
+[ 0.51396722] (1,)
+[ 0.51108187] (1,)
+[ 0.51336116] (1,)
+=============================
+Target-TM 2: - after 31 December 2006 for engines of categories K ,
+Source-TM 2: - après le 31 décembre 2006 , pour les moteurs de la catégorie K ,
+Source-CR 2: - après le 31 décembre 2006 , pour les moteurs de la catégorie I ,
+Target-CR 2: - after 31 December 2006 for engines of categories I ,
+-----------------------------
+NMT Model 2: - after 31 December 2006 for held industrial of the
+[25, 206, 200, 0]
+[0.92764211, 0.92202246, 0.92766982, 1.1464735e-07]
+Copy Prob 2: [34m-[0m [34mafter[0m [34m31[0m
+Copy Gate 2: [36m-[0m [36mafter[0m [36m31[0m
+
+[ 0.51320153] (1,)
+[ 0.50386244  0.51420581  0.50631595  0.51405996] (4,)
+[ 0.51602745  0.51636338  0.51269573] (3,)
+[ 0.51254183  0.51253283] (2,)
+[ 0.51524949] (1,)
+=============================
+Target-TM 3: Relevant provisions : Title V.
+Source-TM 3: Dispositions pertinentes : Titre V.
+Source-CR 3: Dispositions pertinentes : Titre VI , articles 84 à 92 .
+Target-CR 3: Relevant provisions : Title VI , Articles 84 to 92 .
+-----------------------------
+NMT Model 3: HIV provisions : Title
+[5822, 88, 23, 378, 0]
+[1.0, 0.9271673, 0.92617273, 0.91627085, 6.5540211e-05]
+Copy Prob 3: [34mHIV[0m [34mprovisions[0m [34m:[0m [34mTitle[0m
+Copy Gate 3: [36mHIV[0m [36mprovisions[0m [36m:[0m [36mTitle[0m
+
+[ 0.51760662] (1,)
+[ 0.50894594  0.50897342  0.51493222  0.51264149] (4,)
+[ 0.5161624] (1,)
+=============================
+Target-TM 4: 2.1 . Recent trends 3
+Source-TM 4: 2.1 . Évolution récente 3
+Source-CR 4: Ces changements démographiques sont le fruit de trois tendances de fond :
+Target-CR 4: These demographic changes are the result of three basic trends :
+-----------------------------
+NMT Model 4: 
+[0]
+[5.8796545e-06]
+Copy Prob 4: 
+Copy Gate 4: 
+
+Epoch  0 Update  201 Cost  16.3476295471 G 7.19182872772 execute: elapsed 0.7173 secs.
+
+Epoch  0 Update  202 Cost  24.0093612671 G 6.36575126648 execute: elapsed 0.8925 secs.
+
+Epoch  0 Update  203 Cost  13.2366933823 G 5.01346540451 execute: elapsed 0.7250 secs.
+
+Epoch  0 Update  204 Cost  12.885389328 G 3.16402816772 execute: elapsed 0.5778 secs.
+
+Epoch  0 Update  205 Cost  138.326141357 G 25.029499054 execute: elapsed 1.9860 secs.
+
+Epoch  0 Update  206 Cost  144.415374756 G 28.6732711792 execute: elapsed 1.7621 secs.
+
+Epoch  0 Update  207 Cost  121.49156189 G 25.068107605 execute: elapsed 1.6116 secs.
+
+Epoch  0 Update  208 Cost  106.991691589 G 21.9260063171 execute: elapsed 1.6399 secs.
+
+Epoch  0 Update  209 Cost  98.0979385376 G 19.7665176392 execute: elapsed 1.5649 secs.
+
+Epoch  0 Update  210 Cost  91.8877258301 G 17.5876178741 execute: elapsed 1.4383 secs.
+
+Epoch  0 Update  211 Cost  70.3917388916 G 14.6880025864 execute: elapsed 1.2306 secs.
+
+Epoch  0 Update  212 Cost  54.3391723633 G 12.6369628906 execute: elapsed 1.1575 secs.
+
+Epoch  0 Update  213 Cost  38.2824707031 G 10.9159221649 execute: elapsed 1.0508 secs.
+
+Epoch  0 Update  214 Cost  45.9160385132 G 9.83658218384 execute: elapsed 0.9740 secs.
+
+Epoch  0 Update  215 Cost  27.3556518555 G 8.78150367737 execute: elapsed 0.8412 secs.
+
+Epoch  0 Update  216 Cost  22.5651550293 G 7.29114866257 execute: elapsed 0.8088 secs.
+
+Epoch  0 Update  217 Cost  23.848236084 G 6.08541059494 execute: elapsed 0.7600 secs.
+
+Epoch  0 Update  218 Cost  23.0512771606 G 5.28704357147 execute: elapsed 0.7388 secs.
+
+Epoch  0 Update  219 Cost  20.8713798523 G 3.13593912125 execute: elapsed 0.6158 secs.
+
+Epoch  0 Update  220 Cost  143.864074707 G 30.1150569916 execute: elapsed 1.7284 secs.
+
+[ 0.50166202] (1,)
+[ 0.5073688   0.50649756  0.51159596  0.50660968] (4,)
+[ 0.51221651] (1,)
+=============================
+Target-TM 0: Summary
+Source-TM 0: [32mFiche[0m résumé
+Source-CR 0: En résumé :
+Target-CR 0: Summary
+-----------------------------
+NMT Model 0: 
+[0]
+[0.00072699419]
+Copy Prob 0: 
+Copy Gate 0: 
+
+[ 0.52176452] (1,)
+[ 0.50983071  0.5152086   0.52175105  0.51467878] (4,)
+[ 0.51181018  0.51260686  0.51407534] (3,)
+[ 0.51598001  0.51022166  0.51518422] (3,)
+[ 0.51385516  0.51056784] (2,)
+[ 0.51978827] (1,)
+[ 0.52189749] (1,)
+[ 0.52593577] (1,)
+[ 0.52322346] (1,)
+[ 0.53488219] (1,)
+=============================
+Target-TM 1: A Standing Committee on Zootechnics ( hereinafter referred to as % quot % the Committee % quot % ) is hereby set up , consisting of representatives of the Member States with a representative of the Commission as Chairman .
+Source-TM 1: Il est institué un comité zootechnique permanent , ci-après dénommé &quot; comité &quot; , composé de représentants des États membres et présidé par un représentant de la Commission .
+Source-CR 1: Il est institué un Comité permanent des semences et plants agricoles , horticoles et forestiers , ci-après dénommé le &quot; Comité &quot; , composé de représentants des États membres et présidé par un représentant de la Commission .
+Target-CR 1: A Standing Committee on Seeds and Propagating Material for Agriculture , Horticulture and Forestry ( hereinafter called the % quot % Committee % quot % ) is hereby set up and shall consist of representatives of the Member States with a representative of the Commission as Chairman .
+-----------------------------
+NMT Model 1: A % quot % Europe % quot % ,
+[65, 27, 55, 27, 586, 27, 55, 27, 4, 0]
+[0.9750728, 0.0048814127, 2.0110534e-07, 0.027120341, 1.0, 0.68108553, 0.9536528, 0.91087317, 0.89916664, 0.043950446]
+Copy Prob 1: [34mA[0m [33m%[0m [33mquot[0m [33m%[0m [34mEurope[0m [36m%[0m [34mquot[0m [34m%[0m [34m,[0m
+Copy Gate 1: [36mA[0m [36m%[0m [36mquot[0m [36m%[0m [36mEurope[0m [36m%[0m [36mquot[0m [36m%[0m [36m,[0m
+
+[ 0.52131152] (1,)
+[ 0.52374214  0.52471393  0.523839    0.52380812] (4,)
+[ 0.51346159  0.51914942  0.52027512] (3,)
+[ 0.51682407  0.52059209] (2,)
+[ 0.5164305] (1,)
+=============================
+Target-TM 2: Concerning the signing of a Framework Agreement between the European Community and the Republic of Albania on the general principles for the participation of the Republic of Albania in Community programmes
+Source-TM 2: Relative à la signature d &apos; un accord-cadre entre la Communauté européenne et la République d &apos; Albanie établissant les principes généraux de la participation de la République d &apos; Albanie aux programmes communautaires
+Source-CR 2: COM ( 2004 ) 809 &#124; 1 &#124; 16.12.2004 &#124; Proposition de DÉCISION DU CONSEIL relative à la conclusion d &apos; un accord-cadre entre la Communauté européenne et la République d &apos; Albanie établissant les principes généraux de la participation de la République d &apos; Albanie aux programmes communautaires &#124;
+Target-CR 2: COM ( 2004 ) 809 &#124; 1 &#124; 16.12.2004 &#124; Proposal for a COUNCIL DECISION concerning the conclusion of a Framework Agreement between the European Community and the Republic of Albania on the general principles for the participation of the Republic of Albania in Community programmes &#124;
+-----------------------------
+NMT Model 2: COM ( 2004 )
+[395, 9, 81, 8, 0]
+[1.0, 1.0, 1.0, 1.0, 5.1900747e-07]
+Copy Prob 2: [34mCOM[0m [34m([0m [34m2004[0m [34m)[0m
+Copy Gate 2: [36mCOM[0m [36m([0m [36m2004[0m [36m)[0m
+
+[ 0.50848639] (1,)
+[ 0.51106495  0.5127604   0.51101065  0.51812941] (4,)
+[ 0.52186996  0.52183366  0.52184457] (3,)
+[ 0.52452183  0.52350491] (2,)
+[ 0.51894134  0.51910406] (2,)
+[ 0.52889079] (1,)
+[ 0.52624202] (1,)
+[ 0.51699084] (1,)
+[ 0.54538661] (1,)
+[ 0.5334906] (1,)
+[ 0.53682941] (1,)
+[ 0.53527898] (1,)
+[ 0.52962011] (1,)
+=============================
+Target-TM 3: The part of amendment 43 accepted by the Commission , to add &quot; in accordance with national law &quot; in the definition of &quot; the public &quot; is not taken over in the common position .
+Source-TM 3: La partie de l &apos; amendement 43 acceptée par la Commission afin d &apos; ajouter &quot; dans le cadre de la législation nationale &quot; dans la définition de &quot; public &quot; n &apos; est pas repris dans la position commune .
+Source-CR 3: CE terme n &apos; est pas défini dans cette convention . On ne trouve pas non plus de définition [32munanimement[0m acceptée dans les conclusions du Comité exécutif du HCR , ni dans la [32mdoctrine[0m . Les lignes directrices du présent document ne constituent pas une définition .
+Target-CR 3: The term is not defined in the Convention . Nor is a universally accepted definition to be found either in the conclusions of the UNHCR Executive Committee or in legal literature on the subject . The guidelines in this document do not constitute a definition .
+-----------------------------
+NMT Model 3: The informed is not defined in this Convention . It does not
+[21, 887, 28, 45, 430, 11, 39, 354, 6, 181, 364, 45, 0]
+[0.93431807, 1.0, 0.9731527, 0.97509313, 1.0, 0.92931336, 1.0, 1.0, 0.97127801, 1.0, 1.0, 0.97509968, 2.6297801e-05]
+Copy Prob 3: [34mThe[0m [34minformed[0m [34mis[0m [34mnot[0m [34mdefined[0m [34min[0m [34mthis[0m [34mConvention[0m [34m.[0m [34mIt[0m [34mdoes[0m [34mnot[0m
+Copy Gate 3: [36mThe[0m [36minformed[0m [36mis[0m [36mnot[0m [36mdefined[0m [36min[0m [36mthis[0m [36mConvention[0m [36m.[0m [36mIt[0m [36mdoes[0m [36mnot[0m
+
+[ 0.51445192] (1,)
+[ 0.51435775  0.52958703  0.53785819  0.53556073] (4,)
+[ 0.52775156  0.52980363] (2,)
+[ 0.53077477] (1,)
+[ 0.52284753] (1,)
+[ 0.52037734] (1,)
+[ 0.52194488] (1,)
+[ 0.53694123] (1,)
+[ 0.53523934] (1,)
+=============================
+Target-TM 4: ( A ) the goods concerned are covered by a purchase contract concluded before the date of entry into force of this Regulation ; and
+Source-TM 4: A ) les produits concernés soient couverts par un contrat d &apos; achat conclu avant la date d &apos; entrée en vigueur du présent règlement , et
+Source-CR 4: A ) dans tout État membre , dans la mesure où il est incompatible avec les obligations en matière de faillite résultant d &apos; une convention conclue antérieurement à son entrée en vigueur par cet État avec un ou plusieurs pays tiers ;
+Target-CR 4: ( A ) in any Member State , to the extent that it is [32mirreconcilable[0m with the obligations arising in relation to bankruptcy from a convention concluded by that State with one or more third countries before the entry into force of this Regulation ;
+-----------------------------
+NMT Model 4: ( A ) in any Member State ,
+[9, 65, 8, 11, 75, 34, 68, 4, 0]
+[0.97426826, 0.97677946, 0.97630179, 1.0, 1.0, 1.0, 1.0, 1.0, 0.00026391292]
+Copy Prob 4: [34m([0m [34mA[0m [34m)[0m [34min[0m [34many[0m [34mMember[0m [34mState[0m [34m,[0m
+Copy Gate 4: [36m([0m [36mA[0m [36m)[0m [36min[0m [36many[0m [36mMember[0m [36mState[0m [36m,[0m
+
+Epoch  0 Update  221 Cost  147.83821106 G 28.2813549042 execute: elapsed 1.7877 secs.
+
+Epoch  0 Update  222 Cost  125.263290405 G 24.3422145844 execute: elapsed 1.6799 secs.
+
+Epoch  0 Update  223 Cost  112.612266541 G 21.6541023254 execute: elapsed 1.5809 secs.
+
+Epoch  0 Update  224 Cost  102.242835999 G 19.2717933655 execute: elapsed 1.2422 secs.
+
+Epoch  0 Update  225 Cost  77.336479187 G 18.0945243835 execute: elapsed 1.3236 secs.
+
+Epoch  0 Update  226 Cost  69.5152130127 G 15.9210538864 execute: elapsed 0.9503 secs.
+
+Epoch  0 Update  227 Cost  64.6518173218 G 13.5353422165 execute: elapsed 0.4036 secs.
+
+Epoch  0 Update  228 Cost  44.3421897888 G 11.3949832916 execute: elapsed 0.3411 secs.
+
+Epoch  0 Update  229 Cost  32.1607131958 G 9.96338272095 execute: elapsed 0.3384 secs.
+
+Epoch  0 Update  230 Cost  29.0780391693 G 8.86949920654 execute: elapsed 0.3001 secs.
+
+Epoch  0 Update  231 Cost  38.8027191162 G 7.77366733551 execute: elapsed 0.2919 secs.
+
+Epoch  0 Update  232 Cost  26.7382049561 G 6.62814188004 execute: elapsed 0.6424 secs.
+
+Epoch  0 Update  233 Cost  19.6474952698 G 5.35107803345 execute: elapsed 0.9893 secs.
+
+Epoch  0 Update  234 Cost  24.0837841034 G 4.00653362274 execute: elapsed 0.7534 secs.
+
+Epoch  0 Update  235 Cost  114.61340332 G 22.8599948883 execute: elapsed 1.5191 secs.
+
+Epoch  0 Update  236 Cost  122.334114075 G 27.7406406403 execute: elapsed 1.2559 secs.
+
+Epoch  0 Update  237 Cost  122.154823303 G 23.6374778748 execute: elapsed 2.0504 secs.
+
+Epoch  0 Update  238 Cost  104.063171387 G 20.7074279785 execute: elapsed 1.3630 secs.
+
+Epoch  0 Update  239 Cost  87.5640563965 G 18.3888072968 execute: elapsed 1.1629 secs.
+
+Epoch  0 Update  240 Cost  70.0774536133 G 16.3516902924 execute: elapsed 1.0133 secs.
+
+[ 0.52594537] (1,)
+[ 0.5295465   0.53387207  0.53528142  0.5416556   0.54114848] (5,)
+[ 0.52598006  0.52230573  0.53239053  0.53570014  0.537494  ] (5,)
+[ 0.53853983  0.53863209  0.53255111  0.53889316  0.53459972] (5,)
+[ 0.53663003  0.53706747  0.53003204  0.54018641  0.53869522] (5,)
+[ 0.52229661  0.52234685  0.5353024   0.54114711  0.53478491] (5,)
+[ 0.54071134  0.54356533  0.52383912  0.52228665  0.53294772] (5,)
+[ 0.53063822  0.53089643  0.53927875  0.53598732  0.54167789] (5,)
+[ 0.53750449  0.53779083  0.54042637  0.53156167  0.53929025] (5,)
+[ 0.52486354  0.52462041  0.53038418  0.54404283  0.53809953] (5,)
+[ 0.53977633  0.5391894   0.52460909  0.53436184  0.53216493] (5,)
+[ 0.54288971  0.54341364  0.52673382  0.53815722  0.53896862] (5,)
+[ 0.53038222  0.53038538  0.53298461  0.53771317  0.53985357] (5,)
+[ 0.53810036  0.53775769  0.54016268  0.53640091  0.53907096] (5,)
+[ 0.52256453  0.52248311  0.52619076  0.52900904  0.54606533] (5,)
+[ 0.54161406  0.54314166  0.53993231  0.54197156  0.54353553] (5,)
+[ 0.54316324  0.52701294  0.53137994  0.52902299  0.5266645 ] (5,)
+[ 0.53038919  0.52571446  0.52379495  0.5246222   0.52367795] (5,)
+[ 0.5232327   0.52398098  0.52593488  0.52428037  0.53836703] (5,)
+[ 0.52920663  0.53049457  0.5301404   0.52958727  0.5225535 ] (5,)
+[ 0.53087151  0.53146714  0.53158265  0.53118944  0.54119509] (5,)
+[ 0.52787799  0.52846926  0.52932364  0.52855009  0.53117478] (5,)
+[ 0.53128481  0.53157622  0.5310781   0.53114176  0.52558923] (5,)
+[ 0.52323669] (1,)
+[ 0.52939677] (1,)
+[ 0.53074473] (1,)
+[ 0.52772075] (1,)
+[ 0.53120375] (1,)
+=============================
+Target-TM 0: The second subparagraph of Article 4 ( 1 ) of Regulation ( EC ) No 1168 / 2005 is hereby replaced by the following :
+Source-TM 0: À l &apos; article 4 , paragraphe 1 , du règlement ( CE ) no 1168 / 2005 , le deuxième alinéa est remplacé par le texte suivant :
+Source-CR 0: À l &apos; article 1er du règlement ( CE ) n ° [32m2596[0m / 97 , le deuxième alinéa est remplacé par le texte suivant :
+Target-CR 0: The second subparagraph of Article 1 of Regulation ( EC ) No [32m2596[0m / 97 , shall be replaced by the following :
+-----------------------------
+NMT Model 0: The second paragraph of Article 1 of Regulation ( EC ) No Ornamental / name is hereby replaced by the following :
+[21, 314, 285, 3, 22, 19, 3, 32, 9, 38, 8, 35, 18188, 13, 484, 16, 15, 169, 17, 2, 71, 23, 0]
+[0.95240456, 0.9594965, 1.0, 0.91568542, 0.95693773, 0.96036983, 0.91359329, 0.95757389, 0.91573519, 0.95906878, 0.91525465, 0.95489812, 1.0, 0.95753604, 1.0, 1.0, 1.0, 0.00012292221, 0.95873117, 0.95845181, 0.95864177, 0.9583376, 0.95565808]
+Copy Prob 0: [34mThe[0m [34msecond[0m [34mlegal[0m [34mof[0m [34mArticle[0m [34m1[0m [34mof[0m [34mRegulation[0m [34m([0m [34mEC[0m [34m)[0m [34mNo[0m [34mOrnamental[0m [34m/[0m [34mname[0m [34mshall[0m [34mbe[0m [33mreplaced[0m [34mby[0m [34mthe[0m [34mfollowing[0m [34m:[0m
+Copy Gate 0: [36mThe[0m [36msecond[0m [36mlegal[0m [36mof[0m [36mArticle[0m [36m1[0m [36mof[0m [36mRegulation[0m [36m([0m [36mEC[0m [36m)[0m [36mNo[0m [36mOrnamental[0m [36m/[0m [36mname[0m [36mshall[0m [36mbe[0m [36mreplaced[0m [36mby[0m [36mthe[0m [36mfollowing[0m [36m:[0m
+
+[ 0.52513307] (1,)
+[ 0.53597385  0.53051436  0.53578299  0.55108345] (4,)
+[ 0.55160397  0.54140168] (2,)
+[ 0.53730869] (1,)
+[ 0.53435451] (1,)
+[ 0.54774994] (1,)
+[ 0.54154706] (1,)
+=============================
+Target-TM 1: This Regulation lays down specific rules concerning the authorisation , supervision and pharmacovigilance of advanced therapy medicinal products .
+Source-TM 1: Objet Le présent règlement établit des règles spécifiques pour l &apos; autorisation , la surveillance et la pharmacovigilance en ce qui concerne les médicaments de thérapie innovante .
+Source-CR 1: Ainsi , le [32mCAT[0m aura pour tâche principale d &quot; émettre un avis scientifique sur toutes données concernant les médicaments de thérapie innovante .
+Target-CR 1: Thus , the main task of the [32mCAT[0m will be to advise scientifically on any data related to advanced therapy medicinal products .
+-----------------------------
+NMT Model 1: A plenary of the plenary of
+[65, 2872, 3, 2, 2872, 3, 0]
+[1.0, 1.0, 0.91591054, 0.91990894, 1.0, 0.90896249, 0.00036241836]
+Copy Prob 1: [34mA[0m [34mplenary[0m [34mof[0m [34mthe[0m [34mplenary[0m [34mof[0m
+Copy Gate 1: [36mA[0m [36mplenary[0m [36mof[0m [36mthe[0m [36mplenary[0m [36mof[0m
+
+[ 0.51315969] (1,)
+[ 0.51312757  0.52644056  0.51473695  0.53250384] (4,)
+[ 0.51900434  0.51040208  0.51961434] (3,)
+[ 0.51079947  0.50846678] (2,)
+[ 0.50855416] (1,)
+[ 0.50482994] (1,)
+[ 0.50540829] (1,)
+[ 0.51321971] (1,)
+[ 0.51322407] (1,)
+=============================
+Target-TM 2: ( B ) its technical and logistical capacity in relation to the planned operation ;
+Source-TM 2: B ) sa capacité technique et logistique par rapport à l &apos; action envisagée ;
+Source-CR 2: B ) le type de produits à fournir et leur valeur nutritionnelle , en relation avec la justification de l &apos; opération ;
+Target-CR 2: ( B ) the type of products to be supplied and their nutritional value in relation to the grounds for the operation ;
+-----------------------------
+NMT Model 2: ( B ) the type of products to
+[9, 94, 8, 2, 548, 3, 73, 7, 0]
+[0.95991904, 0.9602676, 0.96063966, 0.95810938, 1.0, 1.0, 1.0, 0.92704701, 4.4075863e-05]
+Copy Prob 2: [34m([0m [34mB[0m [34m)[0m [34mthe[0m [34mtype[0m [34mof[0m [34mproducts[0m [34mto[0m
+Copy Gate 2: [36m([0m [36mB[0m [36m)[0m [36mthe[0m [36mtype[0m [36mof[0m [36mproducts[0m [36mto[0m
+
+[ 0.51632845] (1,)
+[ 0.51795101  0.51959658  0.51769811  0.51732934] (4,)
+[ 0.52232504] (1,)
+=============================
+Target-TM 3: 1.4 The Commission subsequently adopted its European agenda for Entrepreneurship Action Plan in February 2004 &#91; 2 &#93; .
+Source-TM 3: 1.4 Par la suite , la Commission a adopté son &quot; Plan d &apos; action : L &apos; agenda européen de la politique de l &apos; esprit d &apos; entreprise &quot; en février 2004 &#91; 2 &#93; .
+Source-CR 3: [32m3.6.6[0m Le CESE constate avec satisfaction que la Commission européenne a lancé un plan d &apos; action communautaire contre la discrimination &#91; 16 &#93; .
+Target-CR 3: [32m3.6.6[0m The EESC is [32mglad[0m to know that the European Commission has launched a Community Action Plan Against Discrimination &#91; 16 &#93; .
+-----------------------------
+NMT Model 3: 
+[0]
+[3.0593168e-05]
+Copy Prob 3: 
+Copy Gate 3: 
+
+[ 0.52474606] (1,)
+[ 0.5204789   0.52423257  0.52579427  0.5223937 ] (4,)
+[ 0.51818681  0.51968151  0.52631944] (3,)
+[ 0.51711977  0.52096003] (2,)
+[ 0.52040797] (1,)
+[ 0.51701087] (1,)
+[ 0.51742446] (1,)
+[ 0.52041358] (1,)
+[ 0.5195958] (1,)
+[ 0.51891965] (1,)
+[ 0.51627237] (1,)
+[ 0.53061402] (1,)
+[ 0.52531165] (1,)
+[ 0.52713597] (1,)
+[ 0.52487826] (1,)
+[ 0.52276647] (1,)
+[ 0.51777083] (1,)
+[ 0.52033281] (1,)
+[ 0.51687604] (1,)
+[ 0.51686764] (1,)
+[ 0.51846892] (1,)
+[ 0.51707125] (1,)
+[ 0.51791412] (1,)
+=============================
+Target-TM 4: ( 3 ) Whereas the measures provided for in this Decision are in accordance with the opinion of the Standing Veterinary Committee ,
+Source-TM 4: ( 3 ) considérant que les mesures prévues par la présente décision sont conformes à l &apos; avis du comité vétérinaire permanent ,
+Source-CR 4: ( 3 ) considérant que les mesures prévues par la présente décision sont conformes à l &apos; avis du comité permanent ,
+Target-CR 4: ( 3 ) Whereas the measures provided for in this Decision are in accordance with the opinion of the Standing Veterinary Committee ,
+-----------------------------
+NMT Model 4: ( 3 ) Whereas the measures provided for in this Decision are in accordance with the opinion of the Committee of the
+[9, 37, 8, 97, 2, 67, 85, 12, 11, 39, 95, 44, 11, 60, 26, 2, 255, 3, 2, 105, 3, 2, 0]
+[0.95769089, 0.95988041, 0.96097815, 0.96042544, 0.88578081, 0.95928943, 0.9591186, 0.95955873, 0.92185068, 0.96145445, 0.96000808, 0.95692986, 0.92116332, 0.95448655, 0.95818913, 0.88845044, 0.96047258, 0.9593429, 0.88992482, 0.82694596, 0.91723853, 0.77160919, 0.0040869089]
+Copy Prob 4: [34m([0m [34m3[0m [34m)[0m [34mWhereas[0m [34mthe[0m [34mmeasures[0m [34mprovided[0m [34mfor[0m [34min[0m [34mthis[0m [34mDecision[0m [34mare[0m [34min[0m [34maccordance[0m [34mwith[0m [34mthe[0m [34mopinion[0m [34mof[0m [34mthe[0m [34mCommittee[0m [34mof[0m [34mthe[0m
+Copy Gate 4: [36m([0m [36m3[0m [36m)[0m [36mWhereas[0m [36mthe[0m [36mmeasures[0m [36mprovided[0m [36mfor[0m [36min[0m [36mthis[0m [36mDecision[0m [36mare[0m [36min[0m [36maccordance[0m [36mwith[0m [36mthe[0m [36mopinion[0m [36mof[0m [36mthe[0m [36mCommittee[0m [36mof[0m [36mthe[0m
+
+Epoch  0 Update  241 Cost  75.397064209 G 14.584980011 execute: elapsed 1.1823 secs.
+
+Epoch  0 Update  242 Cost  54.1134490967 G 12.9155578613 execute: elapsed 0.9972 secs.
+
+Epoch  0 Update  243 Cost  35.4567146301 G 10.9079456329 execute: elapsed 0.9775 secs.
+
+Epoch  0 Update  244 Cost  28.228717804 G 9.77301883698 execute: elapsed 0.8229 secs.
+
+Epoch  0 Update  245 Cost  33.8470878601 G 8.72915077209 execute: elapsed 0.8469 secs.
+
+Epoch  0 Update  246 Cost  28.7665252686 G 7.91745567322 execute: elapsed 0.7708 secs.
+
+Epoch  0 Update  247 Cost  13.8458719254 G 7.00351428986 execute: elapsed 0.7554 secs.
+
+Epoch  0 Update  248 Cost  18.3738098145 G 6.09505844116 execute: elapsed 0.7527 secs.
+
+Epoch  0 Update  249 Cost  17.4815673828 G 4.46054029465 execute: elapsed 0.6452 secs.
+
+Epoch  0 Update  250 Cost  78.6611328125 G 12.2627763748 execute: elapsed 1.6818 secs.
+
+Epoch  0 Update  251 Cost  166.974029541 G 28.3520374298 execute: elapsed 1.6086 secs.
+
+Epoch  0 Update  252 Cost  142.032012939 G 24.9175262451 execute: elapsed 1.4904 secs.
+
+Epoch  0 Update  253 Cost  107.413665771 G 21.3114318848 execute: elapsed 1.3144 secs.
+
+Epoch  0 Update  254 Cost  85.2132263184 G 18.6271820068 execute: elapsed 1.2260 secs.
+
+Epoch  0 Update  255 Cost  92.0797119141 G 16.8935089111 execute: elapsed 1.1414 secs.
+
+Epoch  0 Update  256 Cost  62.5914916992 G 15.8366279602 execute: elapsed 1.0890 secs.
+
+Epoch  0 Update  257 Cost  57.7557487488 G 14.0109062195 execute: elapsed 1.0369 secs.
+
+Epoch  0 Update  258 Cost  61.8979530334 G 12.2576541901 execute: elapsed 1.0807 secs.
+
+Epoch  0 Update  259 Cost  41.3875579834 G 11.0042896271 execute: elapsed 1.0011 secs.
+
+Epoch  0 Update  260 Cost  37.8206596375 G 9.6831741333 execute: elapsed 1.0534 secs.
+
+[ 0.51829791] (1,)
+[ 0.51004487  0.52393883  0.51059628  0.50980306] (4,)
+[ 0.52202803  0.52137738  0.51623195] (3,)
+[ 0.51890695  0.52146226] (2,)
+[ 0.53669202  0.53238398] (2,)
+=============================
+Target-TM 0: - access to data on extradition and [32mlocalisation[0m for Eurojust .
+Source-TM 0: - l &apos; accès d &apos; Eurojust aux données concernant l &apos; extradition et la localisation .
+Source-CR 0: - l &apos; accès des autorités habilitées à octroyer le statut de réfugié aux données d &apos; immigration ,
+Target-CR 0: - access to immigration data by authorities in charge of granting refugees status ;
+-----------------------------
+NMT Model 0: - 3.4 of authorities
+[25, 0]
+[0.94433939, 1.5324911e-05]
+Copy Prob 0: [34m-[0m
+Copy Gate 0: [36m-[0m
+
+[ 0.51394123] (1,)
+[ 0.51377481  0.53169781  0.51729059  0.53087282] (4,)
+[ 0.52914613  0.53044528  0.52344441  0.53237259] (4,)
+[ 0.51753151  0.52941895  0.51957977] (3,)
+[ 0.52418691  0.53105593  0.53074682] (3,)
+[ 0.520033    0.51832235  0.51876241] (3,)
+[ 0.51727837  0.52786535  0.5301941 ] (3,)
+[ 0.5190658   0.52165043  0.51797885] (3,)
+[ 0.52641809  0.51438093  0.52574277] (3,)
+[ 0.51600581  0.51780605  0.5150882 ] (3,)
+[ 0.51786309  0.51799887  0.51257277] (3,)
+[ 0.51252705  0.51243645  0.5340941 ] (3,)
+[ 0.5341453   0.5343647   0.51292539] (3,)
+[ 0.54244667  0.54395634  0.53512532] (3,)
+[ 0.54558212  0.54662502] (2,)
+=============================
+Target-TM 1: It shall apply only in the Member State where the goods are manufactured or made up .
+Source-TM 1: Il est applicable exclusivement dans l &apos; État membre où les marchandises sont fabriquées ou assemblées .
+Source-CR 1: A ) soit exploité à partir de l &apos; État membre où la demande est formulée ;
+Target-CR 1: ( A ) operated from the Member State where the application is made ;
+-----------------------------
+NMT Model 1: ( A ) the Member State in which the application is Statistical ;
+[9, 65, 8, 2, 34, 68, 11, 36, 2, 111, 28, 3049, 24, 0]
+[1.0, 1.0, 1.0, 0.20630863, 0.030318065, 3.5537309e-06, 0.92916703, 1.0, 0.87645257, 1.0, 1.0, 1.0, 1.0, 0.92826355]
+Copy Prob 1: [34m([0m [34mA[0m [34m)[0m [33mthe[0m [33mMember[0m [33mState[0m [34min[0m [34mwhich[0m [34mthe[0m [34mapplication[0m [34mis[0m [34mStatistical[0m [34m;[0m
+Copy Gate 1: [36m([0m [36mA[0m [36m)[0m [36mthe[0m [36mMember[0m [36mState[0m [36min[0m [36mwhich[0m [36mthe[0m [36mapplication[0m [36mis[0m [36mStatistical[0m [36m;[0m
+
+[ 0.5276702] (1,)
+[ 0.53254455  0.54095989  0.54095864  0.54094273] (4,)
+[ 0.52154356  0.52645719  0.5266093   0.52645683] (4,)
+[ 0.52808231  0.52144504  0.52144688  0.52146524] (4,)
+[ 0.52803427  0.52804929  0.5280441 ] (3,)
+=============================
+Target-TM 2: [32mCorsa[0m &#124; * ES 4705 &#124; &#124; P m ( 4 ) &#124;
+Source-TM 2: [32mCorsa[0m &#124; * ES 4705 &#124; &#124; P m ( 4 ) &#124;
+Source-CR 2: [32mHilma[0m &#124; * ES 4705 &#124; &#124; P m ( 4 ) &#124;
+Target-CR 2: [32mHilma[0m &#124; * ES 4705 &#124; &#124; P m ( 4 ) &#124;
+-----------------------------
+NMT Model 2: &#124; * ES
+[5, 64, 552, 0]
+[1.4715673e-05, 0.94179046, 0.94212258, 8.1495773e-06]
+Copy Prob 2: [33m&#124;[0m [34m*[0m [34mES[0m
+Copy Gate 2: [36m&#124;[0m [36m*[0m [36mES[0m
+
+[ 0.5075891] (1,)
+[ 0.50889128  0.50824857  0.50660247  0.50588554] (4,)
+[ 0.51742619  0.50913191] (2,)
+[ 0.51842272] (1,)
+[ 0.5188188] (1,)
+=============================
+Target-TM 3: Prior consultation with the competent authorities of other Member States
+Source-TM 3: Consultation préalable des autorités compétentes des autres États membres
+Source-CR 3: Quatre réunions de consultation informelle avec des experts nationaux des États membres concernés
+Target-CR 3: Four meetings of informal consultation with national experts of relevant Member States .
+-----------------------------
+NMT Model 3: Prior out of the
+[0]
+[7.4971183e-05]
+Copy Prob 3: 
+Copy Gate 3: 
+
+[ 0.52114463] (1,)
+[ 0.52185202  0.52944332  0.52272016  0.52755111] (4,)
+[ 0.52697015  0.52076501  0.52626616] (3,)
+[ 0.52155542  0.51814264] (2,)
+[ 0.51721525] (1,)
+[ 0.52001727] (1,)
+[ 0.51900512] (1,)
+[ 0.51621801] (1,)
+[ 0.5306322] (1,)
+[ 0.52354521] (1,)
+[ 0.53048235] (1,)
+[ 0.54002255] (1,)
+[ 0.53705871] (1,)
+=============================
+Target-TM 4: Having regard to the draft decision submitted by the Commission ( 1 ) ,
+Source-TM 4: Vu le projet de décision présenté par la Commission ( 1 ) ,
+Source-CR 4: Vu la proposition de la Commission ( 1 ) ,
+Target-CR 4: Having regard to the proposal submitted by the Commission ( 1 ) ,
+-----------------------------
+NMT Model 4: Having regard to the proposal from the Commission ( 1 ) ,
+[163, 104, 7, 2, 275, 41, 2, 33, 9, 19, 8, 4, 0]
+[0.94346976, 0.9424535, 0.94164294, 0.88642293, 1.0, 1.0, 0.89219618, 0.93566495, 0.9333151, 0.94137937, 0.93819851, 0.92580301, 0.78333288]
+Copy Prob 4: [34mHaving[0m [34mregard[0m [34mto[0m [34mthe[0m [34mproposal[0m [34mfrom[0m [34mthe[0m [34mCommission[0m [34m([0m [34m1[0m [34m)[0m [34m,[0m
+Copy Gate 4: [36mHaving[0m [36mregard[0m [36mto[0m [36mthe[0m [36mproposal[0m [36mfrom[0m [36mthe[0m [36mCommission[0m [36m([0m [36m1[0m [36m)[0m [36m,[0m
+
+Epoch  0 Update  261 Cost  31.7845115662 G 8.4713973999 execute: elapsed 0.8399 secs.
+
+Epoch  0 Update  262 Cost  22.5717582703 G 7.12152051926 execute: elapsed 0.8701 secs.
+
+Epoch  0 Update  263 Cost  27.2455177307 G 6.25507736206 execute: elapsed 0.6762 secs.
+
+Epoch  0 Update  264 Cost  23.7657928467 G 5.01493644714 execute: elapsed 0.7338 secs.
+
+Epoch  0 Update  265 Cost  57.2514801025 G 12.7780342102 execute: elapsed 1.7927 secs.
+
+Epoch  0 Update  266 Cost  133.188217163 G 29.1817741394 execute: elapsed 1.7522 secs.
+
+Epoch  0 Update  267 Cost  116.017700195 G 26.5983314514 execute: elapsed 1.6403 secs.
+
+Epoch  0 Update  268 Cost  134.429092407 G 23.2444801331 execute: elapsed 1.5819 secs.
+
+Epoch  0 Update  269 Cost  112.246658325 G 20.6396026611 execute: elapsed 1.4125 secs.
+
+Epoch  0 Update  270 Cost  90.8807296753 G 18.6973304749 execute: elapsed 1.3839 secs.
+
+Epoch  0 Update  271 Cost  60.4114227295 G 15.8943872452 execute: elapsed 1.1624 secs.
+
+Epoch  0 Update  272 Cost  64.2835998535 G 13.9643754959 execute: elapsed 1.1096 secs.
+
+Epoch  0 Update  273 Cost  47.3326835632 G 12.4815864563 execute: elapsed 0.9463 secs.
+
+Epoch  0 Update  274 Cost  53.6955795288 G 11.0134801865 execute: elapsed 0.8942 secs.
+
+Epoch  0 Update  275 Cost  48.990737915 G 9.61463546753 execute: elapsed 0.8292 secs.
+
+Epoch  0 Update  276 Cost  26.1123428345 G 8.70510673523 execute: elapsed 0.8199 secs.
+
+Epoch  0 Update  277 Cost  26.3064956665 G 7.41854143143 execute: elapsed 0.7109 secs.
+
+Epoch  0 Update  278 Cost  19.5797080994 G 6.40889644623 execute: elapsed 0.7008 secs.
+
+Epoch  0 Update  279 Cost  19.0797100067 G 4.66771316528 execute: elapsed 0.6114 secs.
+
+Epoch  0 Update  280 Cost  15.5918712616 G 3.09828138351 execute: elapsed 0.5982 secs.
+
+[ 0.51645118] (1,)
+[ 0.51353008  0.51261604  0.50990367  0.51224852] (4,)
+[ 0.51171935] (1,)
+=============================
+Target-TM 0: Additional translation costs
+Source-TM 0: Coût additionnel de traduction
+Source-CR 0: V = coûts de transport additionnels
+Target-CR 0: V = additional transport costs
+-----------------------------
+NMT Model 0: translation practical
+[0]
+[0.00010753516]
+Copy Prob 0: 
+Copy Gate 0: 
+
+[ 0.52116585] (1,)
+[ 0.52055269  0.51929909  0.52055746  0.52074295] (4,)
+[ 0.51334858  0.51341867  0.51331782  0.5172869 ] (4,)
+[ 0.51817721  0.51818413  0.51820904  0.51817948] (4,)
+[ 0.51209438  0.51209176  0.51210648  0.52241755] (4,)
+[ 0.53177607  0.53187561  0.53169131  0.52883756] (4,)
+[ 0.52591836  0.52594101  0.53046596] (3,)
+[ 0.52648425] (1,)
+=============================
+Target-TM 1: Brussels , 6 April 2005
+Source-TM 1: Bruxelles , le 6 avril 2005
+Source-CR 1: Bruxelles , le 14 décembre 2005 .
+Target-CR 1: Brussels , 14 December 2005
+-----------------------------
+NMT Model 1: several , 14 December 2005 .
+[1136, 4, 230, 167, 72, 6, 0]
+[1.0, 0.84109986, 1.0, 1.0, 0.84770334, 1.0, 0.83680069]
+Copy Prob 1: [34mseveral[0m [34m,[0m [34m14[0m [34mDecember[0m [34m2005[0m [34m.[0m
+Copy Gate 1: [36mseveral[0m [36m,[0m [36m14[0m [36mDecember[0m [36m2005[0m [36m.[0m
+
+[ 0.515001] (1,)
+[ 0.5133099   0.52290779  0.52448344  0.51890475] (4,)
+[ 0.51067728  0.51941729] (2,)
+[ 0.52783245] (1,)
+=============================
+Target-TM 2: Region &#124; &#124;
+Source-TM 2: Région &#124; &#124;
+Source-CR 2: Région &#124; Regione Lazio &#124;
+Target-CR 2: Region &#124; Lazio &#124;
+-----------------------------
+NMT Model 2: Royal &#124; &#124;
+[7945, 5, 0]
+[1.0, 0.020622859, 0.0049371016]
+Copy Prob 2: [34mRoyal[0m [33m&#124;[0m
+Copy Gate 2: [36mRoyal[0m [36m&#124;[0m
+
+[ 0.50233299] (1,)
+[ 0.50551492  0.5067482   0.50487345  0.49742106] (4,)
+[ 0.49620187  0.49566835] (2,)
+=============================
+Target-TM 3: Capacity utilisation
+Source-TM 3: Utilisation des capacités
+Source-CR 3: [32m6.3.3[0m . Utilisation des capacités
+Target-CR 3: [32m6.3.3[0m . Capacity utilisation
+-----------------------------
+NMT Model 3: 
+[0]
+[4.7877409e-05]
+Copy Prob 3: 
+Copy Gate 3: 
+
+[ 0.50968105] (1,)
+[ 0.51427263  0.51443624  0.51443624  0.51352859] (4,)
+[ 0.51944262] (1,)
+=============================
+Target-TM 4: [32mSynthesia[0m [32mEspañola[0m SA
+Source-TM 4: [32mSynthesia[0m [32mEspañola[0m SA
+Source-CR 4: [32mSynthesia[0m [32mEspanola[0m , SA
+Target-CR 4: [32mSynthesia[0m [32mEspanola[0m , SA
+-----------------------------
+NMT Model 4: SA SA
+[0]
+[0.0011139904]
+Copy Prob 4: 
+Copy Gate 4: 
+
+Epoch  0 Update  281 Cost  156.532531738 G 27.0125808716 execute: elapsed 1.4431 secs.
+
+Epoch  0 Update  282 Cost  129.497192383 G 26.512752533 execute: elapsed 1.7109 secs.
+
+Epoch  0 Update  283 Cost  131.892486572 G 24.1867427826 execute: elapsed 1.7782 secs.
+
+Epoch  0 Update  284 Cost  138.616119385 G 21.7428359985 execute: elapsed 1.6127 secs.
+
+Epoch  0 Update  285 Cost  106.253623962 G 19.299987793 execute: elapsed 1.4688 secs.
+
+Epoch  0 Update  286 Cost  96.378288269 G 17.763633728 execute: elapsed 1.6053 secs.
+
+Epoch  0 Update  287 Cost  78.7665863037 G 15.5979719162 execute: elapsed 1.1739 secs.
+
+Epoch  0 Update  288 Cost  75.2549743652 G 14.348031044 execute: elapsed 1.1951 secs.
+
+Epoch  0 Update  289 Cost  69.4113388062 G 12.7658176422 execute: elapsed 1.0620 secs.
+
+Epoch  0 Update  290 Cost  49.5341644287 G 10.8428936005 execute: elapsed 1.1021 secs.
+
+Epoch  0 Update  291 Cost  35.4859657288 G 8.99242591858 execute: elapsed 0.9021 secs.
+
+Epoch  0 Update  292 Cost  32.6750335693 G 7.36965990067 execute: elapsed 0.8119 secs.
+
+Epoch  0 Update  293 Cost  20.9758300781 G 6.36547136307 execute: elapsed 0.8107 secs.
+
+Epoch  0 Update  294 Cost  23.5663146973 G 5.16813707352 execute: elapsed 0.7314 secs.
+
+Epoch  0 Update  295 Cost  15.5695152283 G 3.34072494507 execute: elapsed 0.6689 secs.
+
+Epoch  0 Update  296 Cost  61.3007507324 G 11.9519176483 execute: elapsed 1.7466 secs.
+
+Epoch  0 Update  297 Cost  141.140411377 G 30.0530471802 execute: elapsed 1.7639 secs.
+
+Epoch  0 Update  298 Cost  141.499252319 G 25.2863922119 execute: elapsed 1.5539 secs.
+
+Epoch  0 Update  299 Cost  111.348083496 G 23.2966899872 execute: elapsed 1.5417 secs.
+
+Epoch  0 Update  300 Cost  113.835090637 G 20.5774841309 execute: elapsed 1.4919 secs.
+
+[ 0.54527104] (1,)
+[ 0.53627843  0.55178827  0.55932897  0.53898162  0.55114263] (5,)
+[ 0.5465309   0.53752345  0.5435605   0.53816938  0.54477316] (5,)
+[ 0.54099172  0.55025649  0.54673314  0.55456299  0.54744327] (5,)
+[ 0.52843833  0.52883238  0.52627361  0.53932756  0.53184009] (5,)
+[ 0.53358966  0.52855831  0.52799767  0.53644645  0.51833463] (5,)
+[ 0.53266531  0.53984326  0.5504961   0.54650754  0.54213828] (5,)
+[ 0.52055997  0.54659724  0.54286301  0.54639351  0.53197366] (5,)
+[ 0.55662513  0.52379745  0.54764587  0.51743126  0.5439263 ] (5,)
+[ 0.55663878  0.53900224  0.54989672  0.54594636  0.52533442] (5,)
+[ 0.53899455  0.5325616   0.54392612  0.5527631   0.53872633] (5,)
+[ 0.53183585  0.55229992  0.5632425   0.53994638  0.55198193] (5,)
+[ 0.5435732   0.53363961  0.54256332  0.52217728  0.53220272] (5,)
+[ 0.54598278  0.54666734  0.53911537  0.54417938  0.55653489] (5,)
+[ 0.54886043  0.545003    0.53264952  0.54463691  0.53710604] (5,)
+[ 0.54942697  0.54860747  0.53200054  0.54612279  0.5477283 ] (5,)
+[ 0.53248399  0.56221765  0.54377526  0.56332684  0.54495043] (5,)
+[ 0.54591882  0.5418635   0.55051953  0.54719198  0.54235369] (5,)
+[ 0.5495258   0.52110171  0.53227443  0.56376922  0.52115637] (5,)
+[ 0.54964852  0.54346955  0.54092062  0.54309964  0.55559158] (5,)
+[ 0.53249896  0.54456002  0.52707183  0.52103919  0.54151195] (5,)
+[ 0.54517418  0.55111629  0.55469453  0.55018479  0.56432444] (5,)
+[ 0.57635432  0.53287446  0.5382306   0.57772845  0.57656896] (5,)
+[ 0.55542302  0.54515946  0.53273857  0.56598765  0.55789262] (5,)
+[ 0.52163935  0.54451835  0.54359543  0.5560534 ] (4,)
+[ 0.54594892  0.56871396  0.57283998  0.5460763 ] (4,)
+[ 0.57619798  0.57224047  0.57179338  0.55051583] (4,)
+[ 0.5602954   0.55848026] (2,)
+[ 0.55029422  0.52220237] (2,)
+[ 0.57048303  0.57285345] (2,)
+[ 0.57075423  0.57154381] (2,)
+=============================
+Target-TM 0: ( 2 ) In the light of the experience gained in applying Commission Regulation ( EC ) No 573 / 2003 &#91; 2 &#93; , certain provisions of that Regulation should be clarified and simplified .
+Source-TM 0: ( 2 ) Compte tenu de l &apos; expérience acquise lors de l &apos; application du règlement ( CE ) no 573 / 2003 de la Commission &#91; 2 &#93; , il convient de clarifier et de simplifier certaines dispositions dudit règlement .
+Source-CR 0: ( 2 ) À la lumière de l &apos; expérience acquise , il importe de préciser certaines dispositions du règlement ( CE ) no 1898 / 2005 de la Commission &#91; 2 &#93; .
+Target-CR 0: ( 2 ) In the light of the experience gained , certain provisions of Commission Regulation ( EC ) No 1898 / 2005 &#91; 2 &#93; should be clarified .
+-----------------------------
+NMT Model 0: ( 2 ) In the case of the completed conflict , certain provisions of Commission Regulation ( EC ) No disseminating / 2005 &#91; 2 &#93; should be specified .
+[9, 29, 8, 21, 1077, 2910, 4, 142, 88, 3, 33, 32, 9, 38, 8, 35, 7028, 13, 72, 58, 29, 59, 62, 15, 4694, 6, 0]
+[0.937419, 0.93883747, 0.93900645, 1.0, 1.0, 1.0, 0.61216038, 0.11896994, 1.3841031e-07, 0.0033724259, 0.021469368, 0.93936998, 0.93950307, 0.96952593, 0.9378593, 0.96675229, 1.0, 7.9625011e-07, 1.0, 0.00025862089, 0.003060116, 0.9673776, 0.94999468, 0.95790195, 1.0, 3.2819262e-05, 0.59633994]
+Copy Prob 0: [34m([0m [34m2[0m [34m)[0m [34mThe[0m [34mcompleted[0m [34mconflict[0m [36m,[0m [33mcertain[0m [33mprovisions[0m [33mof[0m [33mCommission[0m [34mRegulation[0m [34m([0m [34mEC[0m [34m)[0m [34mNo[0m [34mdisseminating[0m [33m/[0m [34m2005[0m [33m&#91;[0m [33m2[0m [34m&#93;[0m [34mshould[0m [34mbe[0m [34mSupervisory[0m [33m.[0m
+Copy Gate 0: [36m([0m [36m2[0m [36m)[0m [36mThe[0m [36mcompleted[0m [36mconflict[0m [36m,[0m [36mcertain[0m [36mprovisions[0m [36mof[0m [36mCommission[0m [36mRegulation[0m [36m([0m [36mEC[0m [36m)[0m [36mNo[0m [36mdisseminating[0m [36m/[0m [36m2005[0m [36m&#91;[0m [36m2[0m [36m&#93;[0m [36mshould[0m [36mbe[0m [36mSupervisory[0m [36m.[0m
+
+[ 0.52371031] (1,)
+[ 0.52864379  0.52370024  0.52433771  0.52558881] (4,)
+[ 0.52256131  0.52561897] (2,)
+[ 0.52569497  0.51815099] (2,)
+[ 0.51814181  0.52967578] (2,)
+[ 0.52944899  0.5284375 ] (2,)
+[ 0.52858639  0.52636552] (2,)
+[ 0.52527225  0.51665878] (2,)
+[ 0.51657069] (1,)
+=============================
+Target-TM 1: 5. in Article 4 ( 1 ) , the words &apos; and [32mteletext[0m services &apos; shall be replaced by the words &apos; [32mteletext[0m services and teleshopping &apos; ;
+Source-TM 1: 5 ) À l &apos; article 4 paragraphe 1 , les termes &quot; ou aux services de [32mtélétexte[0m &quot; sont remplacés par les termes &quot; , aux services de [32mtélétexte[0m et au télé-achat &quot; ..
+Source-CR 1: 3 ) à l &apos; article 9 bis , dans le texte allemand , les termes &quot; der [32mArbeitnehmer[0m oder [32mSelbständige[0m &quot; sont remplacés par les termes &quot; die [32mPerson[0m &quot; ;
+Target-CR 1: 3. in Article 9a , in the German text , the words &apos; der [32mArbeitnehmer[0m oder [32mSelbständige[0m &apos; shall be replaced by the words &apos; die Person &apos; ;
+-----------------------------
+NMT Model 1: 3 . In Article emitted , in the
+[37, 6, 74, 22, 8135, 4, 11, 2, 0]
+[1.0, 1.0, 1.0, 0.97068387, 1.0, 0.96841246, 0.96375751, 0.94317484, 7.7827484e-05]
+Copy Prob 1: [34m3[0m [34m.[0m [34mIn[0m [34mArticle[0m [34memitted[0m [34m,[0m [34min[0m [34mthe[0m
+Copy Gate 1: [36m3[0m [36m.[0m [36mIn[0m [36mArticle[0m [36memitted[0m [36m,[0m [36min[0m [36mthe[0m
+
+[ 0.52019876] (1,)
+[ 0.5381127   0.53949571  0.52069485  0.52603072] (4,)
+[ 0.5188033   0.53171819  0.54459804] (3,)
+[ 0.52035481  0.51926905] (2,)
+[ 0.51359594] (1,)
+[ 0.51541448] (1,)
+=============================
+Target-TM 2: ( C ) the carcases of pigs which have died or have been killed are to be processed under official supervision ;
+Source-TM 2: C ) les carcasses des porcs morts ou mis à mort fassent l &apos; objet d &apos; une transformation sous surveillance officielle ;
+Source-CR 2: 3 . Les volailles et autres oiseaux morts ou mis à mort , ainsi que les œufs de table et œufs à couver présents dans l &quot; établissement , sont éliminés sous surveillance officielle .
+Target-CR 2: 3 . Poultry and other birds which have died or have been killed and hatching and table eggs on the holding shall be disposed of under official supervision .
+-----------------------------
+NMT Model 2: 3 . metric and other
+[37, 6, 11081, 10, 69, 0]
+[1.0, 1.0, 1.0, 1.0, 1.0, 2.2407043e-05]
+Copy Prob 2: [34m3[0m [34m.[0m [34mmetric[0m [34mand[0m [34mother[0m
+Copy Gate 2: [36m3[0m [36m.[0m [36mmetric[0m [36mand[0m [36mother[0m
+
+[ 0.52762991] (1,)
+[ 0.52578199  0.53763497  0.52895814  0.53328621] (4,)
+[ 0.54300952  0.54164326  0.5319224 ] (3,)
+[ 0.53022105  0.53122562] (2,)
+[ 0.52174485] (1,)
+[ 0.5285058] (1,)
+[ 0.5216133] (1,)
+[ 0.52088284] (1,)
+[ 0.5237574] (1,)
+[ 0.5231818] (1,)
+[ 0.5309481] (1,)
+[ 0.53333139] (1,)
+[ 0.53933626] (1,)
+[ 0.5400877] (1,)
+[ 0.5229373] (1,)
+=============================
+Target-TM 3: ( 1 ) Protocol 31 to the Agreement was amended by Decision of the EEA Joint Committee No 117 / 2004 of 6 August 2004 &#91; 1 &#93; .
+Source-TM 3: ( 1 ) Le protocole 31 de l &apos; accord a été modifié par la décision du Comité mixte de l &apos; EEE no 117 / 2004 du 6 août 2004 &#91; 1 &#93; .
+Source-CR 3: ( 1 ) Le protocole 31 de l &apos; accord a été modifié par la décision du Comité mixte de l &apos; EEE no 58 / 2004 du 23 avril 2004 &#91; 1 &#93; .
+Target-CR 3: ( 1 ) Protocol 31 to the Agreement was amended by Decision of the EEA Joint Committee No 58 / 2004 of 23 April 2004 &#91; 1 &#93; .
+-----------------------------
+NMT Model 3: ( 1 ) Protocol 31 to the Agreement was amended by Decision of the
+[9, 19, 8, 431, 200, 7, 2, 124, 131, 125, 17, 95, 3, 2, 0]
+[0.97078085, 0.94214493, 0.96956289, 0.96947694, 0.97062832, 0.97079533, 0.94359612, 0.97153616, 0.97009665, 0.9714058, 0.96993428, 0.95752227, 0.94069409, 0.94136781, 2.2797143e-05]
+Copy Prob 3: [34m([0m [34m1[0m [34m)[0m [34mProtocol[0m [34m31[0m [34mto[0m [34mthe[0m [34mAgreement[0m [34mwas[0m [34mamended[0m [34mby[0m [34mDecision[0m [34mof[0m [34mthe[0m
+Copy Gate 3: [36m([0m [36m1[0m [36m)[0m [36mProtocol[0m [36m31[0m [36mto[0m [36mthe[0m [36mAgreement[0m [36mwas[0m [36mamended[0m [36mby[0m [36mDecision[0m [36mof[0m [36mthe[0m
+
+[ 0.52063692] (1,)
+[ 0.52076441  0.5360024   0.52579778  0.53736126] (4,)
+[ 0.53489852  0.52262312  0.53556252] (3,)
+[ 0.53735512  0.53560597] (2,)
+[ 0.51392198] (1,)
+[ 0.52996767] (1,)
+[ 0.54604417] (1,)
+[ 0.54759228] (1,)
+[ 0.54165649] (1,)
+[ 0.52470344] (1,)
+[ 0.53730184] (1,)
+[ 0.53027874] (1,)
+[ 0.52500862] (1,)
+[ 0.52113354] (1,)
+[ 0.52809608] (1,)
+[ 0.517537] (1,)
+[ 0.52394813] (1,)
+[ 0.52675438] (1,)
+[ 0.53996921] (1,)
+[ 0.5358724] (1,)
+[ 0.54492569] (1,)
+[ 0.54628831] (1,)
+[ 0.5356583] (1,)
+[ 0.5390783] (1,)
+=============================
+Target-TM 4: ( A ) are approved in accordance with Article 10 of Council Directive 92 / 46 / EEC ( 13 ) , and have the appropriate technical equipment ;
+Source-TM 4: A ) elle est agréée selon l &apos; article 10 de la directive 92 / 46 / CEE du Conseil ( 13 ) et dispose des installations techniques appropriées ;
+Source-CR 4: A ) est agréée selon l &apos; article 10 de la directive 92 / 46 / CEE du Conseil ( 14 ) et dispose des installations techniques ;
+Target-CR 4: ( A ) are approved in accordance with Article 10 of Council Directive 92 / 46 / EEC ( 14 ) , and have the appropriate technical equipment ;
+-----------------------------
+NMT Model 4: ( A ) is future in accordance with Article 10 of Council Directive 92 / funding / EEC ( 14 ) and has
+[9, 65, 8, 28, 901, 11, 60, 26, 22, 127, 3, 47, 48, 338, 13, 1282, 13, 51, 9, 230, 8, 10, 77, 0]
+[0.94246459, 0.97080976, 0.94189084, 1.0, 1.0, 0.95602113, 0.96750033, 0.96917635, 0.96970701, 0.97106606, 0.9704712, 0.97110701, 0.97204655, 0.9712469, 0.94100493, 1.0, 0.94123721, 0.9700852, 0.93912238, 1.0, 0.9396835, 0.96329844, 1.0, 0.0001269839]
+Copy Prob 4: [34m([0m [34mA[0m [34m)[0m [34mis[0m [34mfuture[0m [34min[0m [34maccordance[0m [34mwith[0m [34mArticle[0m [34m10[0m [34mof[0m [34mCouncil[0m [34mDirective[0m [34m92[0m [34m/[0m [34mfunding[0m [34m/[0m [34mEEC[0m [34m([0m [34m14[0m [34m)[0m [34mand[0m [34mhas[0m
+Copy Gate 4: [36m([0m [36mA[0m [36m)[0m [36mis[0m [36mfuture[0m [36min[0m [36maccordance[0m [36mwith[0m [36mArticle[0m [36m10[0m [36mof[0m [36mCouncil[0m [36mDirective[0m [36m92[0m [36m/[0m [36mfunding[0m [36m/[0m [36mEEC[0m [36m([0m [36m14[0m [36m)[0m [36mand[0m [36mhas[0m
+
+Epoch  0 Update  301 Cost  98.2598648071 G 18.343421936 execute: elapsed 1.2788 secs.
+
+Epoch  0 Update  302 Cost  82.9374847412 G 15.9407930374 execute: elapsed 1.3991 secs.
+
+Epoch  0 Update  303 Cost  58.7301712036 G 14.1557731628 execute: elapsed 1.0521 secs.
+
+Epoch  0 Update  304 Cost  55.013507843 G 12.6602134705 execute: elapsed 1.0263 secs.
+
+Epoch  0 Update  305 Cost  49.6144790649 G 11.3146133423 execute: elapsed 1.0856 secs.
+
+Epoch  0 Update  306 Cost  39.1072921753 G 10.0803031921 execute: elapsed 0.9653 secs.
+
+Epoch  0 Update  307 Cost  36.20677948 G 9.07556056976 execute: elapsed 0.9969 secs.
+
+Epoch  0 Update  308 Cost  21.8269042969 G 7.86844682693 execute: elapsed 0.8172 secs.
+
+Epoch  0 Update  309 Cost  16.2369976044 G 7.08812046051 execute: elapsed 0.8016 secs.
+
+Epoch  0 Update  310 Cost  23.8025093079 G 5.96033287048 execute: elapsed 0.8108 secs.
+
+Epoch  0 Update  311 Cost  19.7871322632 G 3.97557973862 execute: elapsed 0.6035 secs.
+
+Epoch  0 Update  312 Cost  129.713470459 G 18.8991737366 execute: elapsed 1.8252 secs.
+
+Epoch  0 Update  313 Cost  142.720397949 G 28.2512550354 execute: elapsed 1.8250 secs.
+
+Epoch  0 Update  314 Cost  111.501541138 G 25.3730144501 execute: elapsed 1.6749 secs.
+
+Epoch  0 Update  315 Cost  131.294158936 G 22.480091095 execute: elapsed 1.5122 secs.
+
+Epoch  0 Update  316 Cost  114.601654053 G 20.0833244324 execute: elapsed 1.4222 secs.
+
+Epoch  0 Update  317 Cost  87.5653305054 G 17.917804718 execute: elapsed 1.4009 secs.
+
+Epoch  0 Update  318 Cost  79.7242126465 G 16.495223999 execute: elapsed 1.1294 secs.
+
+Epoch  0 Update  319 Cost  75.5367126465 G 14.2860250473 execute: elapsed 1.1327 secs.
+
+Epoch  0 Update  320 Cost  52.1987380981 G 11.635843277 execute: elapsed 0.9652 secs.
+
+[ 0.5223611] (1,)
+[ 0.54963809  0.55144453  0.53122783  0.52826327] (4,)
+[ 0.52876604  0.52850562  0.55096388  0.55392301] (4,)
+[ 0.52594835  0.53466916  0.54396194  0.5297848 ] (4,)
+[ 0.53196394  0.52010918  0.53228241  0.52609211] (4,)
+[ 0.52034658  0.52037853  0.52055401  0.53934193] (4,)
+[ 0.52071375  0.52063292  0.51598114  0.53263789] (4,)
+[ 0.51589406  0.5159229   0.52389652  0.52994663] (4,)
+[ 0.51523787  0.51782048  0.51934731  0.52605706] (4,)
+[ 0.53870255  0.52201092  0.53103989  0.51896048] (4,)
+[ 0.53892314  0.52997673  0.52128589  0.52260685] (4,)
+[ 0.53134269  0.560359    0.52894855  0.55786282] (4,)
+[ 0.53552836  0.56095195  0.53459024] (3,)
+[ 0.5341264   0.53422821] (2,)
+[ 0.5341121  0.5389452] (2,)
+[ 0.51320684  0.51330745] (2,)
+[ 0.55998057  0.55870557] (2,)
+[ 0.56141424  0.56175292] (2,)
+=============================
+Target-TM 0: 11 . Notwithstanding the provisions contained in this Article , Parties may take more stringent measures than those required by this Article .
+Source-TM 0: 11 . Nonobstant les dispositions du présent article , les parties peuvent prendre des mesures plus rigoureuses que celles qu &apos; il prescrit .
+Source-CR 0: 3 . Les parties peuvent prendre des mesures plus strictes que celles prévues par le présent protocole .
+Target-CR 0: 3 . The Parties may take more stringent measures than those required by the present Protocol .
+-----------------------------
+NMT Model 0: 3 . The free may take more veterinarian measures than those provided for in this Protocol .
+[37, 6, 21, 473, 54, 160, 162, 2701, 67, 107, 123, 85, 12, 17, 39, 431, 6, 0]
+[1.0, 0.90180737, 1.0, 1.0, 0.95242292, 0.93809825, 0.5663287, 1.0, 0.95530599, 0.94884729, 0.94841796, 1.0, 1.0, 0.9135288, 0.8960191, 1.0, 0.89273626, 0.94177663]
+Copy Prob 0: [34m3[0m [34m.[0m [34mThe[0m [34mfree[0m [34mmay[0m [34mtake[0m [36mmore[0m [34mveterinarian[0m [34mmeasures[0m [34mthan[0m [34mthose[0m [34mprovided[0m [34mfor[0m [34mby[0m [34mthis[0m [34mProtocol[0m [34m.[0m
+Copy Gate 0: [36m3[0m [36m.[0m [36mThe[0m [36mfree[0m [36mmay[0m [36mtake[0m [36mmore[0m [36mveterinarian[0m [36mmeasures[0m [36mthan[0m [36mthose[0m [36mprovided[0m [36mfor[0m [36mby[0m [36mthis[0m [36mProtocol[0m [36m.[0m
+
+[ 0.52734816] (1,)
+[ 0.52726549  0.53586942  0.53852421  0.53611612] (4,)
+[ 0.5331943   0.51565403] (2,)
+[ 0.51494676] (1,)
+=============================
+Target-TM 1: ( D ) organisation of and participation in trade fairs and exhibitions ;
+Source-TM 1: D ) l &apos; organisation et la participation à des foires , [32msalons[0m et expositions ;
+Source-CR 1: A ) Adoption de la décision-cadre relative à la participation à une organisation criminelle ( 2006 )
+Target-CR 1: ( A ) Adoption of a framework decision on participation in a criminal organisation ( 2006 )
+-----------------------------
+NMT Model 1: ( A )
+[9, 65, 8, 0]
+[0.93714768, 1.0, 0.95744735, 2.0100713e-05]
+Copy Prob 1: [34m([0m [34mA[0m [34m)[0m
+Copy Gate 1: [36m([0m [36mA[0m [36m)[0m
+
+[ 0.53119105] (1,)
+[ 0.53895235  0.53815925  0.54269367  0.54097128] (4,)
+[ 0.53016895  0.54293293  0.53028041] (3,)
+[ 0.54249543  0.53522176] (2,)
+[ 0.54196495] (1,)
+[ 0.54360706] (1,)
+[ 0.5367189] (1,)
+[ 0.54165292] (1,)
+[ 0.54175842] (1,)
+[ 0.53639418] (1,)
+[ 0.54222864] (1,)
+[ 0.54528338] (1,)
+[ 0.53525853] (1,)
+[ 0.53420883] (1,)
+[ 0.54095054] (1,)
+[ 0.54097068] (1,)
+[ 0.53871644] (1,)
+=============================
+Target-TM 2: Malta &#124; 0 &#124; - &#124; 0 &#124; - &#124; 0 &#124; 0 &#124; - &#124;
+Source-TM 2: Malta &#124; 0 &#124; - &#124; 0 &#124; - &#124; 0 &#124; 0 &#124; - &#124;
+Source-CR 2: 22000 &#124; 22000 &#124; - &#124; - &#124; 0 , - &#124; 0 , - &#124;
+Target-CR 2: 22000 &#124; 22000 &#124; - &#124; - &#124; 0 , - &#124; 0 , - &#124;
+-----------------------------
+NMT Model 2: Exceptional &#124; Exceptional &#124; - &#124; - &#124; 0 , - &#124; 0 , - &#124;
+[11204, 5, 11204, 5, 25, 5, 25, 5, 184, 4, 25, 5, 184, 4, 25, 5, 0]
+[1.0, 0.71670967, 1.0, 0.70847946, 0.86828923, 0.70848835, 0.87026471, 0.71043122, 0.83691633, 1.0, 0.86805427, 0.70847726, 0.83965659, 1.0, 0.8680107, 0.71246207, 0.71079487]
+Copy Prob 2: [34mExceptional[0m [36m&#124;[0m [34mExceptional[0m [36m&#124;[0m [34m-[0m [36m&#124;[0m [34m-[0m [36m&#124;[0m [34m0[0m [34m,[0m [34m-[0m [36m&#124;[0m [34m0[0m [34m,[0m [34m-[0m [36m&#124;[0m
+Copy Gate 2: [36mExceptional[0m [36m&#124;[0m [36mExceptional[0m [36m&#124;[0m [36m-[0m [36m&#124;[0m [36m-[0m [36m&#124;[0m [36m0[0m [36m,[0m [36m-[0m [36m&#124;[0m [36m0[0m [36m,[0m [36m-[0m [36m&#124;[0m
+
+[ 0.52020121] (1,)
+[ 0.52157789  0.51879561  0.51879561  0.51879561] (4,)
+[ 0.52456069  0.52456069  0.52456069] (3,)
+=============================
+Target-TM 3: Guarantees given for EIB loans &#124; [32m6.5.1[0m &#124; [32m15055116636,77[0m &#124; [32m13899797966,00[0m &#124;
+Source-TM 3: Garanties données pour des prêts de la BEI &#124; [32m6.5.1[0m &#124; [32m15055116636,77[0m &#124; [32m13899797966,00[0m &#124;
+Source-CR 3: [32m7a[0m / [32m8a[0m &#124; Conversion des [32mcautionnements[0m en prêts / subventions &#124; ( [32m1,51[0m ) &#124;
+Target-CR 3: 7a / 8a &#124; [32mTransformation[0m of guarantees into loans / grants &#124; ( [32m1,51[0m ) &#124;
+-----------------------------
+NMT Model 3: 
+[0]
+[4.7641497e-05]
+Copy Prob 3: 
+Copy Gate 3: 
+
+[ 0.51904327] (1,)
+[ 0.51851231  0.53071338  0.52390003  0.53251129] (4,)
+[ 0.53394902  0.52880758  0.53058559] (3,)
+[ 0.52025682  0.52029395] (2,)
+[ 0.52698511] (1,)
+[ 0.52156758] (1,)
+[ 0.52928543] (1,)
+[ 0.52880883] (1,)
+=============================
+Target-TM 4: ( II ) non-lethal military equipment intended solely for humanitarian or protective use .
+Source-TM 4: - à des équipements militaires non [32mlétaux[0m destinés exclusivement à des fins humanitaires ou de protection .
+Source-CR 4: II ) embargo sur les armes , les munitions et l &apos; équipement militaire ( 1 ) .
+Target-CR 4: ( II ) an embargo on arms , munitions and military equipment ( 1 ) .
+-----------------------------
+NMT Model 4: ( II )
+[9, 159, 8, 0]
+[0.95799404, 0.9578166, 0.95576012, 1.4197204e-06]
+Copy Prob 4: [34m([0m [34mII[0m [34m)[0m
+Copy Gate 4: [36m([0m [36mII[0m [36m)[0m
+
+Epoch  0 Update  321 Cost  38.3806991577 G 9.91994571686 execute: elapsed 0.7805 secs.
+
+Epoch  0 Update  322 Cost  28.8867053986 G 8.85350799561 execute: elapsed 0.7582 secs.
+
+Epoch  0 Update  323 Cost  23.8255729675 G 7.4635014534 execute: elapsed 0.6555 secs.
+
+Epoch  0 Update  324 Cost  20.3377017975 G 6.3999710083 execute: elapsed 0.6001 secs.
+
+Epoch  0 Update  325 Cost  18.7604179382 G 5.67203807831 execute: elapsed 0.5494 secs.
+
+Epoch  0 Update  326 Cost  19.9258155823 G 4.01659584045 execute: elapsed 0.8727 secs.
+
+Epoch  0 Update  327 Cost  14.8841314316 G 2.94895410538 execute: elapsed 0.6895 secs.
+
+Epoch  0 Update  328 Cost  117.803894043 G 25.1482257843 execute: elapsed 1.9791 secs.
+

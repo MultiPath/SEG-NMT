@@ -1,0 +1,165 @@
+Translating  /root/workspace/TMNMT/.dataset/tm2.fren/devset.fren.fr.tok ...to... /root/workspace/TMNMT/.translate/TM2.v6.dev.translate
+Building model: X -> Y & Y -> X model
+Done.
+load the pretrained NMT-models... load ... xy_Wemb
+load ... xy_Wemb_dec
+load ... xy_encoder_W
+load ... xy_encoder_b
+load ... xy_encoder_U
+load ... xy_encoder_Wx
+load ... xy_encoder_bx
+load ... xy_encoder_Ux
+load ... xy_encoder_r_W
+load ... xy_encoder_r_b
+load ... xy_encoder_r_U
+load ... xy_encoder_r_Wx
+load ... xy_encoder_r_bx
+load ... xy_encoder_r_Ux
+load ... xy_ff_state_W
+load ... xy_ff_state_b
+load ... xy_decoder_W
+load ... xy_decoder_b
+load ... xy_decoder_U
+load ... xy_decoder_Wx
+load ... xy_decoder_Ux
+load ... xy_decoder_bx
+load ... xy_decoder_U_nl
+load ... xy_decoder_b_nl
+load ... xy_decoder_Ux_nl
+load ... xy_decoder_bx_nl
+load ... xy_decoder_Wc
+load ... xy_decoder_Wcx
+load ... xy_decoder_W_comb_att
+load ... xy_decoder_Wc_att
+load ... xy_decoder_b_att
+load ... xy_decoder_U_att
+load ... xy_decoder_c_tt
+load ... xy_ff_logit_lstm_W
+load ... xy_ff_logit_lstm_b
+load ... xy_ff_logit_prev_W
+load ... xy_ff_logit_prev_b
+load ... xy_ff_logit_ctx_W
+load ... xy_ff_logit_ctx_b
+load ... xy_ff_logit_W
+load ... xy_ff_logit_b
+Done.
+Reloading NMT parameters
+load ... xy_Wemb
+load ... xy_Wemb_dec
+load ... xy_encoder_W
+load ... xy_encoder_b
+load ... xy_encoder_U
+load ... xy_encoder_Wx
+load ... xy_encoder_bx
+load ... xy_encoder_Ux
+load ... xy_encoder_r_W
+load ... xy_encoder_r_b
+load ... xy_encoder_r_U
+load ... xy_encoder_r_Wx
+load ... xy_encoder_r_bx
+load ... xy_encoder_r_Ux
+load ... xy_ff_state_W
+load ... xy_ff_state_b
+load ... xy_decoder_W
+load ... xy_decoder_b
+load ... xy_decoder_U
+load ... xy_decoder_Wx
+load ... xy_decoder_Ux
+load ... xy_decoder_bx
+load ... xy_decoder_U_nl
+load ... xy_decoder_b_nl
+load ... xy_decoder_Ux_nl
+load ... xy_decoder_bx_nl
+load ... xy_decoder_Wc
+load ... xy_decoder_Wcx
+load ... xy_decoder_W_comb_att
+load ... xy_decoder_Wc_att
+load ... xy_decoder_b_att
+load ... xy_decoder_U_att
+load ... xy_decoder_c_tt
+load ... xy_ff_logit_lstm_W
+load ... xy_ff_logit_lstm_b
+load ... xy_ff_logit_prev_W
+load ... xy_ff_logit_prev_b
+load ... xy_ff_logit_ctx_W
+load ... xy_ff_logit_ctx_b
+load ... xy_ff_logit_W
+load ... xy_ff_logit_b
+build forward-attention models (2 models simultaneously)...
+Build f_critic... Done
+build mapping (bi-linear model)!
+use linguistic coverage
+Reloading mapping parameters
+load ... map_bi_M
+load ... map_bi_b
+load ... tau
+load ... map_ff_W
+load ... map_ff_b
+Done.
+Building Mapping functions, ... Done.
+build loss function (w/o gate)
+build sampler (one-step)
+Building f_init... Done
+Building f_next... Done
+build old sampler
+Building f_init... Done
+Building f_next... Done
+Done
+Build Networks... done!
+build_networks: elapsed 188.6330 secs.
+complete translation:1, 1.21105909348s
+complete translation:101, 47.5379400253s
+complete translation:201, 87.4633579254s
+complete translation:301, 143.10627389s
+complete translation:401, 194.637700081s
+complete translation:501, 241.586469889s
+complete translation:601, 292.933075905s
+complete translation:701, 339.614615917s
+complete translation:801, 383.104778051s
+complete translation:901, 429.33731699s
+complete translation:1001, 480.423377037s
+complete translation:1101, 523.47745204s
+complete translation:1201, 569.476696968s
+complete translation:1301, 624.293377876s
+complete translation:1401, 671.712768078s
+complete translation:1501, 720.705074072s
+complete translation:1601, 764.626950026s
+complete translation:1701, 809.995419979s
+complete translation:1801, 857.218098879s
+complete translation:1901, 906.887075901s
+complete translation:2001, 952.201557875s
+complete translation:2101, 1004.67441297s
+complete translation:2201, 1056.17469692s
+complete translation:2301, 1108.80409193s
+complete translation:2401, 1157.64032292s
+complete translation:2501, 1204.71656799s
+complete translation:2601, 1254.05258799s
+complete translation:2664, 1290.84224391s
+Done
+All Done
+all done
+BLEU = 58.79, 78.9/62.8/52.9/45.5 (BP=1.000, ratio=1.007, hyp_len=72089, ref_len=71619)
+compute BLEU score for /root/workspace/TMNMT/.translate/TM2.v6.dev.translate
+done
+BLEU = 28.47, 62.3/35.4/22.7/15.0 (BP=0.966, ratio=0.967, hyp_len=4717, ref_len=4878)
+BLEU = 36.39, 68.8/44.2/30.8/22.0 (BP=0.960, ratio=0.961, hyp_len=12697, ref_len=13214)
+BLEU = 47.20, 73.7/53.3/41.2/32.8 (BP=0.984, ratio=0.984, hyp_len=7333, ref_len=7453)
+BLEU = 51.98, 76.1/57.2/45.8/37.4 (BP=0.995, ratio=0.995, hyp_len=6952, ref_len=6987)
+BLEU = 58.61, 79.2/63.1/53.0/44.9 (BP=0.998, ratio=0.998, hyp_len=4582, ref_len=4589)
+BLEU = 63.21, 82.7/68.1/57.6/49.3 (BP=1.000, ratio=1.002, hyp_len=4327, ref_len=4319)
+BLEU = 66.52, 83.7/70.3/61.5/54.1 (BP=1.000, ratio=1.020, hyp_len=4991, ref_len=4891)
+BLEU = 70.83, 85.6/74.4/66.3/59.6 (BP=1.000, ratio=1.008, hyp_len=6966, ref_len=6908)
+BLEU = 77.40, 89.0/80.2/73.8/68.1 (BP=1.000, ratio=1.018, hyp_len=9058, ref_len=8901)
+BLEU = 82.60, 91.9/85.1/79.6/74.8 (BP=1.000, ratio=1.005, hyp_len=9750, ref_len=9701)
+130
+359
+245
+244
+197
+152
+206
+314
+461
+316
+compute BLEU scores for each of the files.
+done

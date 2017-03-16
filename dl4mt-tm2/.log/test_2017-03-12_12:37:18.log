@@ -1,0 +1,63 @@
+Translating  /root/workspace/TMNMT/.dataset/tm2.fren/devset.fr.tok ...to... /root/workspace/TMNMT/.translate/TM2.v5.translate
+Building model: X -> Y & Y -> X model
+Done.
+load the pretrained NMT-models... load ... xy_Wemb
+load ... xy_Wemb_dec
+load ... xy_encoder_W
+load ... xy_encoder_b
+load ... xy_encoder_U
+load ... xy_encoder_Wx
+load ... xy_encoder_bx
+load ... xy_encoder_Ux
+load ... xy_encoder_r_W
+load ... xy_encoder_r_b
+load ... xy_encoder_r_U
+load ... xy_encoder_r_Wx
+load ... xy_encoder_r_bx
+load ... xy_encoder_r_Ux
+load ... xy_ff_state_W
+load ... xy_ff_state_b
+load ... xy_decoder_W
+load ... xy_decoder_b
+load ... xy_decoder_U
+load ... xy_decoder_Wx
+load ... xy_decoder_Ux
+load ... xy_decoder_bx
+load ... xy_decoder_U_nl
+load ... xy_decoder_b_nl
+load ... xy_decoder_Ux_nl
+load ... xy_decoder_bx_nl
+load ... xy_decoder_Wc
+load ... xy_decoder_Wcx
+load ... xy_decoder_W_comb_att
+load ... xy_decoder_Wc_att
+load ... xy_decoder_b_att
+load ... xy_decoder_U_att
+load ... xy_decoder_c_tt
+load ... xy_ff_logit_lstm_W
+load ... xy_ff_logit_lstm_b
+load ... xy_ff_logit_prev_W
+load ... xy_ff_logit_prev_b
+load ... xy_ff_logit_ctx_W
+load ... xy_ff_logit_ctx_b
+load ... xy_ff_logit_W
+load ... xy_ff_logit_b
+Done.
+Reloading model parameters
+build forward-attention models (2 models simultaneously)...
+Build f_critic... Done
+build mapping (bi-linear model)!
+Building Mapping functions, ... Done.
+build loss function (w/o gate)
+build sampler (one-step)
+Building f_init... Done
+Building f_next... Done
+build old sampler
+Building f_init... Done
+Building f_next... Done
+Done
+Build Networks... done!
+build_networks: elapsed 231.6662 secs.
+translate- 0
+compute BLEU score for /root/workspace/TMNMT/.translate/TM2.v5.translate
+done

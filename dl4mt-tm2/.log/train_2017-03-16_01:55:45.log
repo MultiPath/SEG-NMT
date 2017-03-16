@@ -1,0 +1,717 @@
+{'baseline_xy': '/root/disk/scratch/model-tmnmt/baseline_fren.npz',
+ 'baseline_yx': '/root/disk/scratch/model-tmnmt/baseline_enfr.bs64.npz',
+ 'batch_size': 32,
+ 'beamsize': 5,
+ 'bleuFreq': 5000,
+ 'build_gate': True,
+ 'check_bleu': True,
+ 'clip_c': 1.0,
+ 'cov_dim': 10,
+ 'd_maxlen': 200,
+ 'datasets': ['/root/workspace/TMNMT/.dataset/tm2.fren/train.fr.top5.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm2.fren/train.en.top5.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm2.fren/train.fr.top5.matched.shuf.tok',
+              '/root/workspace/TMNMT/.dataset/tm2.fren/train.en.top5.matched.shuf.tok'],
+ 'decay_c': 0.0,
+ 'decoder': 'gru_cond',
+ 'diagonal': True,
+ 'dictionaries': ['/root/workspace/TMNMT/.dataset/tm2.fren/train.fr.top5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm2.fren/train.en.top5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm2.fren/train.fr.top5.shuf.tok.pkl',
+                  '/root/workspace/TMNMT/.dataset/tm2.fren/train.en.top5.shuf.tok.pkl'],
+ 'dim': 1024,
+ 'dim_word': 512,
+ 'encoder': 'gru',
+ 'gate_lambda': 0.1,
+ 'gate_loss': False,
+ 'lrate': 0.0001,
+ 'maxlen': 50,
+ 'name': 'TM2.basic.v1',
+ 'nn_coverage': False,
+ 'normalize': True,
+ 'only_train_g': False,
+ 'optimizer': 'adam',
+ 'overwrite': False,
+ 'patience': 1000,
+ 'reload_': True,
+ 'sampleFreq': 20,
+ 'saveFreq': 250,
+ 'saveto': '/root/disk/scratch/model-tmnmt/TM2.basic.v1_fren.ss.32-50.npz',
+ 'stochastic': False,
+ 'tm_source': '/root/workspace/TMNMT/.dataset/tm2.fren/devset.fren.fr.matched.tok',
+ 'tm_target': '/root/workspace/TMNMT/.dataset/tm2.fren/devset.fren.en.matched.tok',
+ 'trans_from': '/root/workspace/TMNMT/.dataset/tm2.fren/devset.fren.fr.tok',
+ 'trans_ref': '/root/workspace/TMNMT/.dataset/tm2.fren/devset.fren.en.tok',
+ 'trans_to': '/root/workspace/TMNMT/.translate/TM2.basic.v1.dev.translate',
+ 'use_coverage': True,
+ 'use_dropout': False,
+ 'use_pretrain': False,
+ 'validFreq': 250,
+ 'valid_batch_size': 32,
+ 'valid_datasets': ['/root/workspace/TMNMT/.dataset/tm2.fren/devset.fr.tok',
+                    '/root/workspace/TMNMT/.dataset/tm2.fren/devset.en.tok',
+                    '/root/workspace/TMNMT/.dataset/tm2.fren/devset.fr.matched.tok',
+                    '/root/workspace/TMNMT/.dataset/tm2.fren/devset.en.matched.tok'],
+ 'voc_sizes': [20000, 20000, 20000, 20000]}
+Building model: X -> Y & Y -> X model
+Done.
+load the pretrained NMT-models... load ... xy_Wemb
+load ... xy_Wemb_dec
+load ... xy_encoder_W
+load ... xy_encoder_b
+load ... xy_encoder_U
+load ... xy_encoder_Wx
+load ... xy_encoder_bx
+load ... xy_encoder_Ux
+load ... xy_encoder_r_W
+load ... xy_encoder_r_b
+load ... xy_encoder_r_U
+load ... xy_encoder_r_Wx
+load ... xy_encoder_r_bx
+load ... xy_encoder_r_Ux
+load ... xy_ff_state_W
+load ... xy_ff_state_b
+load ... xy_decoder_W
+load ... xy_decoder_b
+load ... xy_decoder_U
+load ... xy_decoder_Wx
+load ... xy_decoder_Ux
+load ... xy_decoder_bx
+load ... xy_decoder_U_nl
+load ... xy_decoder_b_nl
+load ... xy_decoder_Ux_nl
+load ... xy_decoder_bx_nl
+load ... xy_decoder_Wc
+load ... xy_decoder_Wcx
+load ... xy_decoder_W_comb_att
+load ... xy_decoder_Wc_att
+load ... xy_decoder_b_att
+load ... xy_decoder_U_att
+load ... xy_decoder_c_tt
+load ... xy_ff_logit_lstm_W
+load ... xy_ff_logit_lstm_b
+load ... xy_ff_logit_prev_W
+load ... xy_ff_logit_prev_b
+load ... xy_ff_logit_ctx_W
+load ... xy_ff_logit_ctx_b
+load ... xy_ff_logit_W
+load ... xy_ff_logit_b
+Done.
+Reloading model parameters
+load ... xy_Wemb
+load ... xy_Wemb_dec
+load ... xy_encoder_W
+load ... xy_encoder_b
+load ... xy_encoder_U
+load ... xy_encoder_Wx
+load ... xy_encoder_bx
+load ... xy_encoder_Ux
+load ... xy_encoder_r_W
+load ... xy_encoder_r_b
+load ... xy_encoder_r_U
+load ... xy_encoder_r_Wx
+load ... xy_encoder_r_bx
+load ... xy_encoder_r_Ux
+load ... xy_ff_state_W
+load ... xy_ff_state_b
+load ... xy_decoder_W
+load ... xy_decoder_b
+load ... xy_decoder_U
+load ... xy_decoder_Wx
+load ... xy_decoder_Ux
+load ... xy_decoder_bx
+load ... xy_decoder_U_nl
+load ... xy_decoder_b_nl
+load ... xy_decoder_Ux_nl
+load ... xy_decoder_bx_nl
+load ... xy_decoder_Wc
+load ... xy_decoder_Wcx
+load ... xy_decoder_W_comb_att
+load ... xy_decoder_Wc_att
+load ... xy_decoder_b_att
+load ... xy_decoder_U_att
+load ... xy_decoder_c_tt
+load ... xy_ff_logit_lstm_W
+load ... xy_ff_logit_lstm_b
+load ... xy_ff_logit_prev_W
+load ... xy_ff_logit_prev_b
+load ... xy_ff_logit_ctx_W
+load ... xy_ff_logit_ctx_b
+load ... xy_ff_logit_W
+load ... xy_ff_logit_b
+build forward-attention models (2 models simultaneously)...
+Build f_critic... Done
+build mapping (bi-linear model)!
+use linguistic coverage
+Building Mapping functions, ... Done.
+build loss function (w/o gate)
+build sampler (one-step)
+Building f_init... Done
+Building f_next... Done
+build old sampler
+Building f_init... Done
+Building f_next... Done
+build Cost Function... build Gradient (backward)... Done
+Building Optimizers... Done
+Build Networks... done!
+build_networks: elapsed 403.3597 secs.
+Loading data
+[33m-------------------------------------------- Main-Loop -------------------------------------------------[0m
+Epoch 0: update 6751, cost 170.969589233, gate-cost 31.4597053528, grad-s2 150645.640625
+execute: elapsed 1.5581 secs.
+Epoch 0: update 6752, cost 141.791595459, gate-cost 32.5068588257, grad-s2 33058.1992188
+execute: elapsed 1.3277 secs.
+Epoch 0: update 6753, cost 115.571090698, gate-cost 39.9031944275, grad-s2 3044.87426758
+execute: elapsed 1.2331 secs.
+Epoch 0: update 6754, cost 116.044746399, gate-cost 54.0234642029, grad-s2 9130.25683594
+execute: elapsed 1.0982 secs.
+Epoch 0: update 6755, cost 87.4297485352, gate-cost 44.6497116089, grad-s2 3465.26977539
+execute: elapsed 0.9894 secs.
+Epoch 0: update 6756, cost 81.9026947021, gate-cost 41.4405708313, grad-s2 4258.75341797
+execute: elapsed 0.8895 secs.
+Epoch 0: update 6757, cost 67.1913909912, gate-cost 37.1132698059, grad-s2 3109.07226562
+execute: elapsed 0.8140 secs.
+Epoch 0: update 6758, cost 54.5217971802, gate-cost 28.2664241791, grad-s2 5900.67529297
+execute: elapsed 0.7552 secs.
+Epoch 0: update 6759, cost 47.49243927, gate-cost 19.4647903442, grad-s2 4742.66503906
+execute: elapsed 0.6628 secs.
+Epoch 0: update 6760, cost 39.7240562439, gate-cost 13.8019046783, grad-s2 3179.71337891
+execute: elapsed 0.5832 secs.
+=============================
+Target-TM 0: Maximum aid intensity : The aid intensity is 100 %
+Source-TM 0: Intensité maximale des aides : L &apos; intensité des aides est de 100 % .
+Source-CR 0: - installation de jeunes agriculteurs : L &apos; intensité maximale s &apos; élèvera à 50000 EUR ;
+Target-CR 0: - Setting up of young farmers : The maximum aid intensity will be EUR 50000
+-----------------------------
+NMT Model 0: - UNK for young parties : The unlawful 03 world EUR UNK ;
+Copy Prob 0: [34m-[0m [33mintensity[0m [33m:[0m [33mThe[0m [33mThe[0m [33mintensity[0m [34mof[0m [33m100[0m [32m%[0m [34mof[0m [34mthe[0m [33m100[0m [34mof[0m [34mthe[0m [33m%[0m [34mquot[0m [33m%[0m
+Copy Gate 0: [36m-[0m [32mintensity[0m [32m:[0m [32mThe[0m [32mThe[0m [32mintensity[0m [36mof[0m [32m100[0m [36m%[0m [36mof[0m [36mthe[0m [32m100[0m [34mof[0m [36mthe[0m [32m%[0m [34mquot[0m [34m%[0m
+
+=============================
+Target-TM 1: &#91; 248 &#93; Case N 248 / 2004 [32mHessicher[0m [32mInvestitionsfonds[0m , Commission decision of [32m6.9.2005[0m .
+Source-TM 1: &#91; 247 &#93; Affaire N 248 / 2004 [32mHessicher[0m [32mInvestitionsfonds[0m , décision de la Commission du 6 septembre 2005 .
+Source-CR 1: &#91; 292 &#93; N 203 / 2004 [32mVolvo[0m [32mLastvagnar[0m AB , décision du [32m8.9.2004[0m .
+Target-CR 1: &#91; 292 &#93; N 203 / 2004 [32mVolvo[0m [32mLastvagnar[0m AB , decision of [32m8.9.2004[0m .
+-----------------------------
+NMT Model 1: ( drawback ) UNK / 2004 UNK UNK UNK , decision of UNK .
+Copy Prob 1: [33m&#91;[0m [33m&#91;[0m [33m&#91;[0m [33m248[0m [34m)[0m [33m248[0m [33m/[0m [31mInvestitionsfonds[0m [33m/[0m [33mdecision[0m [33mof[0m [34mthe[0m [33mdecision[0m [33mof[0m [34mthe[0m [33mdecision[0m [33mof[0m [34mthe[0m [33mdecision[0m [33mof[0m [34mthe[0m [34mEuropean[0m [34mUnion[0m
+Copy Gate 1: [36m&#91;[0m [32m&#91;[0m [36m&#91;[0m [36m248[0m [34m)[0m [36m248[0m [36m/[0m [32mInvestitionsfonds[0m [36m/[0m [36mdecision[0m [34mof[0m [36mthe[0m [32mdecision[0m [34mof[0m [36mthe[0m [32mdecision[0m [34mof[0m [34mthe[0m [36mdecision[0m [34mof[0m [34mthe[0m [36mEuropean[0m [36mUnion[0m
+
+=============================
+Target-TM 2: The principles referred to in the first subparagraph are defined as follows :
+Source-TM 2: Ces principes sont définis comme suit :
+Source-CR 2: Les principes essentiels , tels qu &apos; extraits directement de la Convention , sont les suivants :
+Target-CR 2: The main principles , as extracted directly from the Convention , are as follows :
+-----------------------------
+NMT Model 2: The functions of the following shall be as follows :
+Copy Prob 2: [33mThe[0m [33mThe[0m [33mprinciples[0m [33mreferred[0m [33mto[0m [33min[0m [34mparagraph[0m [34m1[0m [34m,[0m [34min[0m [34mparticular[0m [34m,[0m [34min[0m [34maccordance[0m [34mwith[0m [34mArticle[0m [34m6[0m [34mof[0m [34mRegulation[0m [34m([0m [34mEC[0m [34m)[0m
+Copy Gate 2: [36mThe[0m [32mThe[0m [32mprinciples[0m [36mreferred[0m [34mto[0m [34min[0m [34mparagraph[0m [34m1[0m [34m,[0m [34min[0m [34mparticular[0m [34m,[0m [34min[0m [34maccordance[0m [34mwith[0m [34mArticle[0m [34m6[0m [34mof[0m [34mRegulation[0m [34m([0m [34mEC[0m [34m)[0m
+
+=============================
+Target-TM 3: &#91; 6 &#93; OJ L 217 , [32m5.8.1998[0m , p . 18 .
+Source-TM 3: &#91; 6 &#93; JO L 217 du [32m5.8.1998[0m , p. 18 .
+Source-CR 3: ( * ) JO L 187 du 26 . 7 . 1996 , p. 18 &quot; .
+Target-CR 3: ( * ) OJ L 187 , [32m26.7.1996[0m , p . 18 . &apos; ;
+-----------------------------
+NMT Model 3: ( * ) OJ L pricing , 26 . 7 . 1996 , p . 18 . &apos; ;
+Copy Prob 3: [34m([0m [33m&#91;[0m [33m&#91;[0m [33m6[0m [34m)[0m [33m,[0m [31m5.8.1998[0m [34m/[0m [31m5.8.1998[0m [33m,[0m [34mp[0m [33m.[0m [34m1[0m [33m.[0m
+Copy Gate 3: [36m([0m [32m&#91;[0m [32m&#91;[0m [36m6[0m [36m)[0m [36m,[0m [36m5.8.1998[0m [36m/[0m [32m5.8.1998[0m [34m,[0m [36mp[0m [34m.[0m [34m1[0m [34m.[0m
+
+=============================
+Target-TM 4: 1 . Member States may grant the special premium at the time of slaughter as follows :
+Source-TM 4: 1 . Les États membres peuvent octroyer la prime spéciale au moment de l &apos; abattage des bovins selon les modalités qui suivent :
+Source-CR 4: 57 . Les États membres peuvent octroyer des aides aux énergies renouvelables selon les modalités suivantes .
+Target-CR 4: 57 . Member States may grant aid for renewable energy sources as follows :
+-----------------------------
+NMT Model 4: VAT . Member States may primary fishing to fall many forms of fishing between the Member States .
+Copy Prob 4: [33m1[0m [34m.[0m [36mMember[0m [33mStates[0m [34mshall[0m [33mgrant[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mpremium[0m [33mof[0m [33mthe[0m [33mpremium[0m [34min[0m [33mthe[0m [33mpremium[0m [34min[0m [34mthe[0m [34mEuropean[0m [34mCommunities[0m [34min[0m [33mthe[0m [34mEuropean[0m [34mCommunities[0m
+Copy Gate 4: [36m1[0m [34m.[0m [36mMember[0m [36mStates[0m [36mshall[0m [36mgrant[0m [36mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mpremium[0m [36mof[0m [36mthe[0m [32mpremium[0m [36min[0m [36mthe[0m [32mpremium[0m [34min[0m [34mthe[0m [36mEuropean[0m [36mCommunities[0m [34min[0m [34mthe[0m [36mEuropean[0m [36mCommunities[0m
+
+Epoch 0: update 6761, cost 30.1341209412, gate-cost 11.7543315887, grad-s2 1012.99206543
+execute: elapsed 0.5033 secs.
+Epoch 0: update 6762, cost 21.7600288391, gate-cost 9.60524272919, grad-s2 1726.29711914
+execute: elapsed 0.4668 secs.
+Epoch 0: update 6763, cost 16.6480484009, gate-cost 10.4602212906, grad-s2 1779.39160156
+execute: elapsed 0.3940 secs.
+Epoch 0: update 6764, cost 20.6065673828, gate-cost 7.17756795883, grad-s2 7267.47363281
+execute: elapsed 0.3917 secs.
+Epoch 0: update 6765, cost 15.6048994064, gate-cost 4.64786434174, grad-s2 1017.74572754
+execute: elapsed 0.3533 secs.
+Epoch 0: update 6766, cost 62.6898345947, gate-cost 26.69581604, grad-s2 1000.83837891
+execute: elapsed 1.5234 secs.
+Epoch 0: update 6767, cost 143.975845337, gate-cost 53.7438087463, grad-s2 17121.7207031
+execute: elapsed 1.3747 secs.
+Epoch 0: update 6768, cost 133.21472168, gate-cost 50.8360443115, grad-s2 6957.89306641
+execute: elapsed 1.2165 secs.
+Epoch 0: update 6769, cost 140.632324219, gate-cost 36.7120094299, grad-s2 6179.59179688
+execute: elapsed 1.1673 secs.
+Epoch 0: update 6770, cost 109.883682251, gate-cost 40.8334884644, grad-s2 2475.62866211
+execute: elapsed 1.1379 secs.
+Epoch 0: update 6771, cost 93.6427154541, gate-cost 39.8378639221, grad-s2 2481.36376953
+execute: elapsed 0.9591 secs.
+Epoch 0: update 6772, cost 86.8921508789, gate-cost 37.0555419922, grad-s2 8496.75683594
+execute: elapsed 0.9177 secs.
+Epoch 0: update 6773, cost 76.8433685303, gate-cost 31.3128166199, grad-s2 2342.20776367
+execute: elapsed 0.8051 secs.
+Epoch 0: update 6774, cost 61.3362503052, gate-cost 29.9403018951, grad-s2 3126.82763672
+execute: elapsed 0.6816 secs.
+Epoch 0: update 6775, cost 46.3040847778, gate-cost 26.0124607086, grad-s2 2522.34155273
+execute: elapsed 0.6422 secs.
+Epoch 0: update 6776, cost 33.6313400269, gate-cost 25.4958629608, grad-s2 1218.11206055
+execute: elapsed 0.5221 secs.
+Epoch 0: update 6777, cost 30.4095840454, gate-cost 17.3581123352, grad-s2 1628.13842773
+execute: elapsed 0.5025 secs.
+Epoch 0: update 6778, cost 21.6210327148, gate-cost 12.4658546448, grad-s2 397.178283691
+execute: elapsed 0.4272 secs.
+Epoch 0: update 6779, cost 16.2897911072, gate-cost 9.2838010788, grad-s2 1698.87084961
+execute: elapsed 0.3482 secs.
+Epoch 0: update 6780, cost 15.5719871521, gate-cost 4.95683097839, grad-s2 1427.51757812
+execute: elapsed 0.3516 secs.
+=============================
+Target-TM 0: PHP &#124; Philippine peso &#124; [32m63,534[0m &#124;
+Source-TM 0: PHP &#124; peso philippin &#124; [32m63,534[0m &#124;
+Source-CR 0: PHP &#124; peso philippin &#124; [32m65,623[0m &#124;
+Target-CR 0: PHP &#124; Philippine peso &#124; [32m65,623[0m &#124;
+-----------------------------
+NMT Model 0: UNK &#124; UNK phase &#124; UNK &#124;
+Copy Prob 0: [33mPHP[0m [34m&#124;[0m [33m&#124;[0m [33mPhilippine[0m [33mPhilippine[0m [33mPhilippine[0m [33mpeso[0m [33m&#124;[0m [33mpeso[0m [33m&#124;[0m [33m&#124;[0m
+Copy Gate 0: [33mPHP[0m [34m&#124;[0m [33m&#124;[0m [33mPhilippine[0m [33mPhilippine[0m [33mPhilippine[0m [33mpeso[0m [34m&#124;[0m [32mpeso[0m [34m&#124;[0m [36m&#124;[0m
+
+=============================
+Target-TM 1: RUB &#124; Russian rouble &#124; [32m33,8620[0m &#124;
+Source-TM 1: RUB &#124; rouble russe &#124; [32m33,8620[0m &#124;
+Source-CR 1: RUB &#124; rouble russe &#124; [32m34,0760[0m &#124;
+Target-CR 1: RUB &#124; Russian rouble &#124; [32m34,0760[0m &#124;
+-----------------------------
+NMT Model 1: doing UNK &#124; UNK &#124; UNK
+Copy Prob 1: [33mRUB[0m [34m&#124;[0m [33mRussian[0m [33mRussian[0m [33mrouble[0m [33m&#124;[0m [33mrouble[0m [33m&#124;[0m [33m&#124;[0m [33m&#124;[0m
+Copy Gate 1: [33mRUB[0m [34m&#124;[0m [33mRussian[0m [33mRussian[0m [33mrouble[0m [34m&#124;[0m [36mrouble[0m [34m&#124;[0m [34m&#124;[0m [34m&#124;[0m
+
+=============================
+Target-TM 2: Commission Directive 2006 / 15 / EC
+Source-TM 2: Directive 2006 / 15 / CE de la Commission
+Source-CR 2: Directive 2006 / 3 / CE de la Commission
+Target-CR 2: Commission Directive 2006 / 3 / EC
+-----------------------------
+NMT Model 2: Commission UNK 2006 / 3 / EC
+Copy Prob 2: [33mDirective[0m [33m2006[0m [33m2006[0m [33m2006[0m [34m&#124;[0m [33m2006[0m [34m/[0m [33m2006[0m [33m/[0m [34mEC[0m
+Copy Gate 2: [33mDirective[0m [33m2006[0m [32m2006[0m [32m2006[0m [36m&#124;[0m [32m2006[0m [34m/[0m [32m2006[0m [34m/[0m [36mEC[0m
+
+=============================
+Target-TM 3: New Staff Regulation foreseen after May 2006 .
+Source-TM 3: Nouveau statut prévu après mai 2005 .
+Source-CR 3: Nouveau statut prévu pour après mai 2004 .
+Target-CR 3: New Staff Regulation expected after May 2004
+-----------------------------
+NMT Model 3: UNK CHAPTER after May 2004 .
+Copy Prob 3: [33mNew[0m [33mRegulation[0m [34m([0m [34mEC[0m [34m)[0m [34mNo[0m [33mMay[0m [34m/[0m [33mMay[0m [33mMay[0m [33m2006[0m [34m&#124;[0m
+Copy Gate 3: [33mNew[0m [36mRegulation[0m [34m([0m [36mEC[0m [34m)[0m [36mNo[0m [36mMay[0m [34m/[0m [32mMay[0m [36mMay[0m [36m2006[0m [34m&#124;[0m
+
+=============================
+Target-TM 4: - Annul the contested decision ;
+Source-TM 4: - Annuler la décision litigieuse ;
+Source-CR 4: - annuler la décision attaquée
+Target-CR 4: - Annul the contested decision ;
+-----------------------------
+NMT Model 4: - criminal law of the 99 Republic
+Copy Prob 4: [34m-[0m [33mAnnul[0m [34mthe[0m [33mthe[0m [33mthe[0m [33mcontested[0m [33mcontested[0m [33mcontested[0m [33mcontested[0m [33mcontested[0m [33mdecision[0m
+Copy Gate 4: [34m-[0m [34mAnnul[0m [34mthe[0m [36mthe[0m [32mthe[0m [32mcontested[0m [32mcontested[0m [32mcontested[0m [32mcontested[0m [32mcontested[0m [32mdecision[0m
+
+Epoch 0: update 6781, cost 19.9170074463, gate-cost 4.00316238403, grad-s2 2103.61914062
+execute: elapsed 1.2510 secs.
+Epoch 0: update 6782, cost 191.047409058, gate-cost 42.2984848022, grad-s2 18081.921875
+execute: elapsed 1.4948 secs.
+Epoch 0: update 6783, cost 147.691253662, gate-cost 39.5181694031, grad-s2 12599.2324219
+execute: elapsed 1.3059 secs.
+Epoch 0: update 6784, cost 141.786422729, gate-cost 39.821647644, grad-s2 14832.6474609
+execute: elapsed 1.1411 secs.
+Epoch 0: update 6785, cost 129.16456604, gate-cost 29.7342777252, grad-s2 4247.83300781
+execute: elapsed 1.0220 secs.
+Epoch 0: update 6786, cost 107.634536743, gate-cost 31.1698513031, grad-s2 6154.59814453
+execute: elapsed 1.0101 secs.
+Epoch 0: update 6787, cost 92.1467285156, gate-cost 29.4331626892, grad-s2 55609.8554688
+execute: elapsed 0.9273 secs.
+Epoch 0: update 6788, cost 85.4010314941, gate-cost 31.2372245789, grad-s2 8037.33740234
+execute: elapsed 0.8184 secs.
+Epoch 0: update 6789, cost 67.5897064209, gate-cost 27.0523071289, grad-s2 9768.69335938
+execute: elapsed 0.7431 secs.
+Epoch 0: update 6790, cost 55.5757064819, gate-cost 27.6255130768, grad-s2 3287.76635742
+execute: elapsed 0.6792 secs.
+Epoch 0: update 6791, cost 52.2052307129, gate-cost 21.8674240112, grad-s2 3178.61938477
+execute: elapsed 0.5913 secs.
+Epoch 0: update 6792, cost 35.4634361267, gate-cost 19.3246707916, grad-s2 1634.78747559
+execute: elapsed 0.5454 secs.
+Epoch 0: update 6793, cost 26.8433208466, gate-cost 12.9503593445, grad-s2 465.394226074
+execute: elapsed 0.4500 secs.
+Epoch 0: update 6794, cost 18.8033905029, gate-cost 14.5591564178, grad-s2 3273.71044922
+execute: elapsed 0.4167 secs.
+Epoch 0: update 6795, cost 17.3422966003, gate-cost 11.1320896149, grad-s2 1177.33178711
+execute: elapsed 0.3800 secs.
+Epoch 0: update 6796, cost 18.7317314148, gate-cost 5.50770616531, grad-s2 81.7093582153
+execute: elapsed 0.3306 secs.
+Epoch 0: update 6797, cost 11.5102758408, gate-cost 2.49378681183, grad-s2 80.8922119141
+execute: elapsed 0.2883 secs.
+Epoch 0: update 6798, cost 170.159057617, gate-cost 59.1639938354, grad-s2 5799.59863281
+execute: elapsed 1.4836 secs.
+Epoch 0: update 6799, cost 159.556091309, gate-cost 47.9979553223, grad-s2 11057.5546875
+execute: elapsed 1.2524 secs.
+Epoch 0: update 6800, cost 135.663589478, gate-cost 43.8775978088, grad-s2 455996.78125
+execute: elapsed 1.2167 secs.
+=============================
+Target-TM 0: No vessel may keep on board , or use for fishing , one or more [32mdrift-nets[0m whose individual or total length is more than 2,5 kilometres .
+Source-TM 0: Il est interdit à tout bateau de détenir à bord ou d &apos; exercer des activités de pêche avec un ou plusieurs filets maillants dérivants dont la longueur individuelle ou cumulée est supérieure à 2,5 kilomètres .
+Source-CR 0: 2 . En 2006 et en 2007 , tout navire peut détenir à bord ou exercer des activités de pêche avec des filets dérivants s &apos; il y est autorisé par les autorités compétentes de l &apos; État membre du pavillon .
+Target-CR 0: 2 . In 2006 and 2007 , a vessel may keep on board , or use for fishing , driftnets if authorised to do so by the competent authorities of the flag Member State .
+-----------------------------
+NMT Model 0: 2 . In 2006 and in single , any described may be held on board or reception aid activities with UNK reasoned if it is risks by the competent authorities of the flag Member State .
+Copy Prob 0: [34m2[0m [34m.[0m [34mIn[0m [34maccordance[0m [34mwith[0m [34mArticle[0m [34m3[0m [34m([0m [34m2[0m [34m)[0m [34mof[0m [34mthe[0m [33muse[0m [34mof[0m [34mthe[0m [33mon[0m [34mthe[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m [33mor[0m
+Copy Gate 0: [34m2[0m [34m.[0m [34mIn[0m [34maccordance[0m [34mwith[0m [34mArticle[0m [34m3[0m [34m([0m [34m2[0m [34m)[0m [34mof[0m [34mthe[0m [36muse[0m [34mof[0m [36mthe[0m [32mon[0m [36mthe[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m [32mor[0m
+
+=============================
+Target-TM 1: ( 2 ) As a result of those negotiations , a new Protocol defining for the period 1 January 2004 to 31 December 2006 the fishing opportunities and the financial contribution provided for in that Agreement was initialled on 8 September 2003 .
+Source-TM 1: ( 2 ) À la suite de ces négociations , un nouveau protocole fixant les possibilités de pêche et la contrepartie financière prévues dans l &apos; accord précité pour la période du 1er janvier 2004 au 31 décembre 2006 , a été paraphé le 8 septembre 2003 .
+Source-CR 1: ( 2 ) À la suite de ces négociations , un nouveau protocole fixant les possibilités de pêche et la contrepartie financière prévues par l &apos; accord a été paraphé le 7 juin 2001 .
+Target-CR 1: ( 2 ) As a result of those negotiations , a new Protocol setting out the fishing opportunities and the financial contribution provided for in the Agreement was initialled on 7 June 2001 .
+-----------------------------
+NMT Model 1: ( 2 ) As a result of these declarations , the one of the Protocol supervision up the aid and financial 1975 provided for in the Agreement was on 7 June 2001 .
+Copy Prob 1: [34m([0m [34m2[0m [34m)[0m [33m)[0m [34mon[0m [34mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33m.[0m
+Copy Gate 1: [34m([0m [34m2[0m [34m)[0m [36m)[0m [34mon[0m [34mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33m.[0m
+
+=============================
+Target-TM 2: The following shall be added in the third indent of Article 10 ( 8 ) ( b ) of Protocol 31 to the Agreement :
+Source-TM 2: L &apos; article 10 , paragraphe 8 , point b ) , troisième tiret , du protocole 31 de l &apos; accord , est complété comme suit :
+Source-CR 2: L &apos; article 10 , paragraphe 8 , point b ) , troisième tiret ( décision 1999 / 847 / CE du Conseil ) , du protocole 31 de l &apos; accord , est complété comme suit :
+Target-CR 2: The following shall be added in the third indent ( Council Decision 1999 / 847 / EC ) of Article 10 ( 8 ) ( b ) of Protocol 31 to the Agreement :
+-----------------------------
+NMT Model 2: Article 10 ( 8 ) ( b ) shall become indent ( Council Decision 1999 / UNK / EC ) of Protocol 31 to the Agreement , shall be stringent as follows :
+Copy Prob 2: [34mArticle[0m [34m1[0m [34m([0m [34m2[0m [34m)[0m [34mof[0m [34mRegulation[0m [34m([0m [34mEEC[0m [34m)[0m [34mNo[0m [33madded[0m [34m/[0m [33mindent[0m [33mof[0m [34mArticle[0m [34m3[0m [33m([0m [34m2[0m [34m)[0m [34mof[0m [34mRegulation[0m [34m([0m [34mEC[0m [34m)[0m [34mNo[0m [33m)[0m [34m/[0m [34m1[0m [34m([0m [34m1[0m [33m)[0m [34mthereof[0m [34m,[0m
+Copy Gate 2: [34mArticle[0m [34m1[0m [34m([0m [34m2[0m [34m)[0m [34mof[0m [34mRegulation[0m [34m([0m [34mEEC[0m [34m)[0m [34mNo[0m [36madded[0m [34m/[0m [36mindent[0m [34mof[0m [34mArticle[0m [34m3[0m [34m([0m [34m2[0m [34m)[0m [34mof[0m [34mRegulation[0m [34m([0m [34mEC[0m [34m)[0m [34mNo[0m [36m)[0m [34m/[0m [34m1[0m [34m([0m [34m1[0m [34m)[0m [34mthereof[0m [34m,[0m
+
+=============================
+Target-TM 3: ( H ) the protection of personal data ;
+Source-TM 3: H ) la protection des données personnelles ;
+Source-CR 3: ( 5 ) En ce qui concerne l &apos; Argentine , les normes juridiques sur la protection des données à caractère personnel sont contenues dans des règles générales et sectorielles . Les unes et les autres produisent des effets juridiques contraignants .
+Target-CR 3: ( 5 ) As regards Argentina , the legal standards on the protection of personal data have been provided for in general and sector-specific rules . Both of them have binding legal effect .
+-----------------------------
+NMT Model 3: ( 5 ) zone regard to the guarantees , the plastic standards on the protection of personal data are contained in III and 330 rules . UNK and other weighing &apos; s recipient effects .
+Copy Prob 3: [34m([0m [34m4[0m [34m)[0m [36mthe[0m [33mdata[0m [33mof[0m [34mthe[0m [33mdata[0m [33mof[0m [34mthe[0m [33mdata[0m [33mof[0m [34mthe[0m [33mdata[0m [33mof[0m [34mthe[0m [33m;[0m [34mand[0m [34min[0m [34mthe[0m [33m;[0m [34mand[0m [34min[0m [34mthe[0m [33m;[0m [34mand[0m [34min[0m [34mparticular[0m [34mthe[0m [33m;[0m
+Copy Gate 3: [34m([0m [34m4[0m [34m)[0m [34mthe[0m [36mdata[0m [34mof[0m [34mthe[0m [36mdata[0m [34mof[0m [34mthe[0m [36mdata[0m [34mof[0m [34mthe[0m [36mdata[0m [34mof[0m [34mthe[0m [36m;[0m [34mand[0m [34min[0m [34mthe[0m [36m;[0m [34mand[0m [34min[0m [34mthe[0m [36m;[0m [34mand[0m [34min[0m [34mparticular[0m [34mthe[0m [36m;[0m
+
+=============================
+Target-TM 4: Acting in accordance with the procedure laid down in Article 251 of the Treaty ( 4 ) , in the light of the joint text approved by the Conciliation Committee on 18 September 2001 ,
+Source-TM 4: Statuant conformément à la procédure visée à l &apos; article 251 du traité ( 4 ) , au vu du projet commun approuvé le 18 septembre 2001 par le comité de conciliation ,
+Source-CR 4: Statuant conformément à la procédure visée à l &apos; article 189 B du traité ( 4 ) , au vu du projet commun approuvé le 18 décembre 1996 par le comité de conciliation ,
+Target-CR 4: Acting in accordance with the procedure laid down in Article 189b of the Treaty ( 4 ) in the light of the joint text approved by the Conciliation Committee on 18 December 1996 ,
+-----------------------------
+NMT Model 4: Does in accordance with the procedure laid down in Article 0,79 of the Treaty ( 4 ) in the Common contracting in the Common obtain on 18 December 1996 by the Committee of calls ,
+Copy Prob 4: [34mIn[0m [34maccordance[0m [33mwith[0m [34mArticle[0m [34m3[0m [33m([0m [34m3[0m [34m)[0m [33mof[0m [34mRegulation[0m [34m([0m [34mEC[0m [34m)[0m [34mNo[0m [33min[0m [34mparticular[0m [33mArticle[0m [34m1[0m [33m([0m [34m1[0m [32m)[0m [33mof[0m [34mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m
+Copy Gate 4: [34mIn[0m [34maccordance[0m [34mwith[0m [34mArticle[0m [34m3[0m [34m([0m [34m3[0m [34m)[0m [34mof[0m [34mRegulation[0m [34m([0m [34mEC[0m [34m)[0m [34mNo[0m [36min[0m [34mparticular[0m [34mArticle[0m [36m1[0m [34m([0m [34m1[0m [34m)[0m [34mof[0m [36mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m
+
+Epoch 0: update 6801, cost 114.86126709, gate-cost 33.9952392578, grad-s2 4458.83398438
+execute: elapsed 1.0931 secs.
+Epoch 0: update 6802, cost 104.407211304, gate-cost 33.2454833984, grad-s2 1806.8293457
+execute: elapsed 0.9460 secs.
+Epoch 0: update 6803, cost 98.0379257202, gate-cost 30.3454856873, grad-s2 22692.2460938
+execute: elapsed 0.9758 secs.
+Epoch 0: update 6804, cost 76.0301437378, gate-cost 23.8217010498, grad-s2 4692.47851562
+execute: elapsed 0.8537 secs.
+Epoch 0: update 6805, cost 60.553150177, gate-cost 19.9696712494, grad-s2 2528.64624023
+execute: elapsed 0.7077 secs.
+Epoch 0: update 6806, cost 50.94556427, gate-cost 19.9307327271, grad-s2 602.399291992
+execute: elapsed 0.6359 secs.
+Epoch 0: update 6807, cost 37.8617858887, gate-cost 17.6304931641, grad-s2 1919.78320312
+execute: elapsed 0.5546 secs.
+Epoch 0: update 6808, cost 33.3293609619, gate-cost 14.3373470306, grad-s2 1057.46728516
+execute: elapsed 0.5379 secs.
+Epoch 0: update 6809, cost 21.6013469696, gate-cost 14.0505561829, grad-s2 1255.02978516
+execute: elapsed 0.4498 secs.
+Epoch 0: update 6810, cost 15.9086704254, gate-cost 12.589261055, grad-s2 137.350189209
+execute: elapsed 0.3925 secs.
+Epoch 0: update 6811, cost 16.3095092773, gate-cost 7.80410194397, grad-s2 198.809127808
+execute: elapsed 0.3597 secs.
+Epoch 0: update 6812, cost 16.0019760132, gate-cost 5.68356561661, grad-s2 278.915252686
+execute: elapsed 0.3576 secs.
+Epoch 0: update 6813, cost 28.2080230713, gate-cost 9.20417881012, grad-s2 459.532928467
+execute: elapsed 1.2385 secs.
+Epoch 0: update 6814, cost 174.083190918, gate-cost 88.82081604, grad-s2 25800.4648438
+execute: elapsed 1.4488 secs.
+Epoch 0: update 6815, cost 159.33605957, gate-cost 73.4035949707, grad-s2 14614.4863281
+execute: elapsed 1.2689 secs.
+Epoch 0: update 6816, cost 131.51008606, gate-cost 63.9697151184, grad-s2 15195.3056641
+execute: elapsed 1.1659 secs.
+Epoch 0: update 6817, cost 116.13722229, gate-cost 48.8296394348, grad-s2 7398.75390625
+execute: elapsed 1.0699 secs.
+Epoch 0: update 6818, cost 113.613082886, gate-cost 38.6201858521, grad-s2 1530.02160645
+execute: elapsed 0.9982 secs.
+Epoch 0: update 6819, cost 86.4848327637, gate-cost 32.7775611877, grad-s2 1098.37817383
+execute: elapsed 0.8684 secs.
+Epoch 0: update 6820, cost 78.6705932617, gate-cost 28.1852111816, grad-s2 1563.29821777
+execute: elapsed 0.8044 secs.
+=============================
+Target-TM 0: ( D ) follow up on the development of research relevant for the control and surveillance of external borders ;
+Source-TM 0: D ) de suivre l &apos; évolution de la recherche dans les domaines présentant de l &apos; intérêt pour le contrôle et la surveillance des frontières extérieures ;
+Source-CR 0: III ) sont conçues et exécutées d &apos; une manière clairement distincte des vérifications systématiques des personnes effectuées aux frontières extérieures ;
+Target-CR 0: ( III ) are devised and executed in a manner clearly distinct from systematic checks on persons at the external borders ,
+-----------------------------
+NMT Model 0: ( subparagraph ) it shall be so that , and , in a manner When , the Atomic of the service Rapid of individuals such as the external borders ;
+Copy Prob 0: [34m([0m [34mC[0m [34m)[0m [33mfollow[0m [33mthe[0m [33mup[0m [33mup[0m [33mon[0m [36mthe[0m [33mdevelopment[0m [33mof[0m [33mdevelopment[0m [33mof[0m [33mthe[0m [33mcontrol[0m [33mof[0m [33m;[0m
+Copy Gate 0: [34m([0m [34mC[0m [34m)[0m [34mfollow[0m [34mthe[0m [36mup[0m [36mup[0m [36mon[0m [36mthe[0m [36mdevelopment[0m [34mof[0m [36mdevelopment[0m [34mof[0m [34mthe[0m [32mcontrol[0m [34mof[0m [36m;[0m
+
+=============================
+Target-TM 1: ( 16 ) In the interest of sound administration , time-limits should be stated within which :
+Source-TM 1: ( 16 ) Dans l &apos; intérêt d &apos; une bonne administration , il convient de fixer un délai pour permettre :
+Source-CR 1: ( 16 ) considérant qu &apos; il convient de définir les règles concernant la pêche à l &apos; intérieur de la zone côtière des douze milles et que ces règles doivent être exécutoires ;
+Target-CR 1: ( 16 ) Whereas the rules concerning fishing within the [32m12-mile[0m coastal zone should be defined in terms which are enforceable ;
+-----------------------------
+NMT Model 1: ( 16 ) Whereas rules should be laid down concerning aid within the jurisdiction of the Behörden 12 ILO and whereas these rules should be replaced ;
+Copy Prob 1: [34m([0m [33m16[0m [34m)[0m [34mWhereas[0m [34mthe[0m [33mIn[0m [32mthe[0m [33minterest[0m [33mof[0m [34mthe[0m [33m:[0m
+Copy Gate 1: [34m([0m [34m16[0m [34m)[0m [34mWhereas[0m [34mthe[0m [36mIn[0m [36mthe[0m [36minterest[0m [34mof[0m [36mthe[0m [36m:[0m
+
+=============================
+Target-TM 2: Having regard to the Act of Accession of Spain and Portugal , and in particular Article 396 thereof ,
+Source-TM 2: Vu l &apos; acte d &apos; adhésion de l &apos; Espagne et du Portugal , et notamment son article 396 ,
+Source-CR 2: Vu l &apos; acte d &apos; adhésion de l &apos; Espagne et du Portugal ( 1 ) , et notamment son article 396 ,
+Target-CR 2: Having regard to the Act of Accession of Spain and Portugal ( 1 ) , and in particular Article 396 thereof ,
+-----------------------------
+NMT Model 2: Having regard to the Development of complete of Spain and better ( 1 ) , and in particular Article UNK thereof ,
+Copy Prob 2: [33mHaving[0m [33mregard[0m [34mto[0m [34mthe[0m [33mto[0m [33mto[0m [33mthe[0m [33mthe[0m [33mAct[0m [33mof[0m [36mthe[0m [33mof[0m [33mof[0m [33mAccession[0m [33mof[0m [34mthe[0m [33mSpain[0m [33m,[0m
+Copy Gate 2: [32mHaving[0m [33mregard[0m [34mto[0m [34mthe[0m [32mto[0m [32mto[0m [32mthe[0m [32mthe[0m [33mAct[0m [32mof[0m [36mthe[0m [32mof[0m [32mof[0m [32mAccession[0m [34mof[0m [36mthe[0m [32mSpain[0m [34m,[0m
+
+=============================
+Target-TM 3: As shown in the table below , Community consumption of the product concerned and the like product increased by 51 % over the period considered .
+Source-TM 3: Comme le montre le tableau ci-dessous , la consommation communautaire du produit concerné et du produit similaire a progressé de 51 % sur la période considérée .
+Source-CR 3: ( 118 ) Pour calculer la consommation communautaire apparente du produit concerné et du produit similaire , la Commission a [32madditionné[0m :
+Target-CR 3: ( 118 ) In calculating the apparent Community consumption of the product concerned and the like product , the Commission added :
+-----------------------------
+NMT Model 3: ( για ) first Means UNK the relevant Community some of the product concerned and the product , the Commission has UNK :
+Copy Prob 3: [34m([0m [33mshown[0m [34m)[0m [32mthe[0m [33mtable[0m [33m,[0m [36mthe[0m [34mCommission[0m [34mshall[0m [34mbe[0m [33mconsumption[0m [33mand[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33m%[0m [34mquot[0m [33m%[0m
+Copy Gate 3: [34m([0m [34mshown[0m [34m)[0m [34mthe[0m [36mtable[0m [36m,[0m [34mthe[0m [36mCommission[0m [34mshall[0m [36mbe[0m [36mconsumption[0m [34mand[0m [36mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [32mthe[0m [33mthe[0m [33mthe[0m [33mthe[0m [33m%[0m [34mquot[0m [34m%[0m
+
+=============================
+Target-TM 4: Accreditation and withdrawal of accreditation of paying agencies and coordinating bodies
+Source-TM 4: Agrément et retrait d &apos; agrément des organismes payeurs et organismes de coordination
+Source-CR 4: - la diffusion des textes et des orientations communautaires y relatives , aux différents organismes payeurs et aux administrations chargées de les mettre en application ,
+Target-CR 4: - distributing Community texts and guidelines relating thereto to the various paying agencies and to those bodies responsible for their implementation ,
+-----------------------------
+NMT Model 4: - crops of sale and relevant Community 0,00 , to the deze formalities expressed and the classes responsible for implementing them ,
+Copy Prob 4: [34m-[0m [34mthe[0m [33mwithdrawal[0m [33mof[0m [33mof[0m [34mthe[0m [34mCommunity[0m [36mand[0m [33mbodies[0m [33mof[0m [34mthe[0m [33mbodies[0m [33mof[0m [34mthe[0m [33mbodies[0m [34mof[0m [34mthe[0m [33mbodies[0m [34mof[0m [34mthe[0m [33mbodies[0m [34mof[0m [34mthe[0m [33mbodies[0m [34mof[0m [34mthe[0m [33mbodies[0m [34mof[0m [34mthe[0m [34mCommunity[0m
+Copy Gate 4: [34m-[0m [34mthe[0m [34mwithdrawal[0m [34mof[0m [34mof[0m [34mthe[0m [36mCommunity[0m [34mand[0m [34mbodies[0m [34mof[0m [34mthe[0m [36mbodies[0m [34mof[0m [34mthe[0m [36mbodies[0m [34mof[0m [34mthe[0m [36mbodies[0m [34mof[0m [34mthe[0m [36mbodies[0m [34mof[0m [34mthe[0m [36mbodies[0m [34mof[0m [34mthe[0m [36mbodies[0m [34mof[0m [34mthe[0m [36mCommunity[0m
+
+Epoch 0: update 6821, cost 59.9662742615, gate-cost 22.8746089935, grad-s2 813.969116211
+execute: elapsed 0.7320 secs.
+Epoch 0: update 6822, cost 49.099571228, gate-cost 22.8785018921, grad-s2 3287.59057617
+execute: elapsed 0.6320 secs.
+Epoch 0: update 6823, cost 32.5955696106, gate-cost 14.8707342148, grad-s2 239.50932312
+execute: elapsed 0.5634 secs.
+Epoch 0: update 6824, cost 26.9386959076, gate-cost 13.9690599442, grad-s2 862.648742676
+execute: elapsed 0.5205 secs.
+Epoch 0: update 6825, cost 18.9760894775, gate-cost 12.0208740234, grad-s2 1939.07409668
+execute: elapsed 0.4390 secs.
+Epoch 0: update 6826, cost 15.7242450714, gate-cost 10.3314533234, grad-s2 963.468444824
+execute: elapsed 0.3775 secs.
+Epoch 0: update 6827, cost 15.962928772, gate-cost 8.97784423828, grad-s2 117.000976562
+execute: elapsed 0.3332 secs.
+Epoch 0: update 6828, cost 13.4175796509, gate-cost 3.97820687294, grad-s2 406.515075684
+execute: elapsed 0.2888 secs.
+Epoch 0: update 6829, cost 150.916107178, gate-cost 45.1294631958, grad-s2 3605.7043457
+execute: elapsed 1.5946 secs.
+Epoch 0: update 6830, cost 153.798034668, gate-cost 49.2125091553, grad-s2 16065.5517578
+execute: elapsed 1.3422 secs.
+Epoch 0: update 6831, cost 134.777770996, gate-cost 41.0264854431, grad-s2 3154.51245117
+execute: elapsed 1.1944 secs.
+Epoch 0: update 6832, cost 121.76399231, gate-cost 35.5643196106, grad-s2 3537.01416016
+execute: elapsed 1.0864 secs.
+Epoch 0: update 6833, cost 104.332145691, gate-cost 35.2591171265, grad-s2 2988.625
+execute: elapsed 1.0113 secs.
+Epoch 0: update 6834, cost 90.6465606689, gate-cost 30.7868156433, grad-s2 1226.83837891
+execute: elapsed 0.9575 secs.
+Epoch 0: update 6835, cost 69.554397583, gate-cost 29.1877861023, grad-s2 1729.15307617
+execute: elapsed 0.8178 secs.
+Epoch 0: update 6836, cost 63.1927108765, gate-cost 23.9906997681, grad-s2 461.877166748
+execute: elapsed 0.7002 secs.
+Epoch 0: update 6837, cost 53.3445663452, gate-cost 21.1027908325, grad-s2 3027.58935547
+execute: elapsed 0.6308 secs.
+Epoch 0: update 6838, cost 45.4534988403, gate-cost 18.2034835815, grad-s2 5554.99609375
+execute: elapsed 0.6269 secs.
+Epoch 0: update 6839, cost 33.4681472778, gate-cost 14.4544887543, grad-s2 466.531799316
+execute: elapsed 0.5096 secs.
+Epoch 0: update 6840, cost 20.7893753052, gate-cost 14.9325828552, grad-s2 221.4765625
+execute: elapsed 0.4699 secs.
+=============================
+Target-TM 0: [32mCarillon[0m &#124; * FR 8442 &#124; &#124; ( 1 ) &#124;
+Source-TM 0: [32mCarillon[0m &#124; * FR 8442 &#124; &#124; ( 1 ) &#124;
+Source-CR 0: [32mBaccara[0m &#124; * FR 8442 &#124; &#124; ( 1 ) &#124;
+Target-CR 0: [32mBaccara[0m &#124; * FR 8442 &#124; &#124; ( 1 ) &#124;
+-----------------------------
+NMT Model 0: UNK &#124; * FR care &#124; &#124; ( 1 ) &#124;
+Copy Prob 0: [31mCarillon[0m [34m&#124;[0m [36m*[0m [33m*[0m [33m*[0m [34m&#124;[0m [34m&#124;[0m [34m([0m [33m&#124;[0m [34m)[0m [34m&#124;[0m
+Copy Gate 0: [34mCarillon[0m [34m&#124;[0m [36m*[0m [32m*[0m [32m*[0m [34m&#124;[0m [34m&#124;[0m [34m([0m [32m&#124;[0m [34m)[0m [34m&#124;[0m
+
+=============================
+Target-TM 1: 5. the following paragraph shall be inserted in Article 5 :
+Source-TM 1: 5 ) À l &apos; article 5 , le paragraphe suivant est inséré :
+Source-CR 1: - à l &apos; article 8 , le paragraphe suivant est inséré :
+Target-CR 1: - the following paragraph shall be inserted in Article 8 :
+-----------------------------
+NMT Model 1: - in Article 8 , the following paragraph shall be minimum :
+Copy Prob 1: [34m-[0m [32mthe[0m [33mparagraph[0m [33mshall[0m [33mbe[0m [34mreplaced[0m [34mby[0m [34mthe[0m [34mfollowing[0m [34m:[0m
+Copy Gate 1: [34m-[0m [32mthe[0m [32mparagraph[0m [36mshall[0m [36mbe[0m [32mreplaced[0m [34mby[0m [34mthe[0m [34mfollowing[0m [34m:[0m
+
+=============================
+Target-TM 2: Commitments and requirements arising from the accession negotiations
+Source-TM 2: Engagements et exigences découlant des négociations d &apos; adhésion
+Source-CR 2: - les résidus de coke provenant de la fabrication du tétrachlorure de titane ;
+Target-CR 2: - coke residues arising from the manufacture of titanium tetrachloride ,
+-----------------------------
+NMT Model 2: - residues from the production of the UNK &apos; s weight ;
+Copy Prob 2: [34m-[0m [33mand[0m [33mrequirements[0m [34mfor[0m [34mthe[0m [33maccession[0m [34mto[0m [36mthe[0m [33maccession[0m [34mto[0m [34mthe[0m [33maccession[0m [34m;[0m
+Copy Gate 2: [34m-[0m [34mand[0m [36mrequirements[0m [34mfor[0m [36mthe[0m [32maccession[0m [34mto[0m [36mthe[0m [32maccession[0m [34mto[0m [36mthe[0m [36maccession[0m [34m;[0m
+
+=============================
+Target-TM 3: [32mAnza[0m &#124; * ES x &#124; &#124; ( 16 ) &#124;
+Source-TM 3: [32mAnza[0m &#124; * ES x &#124; &#124; ( 16 ) &#124;
+Source-CR 3: [32mOrla[0m &#124; * ES x &#124; &#124; ( 16 ) &#124;
+Target-CR 3: [32mOrla[0m &#124; * ES x &#124; &#124; ( 16 ) &#124;
+-----------------------------
+NMT Model 3: UNK &#124; * ES presentation &#124; &#124; ( 16 ) &#124;
+Copy Prob 3: [31mAnza[0m [34m&#124;[0m [36m*[0m [33m*[0m [33mES[0m [34m&#124;[0m [34m&#124;[0m [34m([0m [33m&#124;[0m [34m)[0m [33m&#124;[0m
+Copy Gate 3: [34mAnza[0m [34m&#124;[0m [36m*[0m [32m*[0m [32mES[0m [34m&#124;[0m [34m&#124;[0m [36m([0m [32m&#124;[0m [34m)[0m [34m&#124;[0m
+
+=============================
+Target-TM 4: [32mFavel[0m &#124; * PT 4 &#124; &#124; &#124;
+Source-TM 4: [32mFavel[0m &#124; * PT 4 &#124; &#124; &#124;
+Source-CR 4: &quot; [32mNuno[0m [32mGONÇALO[0m [32mASCENSÃO[0m [32mSILVA[0m &#124; PT &quot; &#124;
+Target-CR 4: &apos; [32mNuno[0m [32mGONÇALO[0m [32mASCENSÃO[0m [32mSILVA[0m &#124; PT &apos; ; &#124;
+-----------------------------
+NMT Model 4: &quot; UNK UNK UNK UNK &#124; UNK &quot; &#124;
+Copy Prob 4: [33m&#124;[0m [33m&#124;[0m [33m*[0m [33mPT[0m [33m4[0m [34m,[0m [33m4[0m [34m,[0m [33m4[0m [34m,[0m [33m&#124;[0m
+Copy Gate 4: [34m&#124;[0m [34m&#124;[0m [34m*[0m [34mPT[0m [34m4[0m [34m,[0m [34m4[0m [34m,[0m [34m4[0m [34m,[0m [36m&#124;[0m
+
+Epoch 0: update 6841, cost 10.5114212036, gate-cost 15.0252122879, grad-s2 1188.1796875
+execute: elapsed 0.4399 secs.
+Epoch 0: update 6842, cost 14.4309959412, gate-cost 10.4911212921, grad-s2 224.938812256
+execute: elapsed 0.4160 secs.
+Epoch 0: update 6843, cost 13.9100160599, gate-cost 7.47087430954, grad-s2 161.889480591
+execute: elapsed 0.3633 secs.
+Epoch 0: update 6844, cost 23.0796279907, gate-cost 5.55928182602, grad-s2 378.684173584
+execute: elapsed 1.4753 secs.
+Epoch 0: update 6845, cost 190.99230957, gate-cost 43.1857795715, grad-s2 59624.078125
+execute: elapsed 1.5597 secs.
+Epoch 0: update 6846, cost 147.245285034, gate-cost 43.5539131165, grad-s2 32176.6523438
+execute: elapsed 1.2668 secs.
+Epoch 0: update 6847, cost 148.744064331, gate-cost 38.4896774292, grad-s2 33086.53125
+execute: elapsed 1.1342 secs.
+Epoch 0: update 6848, cost 119.416290283, gate-cost 36.9109077454, grad-s2 19593.3867188
+execute: elapsed 1.1272 secs.
+Epoch 0: update 6849, cost 109.710739136, gate-cost 36.0942382812, grad-s2 9673.09375
+execute: elapsed 0.9894 secs.
+Epoch 0: update 6850, cost 83.7907562256, gate-cost 33.3483695984, grad-s2 1144.078125
+execute: elapsed 0.9296 secs.
+Epoch 0: update 6851, cost 73.8318252563, gate-cost 29.9882640839, grad-s2 2575.53808594
+execute: elapsed 0.8214 secs.
+Epoch 0: update 6852, cost 55.156867981, gate-cost 28.3810997009, grad-s2 4052.84277344
+execute: elapsed 0.7070 secs.
+Epoch 0: update 6853, cost 48.1943817139, gate-cost 24.0498161316, grad-s2 1844.08911133
+execute: elapsed 0.6611 secs.
+Epoch 0: update 6854, cost 37.0471038818, gate-cost 20.8857002258, grad-s2 890.769714355
+execute: elapsed 0.5311 secs.
+Epoch 0: update 6855, cost 23.179983139, gate-cost 18.5935974121, grad-s2 792.511474609
+execute: elapsed 0.4565 secs.
+Epoch 0: update 6856, cost 20.1472072601, gate-cost 13.4736270905, grad-s2 1044.89746094
+execute: elapsed 0.4386 secs.
+Epoch 0: update 6857, cost 14.4378814697, gate-cost 13.0321702957, grad-s2 139.811584473
+execute: elapsed 0.4103 secs.
+Epoch 0: update 6858, cost 16.9655418396, gate-cost 9.37926864624, grad-s2 1946.84924316
+execute: elapsed 0.3496 secs.
+Epoch 0: update 6859, cost 14.7649707794, gate-cost 5.33425521851, grad-s2 191.151550293
+execute: elapsed 0.3203 secs.
+Epoch 0: update 6860, cost 96.1314544678, gate-cost 37.5149917603, grad-s2 165154.484375
+execute: elapsed 1.4739 secs.
+=============================
+Target-TM 0: [32mLodging[0m of security
+Source-TM 0: Constitution d &apos; une garantie
+Source-CR 0: Sûreté et sécurité
+Target-CR 0: Safety and security
+-----------------------------
+NMT Model 0: appointed and security should be UNK
+Copy Prob 0: [33mof[0m [34mregard[0m [34mto[0m [34mthe[0m
+Copy Gate 0: [34mof[0m [34mregard[0m [34mto[0m [34mthe[0m
+
+=============================
+Target-TM 1: 10 January 2006
+Source-TM 1: 10 janvier 2006
+Source-CR 1: 20 janvier 2006
+Target-CR 1: 20 January 2006
+-----------------------------
+NMT Model 1: 20 January 2006 - UNK
+Copy Prob 1: [33m10[0m [34m&#124;[0m
+Copy Gate 1: [36m10[0m [34m&#124;[0m
+
+=============================
+Target-TM 2: 7 .
+Source-TM 2: 7 .
+Source-CR 2: 7 . [32mRhénanie-Palatinat[0m
+Target-CR 2: 7 . [32mRheinland-Pfalz[0m
+-----------------------------
+NMT Model 2: 7 . UNK UNK
+Copy Prob 2: [33m7[0m [34m&#124;[0m [33m7[0m [34mand[0m [33m7[0m [34mand[0m [33m7[0m [34mand[0m [33m7[0m [34mand[0m [33m.[0m
+Copy Gate 2: [34m7[0m [34m&#124;[0m [34m7[0m [34mand[0m [34m7[0m [34mand[0m [36m7[0m [34mand[0m [36m7[0m [34mand[0m [34m.[0m
+
+=============================
+Target-TM 3: 11 . Hungary
+Source-TM 3: 11 ) Hongrie
+Source-CR 3: [32mExportateur[0m hongrois
+Target-CR 3: [32mExporter[0m in Hungary
+-----------------------------
+NMT Model 3: UNK UNK UNK UNK
+Copy Prob 3: [33m11[0m [34m&#124;[0m [34m*[0m [33mHungary[0m [34mand[0m [33mHungary[0m [34mand[0m [33mHungary[0m [34mand[0m [33mHungary[0m [34mand[0m [33mHungary[0m [34mand[0m [33mHungary[0m [34mand[0m [33mHungary[0m
+Copy Gate 3: [34m11[0m [34m&#124;[0m [36m*[0m [36mHungary[0m [34mand[0m [36mHungary[0m [34mand[0m [36mHungary[0m [34mand[0m [36mHungary[0m [34mand[0m [36mHungary[0m [34mand[0m [36mHungary[0m [34mand[0m [36mHungary[0m
+
+=============================
+Target-TM 4: Conduct of inspections
+Source-TM 4: [32mConduite[0m des inspections
+Source-CR 4: Préparation des inspections
+Target-CR 4: Preparation of inspections
+-----------------------------
+NMT Model 4: UNK of facts
+Copy Prob 4: [33mConduct[0m [34mand[0m [33minspections[0m [34mand[0m [33minspections[0m [34mand[0m [33minspections[0m [34mand[0m [33minspections[0m [34mand[0m [33minspections[0m [34mand[0m [33minspections[0m
+Copy Gate 4: [34mConduct[0m [34mand[0m [34minspections[0m [34mand[0m [34minspections[0m [34mand[0m [34minspections[0m [34mand[0m [34minspections[0m [34mand[0m [34minspections[0m [34mand[0m [34minspections[0m
+
+Epoch 0: update 6861, cost 162.661346436, gate-cost 60.9006958008, grad-s2 8205.43359375
+execute: elapsed 1.3836 secs.
+Epoch 0: update 6862, cost 150.213638306, gate-cost 52.5355300903, grad-s2 4769.80078125
+execute: elapsed 1.2828 secs.
+Epoch 0: update 6863, cost 118.6824646, gate-cost 48.2931365967, grad-s2 3400.03198242
+execute: elapsed 1.0627 secs.
+Epoch 0: update 6864, cost 116.255950928, gate-cost 46.6312103271, grad-s2 3946.60888672
+execute: elapsed 0.9967 secs.
+Epoch 0: update 6865, cost 83.9998931885, gate-cost 43.4392814636, grad-s2 3662.65673828
+execute: elapsed 0.9070 secs.
+Epoch 0: update 6866, cost 74.2666931152, gate-cost 37.8349075317, grad-s2 nan
+execute: elapsed 0.8135 secs.
+Epoch 0: update 6867, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6868, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6869, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6870, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6871, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6872, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6873, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6874, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6875, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6876, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6877, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6878, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
+Epoch 0: update 6879, cost nan, gate-cost nan, grad-s2 nan
+[31mCost NaN detected[0m
