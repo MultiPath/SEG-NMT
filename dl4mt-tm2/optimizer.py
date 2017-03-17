@@ -5,6 +5,7 @@ theano optimizers
 import theano
 import theano.tensor as tensor
 import numpy
+from theano.compile.nanguardmode import NanGuardMode
 profile = False
 
 
@@ -30,7 +31,8 @@ def adam(lr, tparams, grads, inp, cost):
                for k, p in tparams.iteritems()]
     gsup = [(gs, g) for gs, g in zip(gshared, grads)]
 
-    f_grad_shared = theano.function(inp, cost, updates=gsup, profile=profile)
+    f_grad_shared = theano.function(inp, cost, updates=gsup,
+                                    profile=profile)# ,mode=NanGuardMode(nan_is_error=True, inf_is_error=True, big_is_error=True))
 
     b1 = 0.1
     b2 = 0.001

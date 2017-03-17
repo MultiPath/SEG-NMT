@@ -175,8 +175,10 @@ def softmax(x, mask=None):
             return prob.reshape(x.shape)
     else:
         max_x = x.max(axis=-1, keepdims=True)
-        exp_x = tensor.exp(x - max_x) * mask
-        prob  = exp_x / exp_x.sum(axis=-1, keepdims=True)
+        x    -= max_x
+        exp_x = tensor.exp(x) * mask
+        prob  = exp_x / (exp_x.sum(axis=-1, keepdims=True) + 1e-7)
+        prob *= mask
         return prob
 
 
@@ -601,6 +603,7 @@ def gru_cond_layer(tparams, state_below, options, prefix='gru',
         pctx__ = tensor.tanh(pctx__)
         alpha = tensor.dot(pctx__, U_att)+c_tt
         alpha = alpha.reshape([alpha.shape[0], alpha.shape[1]])
+        alpha = alpha - alpha.max(axis=1, keepdims=True)  # safe attention
         alpha = tensor.exp(alpha)
         if context_mask:
             alpha = alpha * context_mask

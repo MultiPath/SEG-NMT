@@ -841,6 +841,7 @@ def build_networks(options, model=' ', train=True):
                             compute_prob(prob, y, y_mask) * (1 - g) +
                             compute_prob(att, t, t_mask) * g, 1e-7, 1 - 1e-7))
         ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
+
         # alternative loss
         # ccost = -tensor.log(compute_prob(prob, y)) * (1 - g) * y_mask \
         #         -tensor.log(compute_prob(att, t))  * g       * t_mask
@@ -872,7 +873,7 @@ def build_networks(options, model=' ', train=True):
 
         f_valid = theano.function(inputs, cost, profile=profile)
 
-        print 'build Gradient (backward)...',
+        print 'build Gradient...',
         tparams = dict(tparams_xy.items() + tparams_map.items())
 
         cost   = cost.mean()
@@ -887,13 +888,14 @@ def build_networks(options, model=' ', train=True):
             grads, g2 = clip(tensor.grad(cost + options['gate_lambda'] * g_cost,
                                      wrt=itemlist(_tparams)), options['clip_c'])
         else:
-            grads, g2 = clip(tensor.grad(cost,
-                                     wrt=itemlist(_tparams)), options['clip_c'])
+            grads0 = tensor.grad(cost, wrt=itemlist(_tparams))
+            grads, g2 = clip(grads0, options['clip_c'])
         print 'Done'
 
         # compile the optimizer, the actual computational graph is compiled here
         lr = tensor.scalar(name='lr')
-        outputs = [cost, g_cost, g2]
+        outputs = [cost, g_cost, tensor.sqrt(g2)]
+
 
         print 'Building Optimizers...',
         f_cost, f_update = eval(options['optimizer'])(

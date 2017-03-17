@@ -110,12 +110,17 @@ def idx2seq(x, ii, pp=None):
 @Timeit
 def execute(inps, lrate, info):
     eidx, uidx = info
-    cost, g_cost, g2 = funcs['cost'](*inps)
-    print 'Epoch {}: update {}, cost {}, gate-cost {}, grad-s3 {}'.format(eidx, uidx, cost, g_cost, g2),
+    rets = funcs['cost'](*inps)
+    cost, g_cost, g2 = rets[0], rets[1], rets[2]
+    print 'Epoch {}: update {},'.format(eidx, uidx),
+    print 'cost {:.2f}, gate-cost {:.2f}, g-norm{:.1f}'.format(float(cost), float(g_cost), float(g2))
+
 
     # check for bad numbers, usually we remove non-finite elements
     # and continue training - but not done here
     if numpy.isnan(g2):
+        print 'NaN error again!!!'
+        import sys; sys.exit(123456)
         raise Exception('Gradient NaN detected')
 
     if numpy.isnan(cost):
@@ -212,8 +217,9 @@ class BLEU(threading.Thread):
            sleep=self.sleep)
 
 
-print 'save an initial model...'
-savemodel(0)
+if uidx == 0:
+    print 'save an initial model...'
+    savemodel(0)
 
 print 'start a BLUE tester...'
 bleuer = BLEU(model_options, bleuFreq, start_steps=(uidx//bleuFreq) * bleuFreq)
