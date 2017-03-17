@@ -113,7 +113,7 @@ def execute(inps, lrate, info):
     rets = funcs['cost'](*inps)
     cost, g_cost, g2 = rets[0], rets[1], rets[2]
     print 'Epoch {}: update {},'.format(eidx, uidx),
-    print 'cost {:.2f}, gate-cost {:.2f}, g-norm{:.1f}'.format(float(cost), float(g_cost), float(g2))
+    print 'cost {:.2f}, gate-cost {:.2f}, g-norm {:.1f}'.format(float(cost), float(g_cost), float(g2)),
 
 
     # check for bad numbers, usually we remove non-finite elements
