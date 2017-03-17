@@ -99,7 +99,7 @@ def load_params(path, params):
         if kk not in pp:
             warnings.warn('%s is not in the archive' % kk)
             continue
-        print kk,
+        print '{}\t'.format(kk),
         if it % 5 == 0:
             print ''
         params[kk] = pp[kk]

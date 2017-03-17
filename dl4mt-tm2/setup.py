@@ -3,7 +3,7 @@ def setup_fren():
     # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     home  = '/root/workspace/TMNMT'
     model = '/root/disk/scratch/model-tmnmt'
-    name  = 'TM2.fren.v1'
+    name  = 'TM2.v1'
 
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
@@ -48,6 +48,7 @@ def setup_fren():
 def setup_enfr():
     home  = '/home/thoma/work/TMNMT'
     model = '/home/thoma/scratch/tmnmt'
+    #name  = 'TM2.v1'
     name  = 'TM2.v1'
 
     config = {

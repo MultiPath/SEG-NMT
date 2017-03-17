@@ -669,13 +669,13 @@ def build_networks(options, model=' ', train=True):
             params_map = get_layer(bmap)[0](options, params_map, prefix='map_bi',
                                             nin1=2 * options['dim'],
                                             nin2=2 * options['dim'],
-                                            bias=True, eye=False)
+                                            bias=True, eye=True)
         else:
             print 'use neural network coverage'
             params_map = get_layer('bg')[0](options, params_map, prefix='map_bg',
                                             nin1=2 * options['dim'],
                                             nin2=2 * options['dim'],
-                                            bias=True, eye=False)
+                                            bias=True, eye=True)
             params_map = get_layer('gru')[0](options, params_map,
                                              prefix='gru_map',
                                              nin=4 * options['dim'] + 1,
@@ -691,7 +691,7 @@ def build_networks(options, model=' ', train=True):
     if train:
         if options['reload_'] and os.path.exists(options['saveto']):
             print 'Reloading pre-saved parameters'
-            params_map = load_params(model, params_map)
+            params_map = load_params(options['saveto'], params_map)
             print 'Done.'
 
     else:
