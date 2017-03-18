@@ -264,6 +264,7 @@ def param_init_bllayer(options, params, prefix='bi',
     if not eye:
         params[_p(prefix, 'M')] = norm_weight(nin1, nin2, scale=0.01, ortho=True)
     else:
+        print 'bi-eye init'
         params[_p(prefix, 'M')] = numpy.eye(nin1, nin2, dtype='float32')
 
     if bias:
@@ -301,6 +302,7 @@ def param_init_bglayer(options, params, prefix='bg',
     if not eye:
         params[_p(prefix, 'M')] = norm_weight(nin1, nin2, scale=0.01, ortho=True)
     else:
+        print 'bg-eye init'
         params[_p(prefix, 'M')] = numpy.eye(nin1, nin2, dtype='float32')
 
     if bias:
@@ -338,6 +340,7 @@ def param_init_bdlayer(options, params, prefix='bd',
     if eye:
         params[_p(prefix, 'Md')] = numpy.ones((nin1,), dtype='float32')
     else:
+        print 'bd-eye init'
         params[_p(prefix, 'Md')] = norm_weight(nin1, 1, scale=0.01)[:, 0]
 
 

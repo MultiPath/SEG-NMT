@@ -651,11 +651,9 @@ def build_networks(options, model=' ', train=True):
     # use diagonal matrix
     if options['diagonal']:
         print 'use diagonal matrix'
-
         bmap = 'bd'
     else:
         print 'use full matrix'
-
         bmap = 'bi'
 
     # params for copying
