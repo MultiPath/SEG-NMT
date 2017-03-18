@@ -221,9 +221,10 @@ if uidx == 0:
     print 'save an initial model...'
     savemodel(0)
 
-print 'start a BLUE tester...'
-bleuer = BLEU(model_options, bleuFreq, start_steps=(uidx//bleuFreq) * bleuFreq)
-bleuer.start()
+if not model_options['disable_bleu']:
+    print 'start a BLUE tester...'
+    bleuer = BLEU(model_options, bleuFreq, start_steps=(uidx//bleuFreq) * bleuFreq)
+    bleuer.start()
 
 print 'start the main loop...'
 for eidx in xrange(max_epochs):

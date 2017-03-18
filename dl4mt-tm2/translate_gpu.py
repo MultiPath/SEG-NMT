@@ -206,19 +206,35 @@ def go(model, dictionary, dictionary_target,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', type=str, default='fren')
+    parser.add_argument('-p', type=str, default='round')
     args = parser.parse_args()
 
     config = setup(args.m)
-
-    go(config['saveto'],
-       config['dictionaries'][0],
-       config['dictionaries'][1],
-       config['trans_from'],
-       config['tm_source'],
-       config['tm_target'],
-       config['trans_to'],
-       config['beamsize'],
-       config['normalize'],
-       config['d_maxlen'])
+    if args.p == 'round':
+        print 'ROUND-MODE'
+        go(config['saveto'],
+           config['dictionaries'][0],
+           config['dictionaries'][1],
+           config['trans_from'],
+           config['tm_source'],
+           config['tm_target'],
+           config['trans_to'],
+           config['beamsize'],
+           config['normalize'],
+           config['d_maxlen'],
+           steps=5000, max_steps=1000000, start_steps=0,
+           sleep=600)
+    else:
+        print 'TEST-MODE'
+        go(config['saveto'],
+           config['dictionaries'][0],
+           config['dictionaries'][1],
+           config['trans_from'],
+           config['tm_source'],
+           config['tm_target'],
+           config['trans_to'],
+           config['beamsize'],
+           config['normalize'],
+           config['d_maxlen'])
 
     print 'all done'

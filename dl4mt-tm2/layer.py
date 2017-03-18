@@ -337,15 +337,20 @@ def param_init_bdlayer(options, params, prefix='bd',
                        nin1=None, nin2=None, eye=False, bias=False):
 
     # params[_p(prefix, 'Md')] = 0.01 * numpy.random.randn((nin1,)).astype('float32')
-    params[_p(prefix, 'Md')] = 0.01 * numpy.ones((nin1,), dtype='float32')
+    if eye:
+        params[_p(prefix, 'Md')] = numpy.ones((nin1,), dtype='float32')
+    else:
+        params[_p(prefix, 'Md')] = norm_weight(nin1, 1, scale=0.01)[:, 0]
+
+
     if bias:
-        params[_p(prefix, 'b')] = numpy.float32(0.)
+        params[_p(prefix, 'b')] = numpy.float32(-1.)  # 0.0
 
     return params
 
 
 def bdlayer(tparams, input1, input2, cov=None, prefix='bd',
-            activ='lambda x: x', **kwargs):
+            activ='lambda x: tensor.nnet.sigmoid(x)', **kwargs):
 
     if cov is not None:
         assert (_p(prefix, 'b') in tparams, 'coverage as bias')

@@ -48,7 +48,7 @@ def setup_enfr():
     home  = '/home/thoma/work/TMNMT'
     model = '/home/thoma/scratch/tmnmt'
     #name  = 'TM2.v1'
-    name  = 'TM2.A1'
+    name  = 'TM2.A3'
 
     config = {
         # train phase
@@ -167,6 +167,7 @@ def setup(pair='fren'):
         'use_pretrain': False,
         'only_train_g': False,
         'diagonal':     True,
+        'eye':          True,
         'use_coverage': True,
         'nn_coverage':  False,
         'cov_dim':      10,
@@ -175,6 +176,8 @@ def setup(pair='fren'):
         'build_gate':   True,
         'gate_loss':    False,
         'gate_lambda':  0.1,
+
+        'disable_bleu': True,
 
         # testing details
         'beamsize':     5,

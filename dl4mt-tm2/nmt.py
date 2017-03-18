@@ -662,7 +662,7 @@ def build_networks(options, model=' ', train=True):
     if not options['use_coverage']:
         params_map  = get_layer(bmap)[0](options, params_map, prefix='map_bi',
                                          nin1=2 * options['dim'],
-                                         nin2=2 * options['dim'])
+                                         nin2=2 * options['dim'], eye=True)
     else:
         if not options.get('nn_coverage', False):
             print 'use linguistic coverage'
@@ -681,7 +681,7 @@ def build_networks(options, model=' ', train=True):
                                              nin=4 * options['dim'] + 1,
                                              dim=options['cov_dim'])
 
-    params_map['tau'] = numpy.float32(1.)    # temperature for copy
+    params_map['tau'] = numpy.float32(0.5)  # 1.0   # temperature for copy
 
     # params for gating
     params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',
