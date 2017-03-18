@@ -175,10 +175,8 @@ def softmax(x, mask=None):
             return prob.reshape(x.shape)
     else:
         max_x = x.max(axis=-1, keepdims=True)
-        x    -= max_x
-        exp_x = tensor.exp(x) * mask
-        prob  = exp_x / (exp_x.sum(axis=-1, keepdims=True) + 1e-7)
-        prob *= mask
+        exp_x = tensor.exp(x - max_x) * mask
+        prob  = exp_x / (exp_x.sum(axis=-1, keepdims=True) + 1e-8)
         return prob
 
 
@@ -289,9 +287,9 @@ def bllayer(tparams, input1, input2, cov=None, prefix='bi',
                                     input2.dimshuffle(1, 2, 0))
         output = output.dimshuffle(1, 0, 2)  # dec_len x batch_size x enc_len
 
-    if cov:
+    if cov is not None:
         output += tparams[_p(prefix, 'b')] * cov
-    output = output.reshape((output.shape[1], output.shape[2]))
+    # output = output.reshape((output.shape[1], output.shape[2]))
     return eval(activ)(output)
 
 def param_init_bglayer(options, params, prefix='bg',
@@ -344,7 +342,7 @@ def param_init_bdlayer(options, params, prefix='bd',
 
 
     if bias:
-        params[_p(prefix, 'b')] = numpy.float32(-1.)  # 0.0
+        params[_p(prefix, 'b')] = numpy.float32(0.0)  # 0.0
 
     return params
 
@@ -608,7 +606,7 @@ def gru_cond_layer(tparams, state_below, options, prefix='gru',
         pctx__ = tensor.tanh(pctx__)
         alpha = tensor.dot(pctx__, U_att)+c_tt
         alpha = alpha.reshape([alpha.shape[0], alpha.shape[1]])
-        alpha = alpha - alpha.max(axis=1, keepdims=True)  # safe attention
+        alpha = alpha - alpha.max(axis=0, keepdims=True)  # safe attention >> fix a small bug
         alpha = tensor.exp(alpha)
         if context_mask:
             alpha = alpha * context_mask

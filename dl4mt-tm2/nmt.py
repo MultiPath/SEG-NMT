@@ -662,26 +662,26 @@ def build_networks(options, model=' ', train=True):
     if not options['use_coverage']:
         params_map  = get_layer(bmap)[0](options, params_map, prefix='map_bi',
                                          nin1=2 * options['dim'],
-                                         nin2=2 * options['dim'], eye=True)
+                                         nin2=2 * options['dim'], eye=options['eye'])
     else:
         if not options.get('nn_coverage', False):
             print 'use linguistic coverage'
             params_map = get_layer(bmap)[0](options, params_map, prefix='map_bi',
                                             nin1=2 * options['dim'],
                                             nin2=2 * options['dim'],
-                                            bias=True, eye=True)
+                                            bias=True, eye=options['eye'])
         else:
             print 'use neural network coverage'
             params_map = get_layer('bg')[0](options, params_map, prefix='map_bg',
                                             nin1=2 * options['dim'],
                                             nin2=2 * options['dim'],
-                                            bias=True, eye=True)
+                                            bias=True, eye=options['eye'])
             params_map = get_layer('gru')[0](options, params_map,
                                              prefix='gru_map',
                                              nin=4 * options['dim'] + 1,
                                              dim=options['cov_dim'])
 
-    params_map['tau'] = numpy.float32(0.5)  # 1.0   # temperature for copy
+    params_map['tau'] = numpy.float32(1.0)  # 1.0   # temperature for copy
 
     # params for gating
     params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',
@@ -753,11 +753,24 @@ def build_networks(options, model=' ', train=True):
                                prev_att,
                                tm_ctx2, tm_hids, tm_mask):
             # normalize
-            # cur_ctx1_ = normalize(cur_ctx1)
+
             if not options.get('nn_coverage', False):
-                mapping   = get_layer(bmap)[1](tparams_map, cur_ctx1[None, :, :],
-                                              tm_ctx2, prev_att[None, :, :],
-                                              prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
+
+                if options.get('cos_sim', True):
+                    print 'use cos-similarity'
+                    mapping   = get_layer(bmap)[1](tparams_map,
+                                                   normalize(cur_ctx1[None, :, :]),
+                                                   normalize(tm_ctx2),
+                                                   prev_att[None, :, :],
+                                                   prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
+                else:
+                    print 'use inner-product'
+                    mapping   = get_layer(bmap)[1](tparams_map,
+                                                   cur_ctx1[None, :, :],
+                                                   tm_ctx2,
+                                                   prev_att[None, :, :],
+                                                   prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
+
                 attens    = softmax(mapping * tparams_map['tau'], mask=tm_mask)
                 coverage  = prev_att + attens
 
