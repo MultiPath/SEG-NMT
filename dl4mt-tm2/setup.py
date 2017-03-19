@@ -48,7 +48,7 @@ def setup_enfr():
     home  = '/home/thoma/work/TMNMT'
     model = '/home/thoma/scratch/tmnmt'
     #name  = 'TM2.v1'
-    name  = 'TM2.A3'
+    name  = 'TM2.A7'
 
     config = {
         # train phase
@@ -79,10 +79,10 @@ def setup_enfr():
         'baseline_xy': model + '/baseline_enfr.bs64.npz',
 
         # test phase
-        'trans_from': home + '/.dataset/tm2.fren/devset.enfr.fr.tok',
-        'tm_source':  home + '/.dataset/tm2.fren/devset.enfr.fr.matched.tok',
-        'tm_target':  home + '/.dataset/tm2.fren/devset.enfr.en.matched.tok',
-        'trans_ref':  home + '/.dataset/tm2.fren/devset.enfr.en.tok',
+        'trans_from': home + '/.dataset/tm2.fren/devset.enfr.en.tok',
+        'tm_source':  home + '/.dataset/tm2.fren/devset.enfr.en.matched.tok',
+        'tm_target':  home + '/.dataset/tm2.fren/devset.enfr.fr.matched.tok',
+        'trans_ref':  home + '/.dataset/tm2.fren/devset.enfr.fr.tok',
         'trans_to':   home + '/.translate/' + name + '.dev.translate'
     }
     return config

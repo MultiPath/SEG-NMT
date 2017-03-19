@@ -345,7 +345,7 @@ def param_init_bdlayer(options, params, prefix='bd',
 
 
     if bias:
-        params[_p(prefix, 'b')] = numpy.float32(0.0)  # 0.0
+        params[_p(prefix, 'b')] = numpy.float32(-1.0)  # 0.0
 
     return params
 
