@@ -222,7 +222,7 @@ if __name__ == "__main__":
            config['beamsize'],
            config['normalize'],
            config['d_maxlen'],
-           steps=5000, max_steps=1000000, start_steps=0,
+           steps=2500, max_steps=1000000, start_steps=0,
            sleep=600)
     else:
         print 'TEST-MODE'
