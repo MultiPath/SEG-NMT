@@ -63,7 +63,7 @@ def translate_model(queue, funcs, tparams, options, k,
 
 
 def go(model, dictionary, dictionary_target,
-       source_file_x1, source_file_x2, source_file_y2,
+       source_file_x1, source_file_x2, source_file_y2, reference_file_y1,
        saveto, k=5, normalize=False, d_maxlen=200,
        steps=None, max_steps=None, start_steps=0, sleep=1000,
        *args, **kwargs):
@@ -172,26 +172,30 @@ def go(model, dictionary, dictionary_target,
                 time.sleep(sleep)
 
             else:
-                print '[test] Load check-point: {}'.format(checkpoint),
-                zipp(load_params(checkpoint, unzip(tparams)), tparams)
-                print 'done.'
 
                 transto = saveto + '.iter={}'.format(step_test)
                 print '[test] start translating ', source_file_x1, '...to...', transto
 
-                queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
-                rets = translate_model(queue, funcs, tparams, options, k, normalize, 0, d_maxlen)
-                sseqs, ss, acts, gs = zip(*rets)
+                if os.path.exists(transto):
+                    print 'we found translated files...skip'
+                else:
+                    print '[test] Load check-point: {}'.format(checkpoint),
+                    zipp(load_params(checkpoint, unzip(tparams)), tparams)
+                    print 'done.'
 
-                trans = _seqs2words(sseqs)
-                with open(transto, 'w') as f:
-                    print >> f, '\n'.join(trans)
-                print 'Done'
+                    queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
+                    rets = translate_model(queue, funcs, tparams, options, k, normalize, 0, d_maxlen)
+                    sseqs, ss, acts, gs = zip(*rets)
 
-                pkl.dump(rets, open(transto + '.pkl', 'w'))
+                    trans = _seqs2words(sseqs)
+                    with open(transto, 'w') as f:
+                        print >> f, '\n'.join(trans)
+                    print 'Done'
+
+                    pkl.dump(rets, open(transto + '.pkl', 'w'))
 
                 # compute BLEU score.
-                ref = options['trans_ref']
+                ref = reference_file_y1
 
                 print '[test] compute BLEU score for {} <-> {}'.format(transto, ref)
                 # os.system("ed -i 's/@@ //g' {}".format(hyp))
@@ -218,6 +222,7 @@ if __name__ == "__main__":
            config['trans_from'],
            config['tm_source'],
            config['tm_target'],
+           config['trans_ref'],
            config['trans_to'],
            config['beamsize'],
            config['normalize'],
