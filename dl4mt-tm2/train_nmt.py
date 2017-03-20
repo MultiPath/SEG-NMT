@@ -187,7 +187,6 @@ def savemodel(udix=0):
         print 'Done'
 
 
-
 class BLEU(threading.Thread):
     def __init__(self, options, steps, start_steps=0,
                 max_steps=finish_after, sleep=1000):
