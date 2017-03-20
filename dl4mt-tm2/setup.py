@@ -49,7 +49,7 @@ def setup_fren():
     # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     home  = '/root/workspace/TMNMT'
     model = '/root/disk/scratch/model-tmnmt'
-    name  = 'TM2.A7'
+    name  = 'TM2.B4'
 
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
