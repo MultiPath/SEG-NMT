@@ -241,5 +241,5 @@ def setup(pair='fren'):
             pair, 'ff' if config['use_pretrain'] else 'ss',
             config['batch_size'], config['maxlen']
         )
-
+    print 'start {}'.format(config['saveto'])
     return config
