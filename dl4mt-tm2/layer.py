@@ -7,7 +7,6 @@ import theano.tensor as tensor
 from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 
 import cPickle as pkl
-# import ipdb
 import numpy
 import copy
 
@@ -15,6 +14,11 @@ import os
 import warnings
 import sys
 import time
+
+try:
+    from pycrayon import CrayonClient
+except ImportError:
+    pass
 
 from collections import OrderedDict
 
@@ -47,6 +51,17 @@ class Timeit(object):
         print '{}: elapsed {:.4f} secs.'.format(self._wrapped.__name__,
                                                 time.time() - start_t)
         return result
+
+
+class Monitor(object):
+    def __init__(self, address, port):
+        self.cc  = CrayonClient(hostname=address, port=port)
+
+    def start_experiment(self, name):
+        self.exp = self.cc.create_experiment(name)
+
+    def push(self, data, wall_time=-1, step=-1):
+        self.exp.add_scalar_dict(data, wall_time, step)
 
 
 # push parameters to Theano shared variables
@@ -277,8 +292,8 @@ def bllayer(tparams, input1, input2, cov=None, prefix='bi',
             activ='lambda x: tensor.nnet.sigmoid(x)',
             **kwargs):
 
-    if cov is not None:
-        assert (_p(prefix, 'b') in tparams, 'coverage as bias')
+    # if cov is not None:
+    #     assert (_p(prefix, 'b') in tparams, 'coverage as bias')
 
     input1 = tensor.dot(input1, tparams[_p(prefix, 'M')])
     if input1.ndim == 2:
@@ -315,8 +330,8 @@ def bglayer(tparams, input1, input2, cov=None, prefix='bg',
             activ='lambda x: tensor.nnet.sigmoid(x)',
             **kwargs):
 
-    if cov is not None:
-        assert (_p(prefix, 'b') in tparams, 'coverage as bias')
+    # if cov is not None:
+    #     assert (_p(prefix, 'b') in tparams, 'coverage as bias')
 
     input1 = tensor.dot(input1, tparams[_p(prefix, 'M')])     #1 x batch_size x c_dim
     if input1.ndim == 2:
@@ -353,8 +368,8 @@ def param_init_bdlayer(options, params, prefix='bd',
 def bdlayer(tparams, input1, input2, cov=None, prefix='bd',
             activ='lambda x: tensor.nnet.sigmoid(x)', **kwargs):
 
-    if cov is not None:
-        assert (_p(prefix, 'b') in tparams, 'coverage as bias')
+    # if cov is not None:
+    #     assert (_p(prefix, 'b') in tparams, 'coverage as bias')
 
     if input1.ndim == 2:
         input1 = input1 * tparams[_p(prefix, 'Md')][None, :]

@@ -66,7 +66,7 @@ def go(model, dictionary, dictionary_target,
        source_file_x1, source_file_x2, source_file_y2, reference_file_y1,
        saveto, k=5, normalize=False, d_maxlen=200,
        steps=None, max_steps=None, start_steps=0, sleep=1000,
-       *args, **kwargs):
+       monitor=None):
 
     # inter-step
     step_test = 0
@@ -158,6 +158,9 @@ def go(model, dictionary, dictionary_target,
         print 'All Done'
 
     else:
+        if monitor is not None:
+            monitor.start_experiment('test.{}'.format(model))
+
         step_test = start_steps
         if step_test == 0:
             step_test += steps
@@ -198,10 +201,14 @@ def go(model, dictionary, dictionary_target,
                 ref = reference_file_y1
 
                 print '[test] compute BLEU score for {} <-> {}'.format(transto, ref)
-                # os.system("ed -i 's/@@ //g' {}".format(hyp))
-                os.system('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref, transto))
 
-                print 'Done at iter={}'.format(step_test)
+                # os.system("ed -i 's/@@ //g' {}".format(hyp))
+                out  = os.popen('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref, transto))
+                bleu = float(out.read().split()[2][:-1])
+                if monitor is not None:
+                    monitor.push({'BLEU': bleu}, step=step_test)
+
+                print 'Done at iter={}, BLEU={}'.format(step_test, bleu)
                 step_test += steps
 
             pass
@@ -214,6 +221,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     config = setup(args.m)
+
+    if config['remote']:
+        monitor = Monitor(config['address'], config['port'])
+        print 'create a remote monitor!'
+    else:
+        monitor = None
+
     if args.p == 'round':
         print 'ROUND-MODE'
         go(config['saveto'],
@@ -228,7 +242,7 @@ if __name__ == "__main__":
            config['normalize'],
            config['d_maxlen'],
            steps=2500, max_steps=1000000, start_steps=0,
-           sleep=600)
+           sleep=600, monitor=monitor)
     else:
         print 'TEST-MODE'
         go(config['saveto'],
