@@ -90,6 +90,51 @@ def setup_fren():
     return config
 
 
+def setup_fren_cc():
+    home  = '/home/thoma/work/TMNMT'
+    model = '/home/thoma/scratch/tmnmt'
+    name  = 'TM2.C3'
+
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/cc.fren/train.fr.top5.shuf.tok',          # source
+                     home + '/.dataset/cc.fren/train.en.top5.shuf.tok',          # target
+                     home + '/.dataset/cc.fren/train.fr.top5.matched.shuf.tok',  # source-TM
+                     home + '/.dataset/cc.fren/train.en.top5.matched.shuf.tok'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/cc.fren/devset.fr.tok',
+                           home + '/.dataset/cc.fren/devset.en.tok',
+                           home + '/.dataset/cc.fren/devset.fr.matched.tok',
+                           home + '/.dataset/cc.fren/devset.en.matched.tok'
+                           ],
+
+        'dictionaries': [home + '/.dataset/cc.fren/train.fr.top5.shuf.tok.pkl',
+                         home + '/.dataset/cc.fren/train.en.top5.shuf.tok.pkl',
+                         home + '/.dataset/cc.fren/train.fr.top5.shuf.tok.pkl',
+                         home + '/.dataset/cc.fren/train.en.top5.shuf.tok.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 50,
+
+        # baseline models
+        'baseline_xy': model + '/baseline_fren.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/cc.fren/devset.fr.tok',
+        'tm_source':  home + '/.dataset/cc.fren/devset.fr.matched.tok',
+        'tm_target':  home + '/.dataset/cc.fren/devset.en.matched.tok',
+        'trans_ref':  home + '/.dataset/cc.fren/devset.en.tok',
+        'trans_to':   home + '/.translate/' + name + '.dev.translate'
+    }
+    return config
+
+
+
+
 def setup_enfr():
     home  = '/home/thoma/work/TMNMT'
     model = '/home/thoma/scratch/tmnmt'

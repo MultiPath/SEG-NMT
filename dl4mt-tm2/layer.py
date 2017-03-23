@@ -58,6 +58,9 @@ class Monitor(object):
         self.cc  = CrayonClient(hostname=address, port=port)
 
     def start_experiment(self, name):
+        exps = self.cc.get_experiment_names()
+        if name in exps:
+            self.exp = self.cc.remove_experiment(name)
         self.exp = self.cc.create_experiment(name)
 
     def push(self, data, wall_time=-1, step=-1):
