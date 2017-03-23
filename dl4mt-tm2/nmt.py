@@ -611,6 +611,7 @@ def build_networks(options, model=' ', train=True):
 
     # use pre-trained models
     if options['use_pretrain']:
+        print 'use pretrained NMT model as base.'
         params_xy = copy.copy(params_xy0)
 
     # reload parameters

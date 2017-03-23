@@ -15,11 +15,11 @@ parser.add_argument('-m', type=str, default='fren')
 args = parser.parse_args()
 
 model_options = setup(args.m)
-if model_options['remote']:
-    monitor = Monitor(model_options['address'], model_options['port'])
-    print 'create a remote monitor'
-else:
-    monitor = None
+# if model_options['remote']:
+#     monitor = Monitor(model_options['address'], model_options['port'])
+#     print 'create a remote monitor'
+# else:
+#     monitor = None
 
 pprint(model_options)
 
@@ -73,8 +73,8 @@ bleuFreq     = model_options['bleuFreq']
 saveto       = model_options['saveto']
 overwrite    = model_options['overwrite']
 
-if monitor:
-    monitor.start_experiment('train.{}'.format(model_options['saveto']), False)
+# if monitor:
+#     monitor.start_experiment('{}'.format(model_options['saveto']))
 
 # ----------------------------------------------- #
 
@@ -259,6 +259,9 @@ for eidx in xrange(max_epochs):
                 sys.exit(-1)
 
             print 'Valid ', valid_err
+            # if monitor:
+            #     monitor.push({'valid loss': float(valid_err)}, step=uidx)
+
 
         # training
         x1, x1_mask = prepare_data(sx1, model_options['maxlen'], model_options['voc_sizes'][0])

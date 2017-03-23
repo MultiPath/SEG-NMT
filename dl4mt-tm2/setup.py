@@ -196,10 +196,10 @@ def setup_enfr_nyu():
                      home + '/.dataset/tm2.enfr/train.fr.top5.matched.shuf.tok'   # target-TM
                      ],
 
-        'valid_datasets': [home + '/.dataset/tm2.enfr/devset.enfr.en.tok',
-                           home + '/.dataset/tm2.enfr/devset.enfr.fr.tok',
-                           home + '/.dataset/tm2.enfr/devset.enfr.en.matched.tok',
-                           home + '/.dataset/tm2.en/frdevset.enfr.fr.matched.tok'
+        'valid_datasets': [home + '/.dataset/tm2.enfr/devset.en.tok',
+                           home + '/.dataset/tm2.enfr/devset.fr.tok',
+                           home + '/.dataset/tm2.enfr/devset.en.matched.tok',
+                           home + '/.dataset/tm2.enfr/devset.fr.matched.tok'
                            ],
 
         'dictionaries': [home + '/.dataset/tm2.enfr/train.en.top5.shuf.tok.pkl',
@@ -216,10 +216,10 @@ def setup_enfr_nyu():
         'use_pretrain': True,
 
         # test phase
-        'trans_from': home + '/.dataset/tm2.enfr/devset.enfr.en.tok',
-        'tm_source':  home + '/.dataset/tm2.enfr/devset.enfr.en.matched.tok',
-        'tm_target':  home + '/.dataset/tm2.enfr/devset.enfr.fr.matched.tok',
-        'trans_ref':  home + '/.dataset/tm2.enfr/devset.enfr.fr.tok',
+        'trans_from': home + '/.dataset/tm2.enfr/devset.en.tok',
+        'tm_source':  home + '/.dataset/tm2.enfr/devset.en.matched.tok',
+        'tm_target':  home + '/.dataset/tm2.enfr/devset.fr.matched.tok',
+        'trans_ref':  home + '/.dataset/tm2.enfr/devset.fr.tok',
         'trans_to':   home + '/.translate/' + name + '.dev.translate'
     }
     return config
