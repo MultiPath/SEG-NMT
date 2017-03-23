@@ -1,5 +1,6 @@
 from __future__ import division
 from nmt import *
+from layer import *
 from pprint import pprint
 from setup import setup
 from data_iterator import TextIterator, prepare_data, prepare_cross
@@ -14,6 +15,12 @@ parser.add_argument('-m', type=str, default='fren')
 args = parser.parse_args()
 
 model_options = setup(args.m)
+if model_options['remote']:
+    monitor = Monitor(model_options['address'], model_options['port'])
+    print 'create a remote monitor'
+else:
+    monitor = None
+
 pprint(model_options)
 
 # add random seed
@@ -65,6 +72,9 @@ validFreq    = model_options['validFreq']
 bleuFreq     = model_options['bleuFreq']
 saveto       = model_options['saveto']
 overwrite    = model_options['overwrite']
+
+if monitor:
+    monitor.start_experiment('train.{}'.format(model_options['saveto']), False)
 
 # ----------------------------------------------- #
 

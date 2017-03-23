@@ -1,8 +1,9 @@
 # setup the training and testing details in this file
 def setup_fren0():
-    # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
-    home  = '/root/workspace/TMNMT'
-    model = '/root/disk/scratch/model-tmnmt'
+    home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    #home  = '/root/workspace/TMNMT'
+    #model = '/root/disk/scratch/model-tmnmt'
     # name  = 'TM2.A0'
     name  = 'TM2.B5'
 
@@ -134,7 +135,49 @@ def setup_enfr():
     return config
 
 
+def setup_enfr_nyu():
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    #name  = 'TM2.v1'
+    name  = 'TM2.Pretrain'
 
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/tm2.enfr/train.en.top5.shuf.tok',          # source
+                     home + '/.dataset/tm2.enfr/train.fr.top5.shuf.tok',          # target
+                     home + '/.dataset/tm2.enfr/train.en.top5.matched.shuf.tok',  # source-TM
+                     home + '/.dataset/tm2.enfr/train.fr.top5.matched.shuf.tok'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/tm2.enfr/devset.enfr.en.tok',
+                           home + '/.dataset/tm2.enfr/devset.enfr.fr.tok',
+                           home + '/.dataset/tm2.enfr/devset.enfr.en.matched.tok',
+                           home + '/.dataset/tm2.en/frdevset.enfr.fr.matched.tok'
+                           ],
+
+        'dictionaries': [home + '/.dataset/tm2.enfr/train.en.top5.shuf.tok.pkl',
+                         home + '/.dataset/tm2.enfr/train.fr.top5.shuf.tok.pkl',
+                         home + '/.dataset/tm2.enfr/train.en.top5.shuf.tok.pkl',
+                         home + '/.dataset/tm2.enfr/train.fr.top5.shuf.tok.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 50,
+
+        # baseline models
+        'baseline_xy': model + '/baseline_enfr.bs64.npz',
+        'use_pretrain': True,
+
+        # test phase
+        'trans_from': home + '/.dataset/tm2.enfr/devset.enfr.en.tok',
+        'tm_source':  home + '/.dataset/tm2.enfr/devset.enfr.en.matched.tok',
+        'tm_target':  home + '/.dataset/tm2.enfr/devset.enfr.fr.matched.tok',
+        'trans_ref':  home + '/.dataset/tm2.enfr/devset.enfr.fr.tok',
+        'trans_to':   home + '/.translate/' + name + '.dev.translate'
+    }
+    return config
 
 
 
