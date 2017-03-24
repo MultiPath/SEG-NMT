@@ -46,6 +46,54 @@ def setup_fren0():
     return config
 
 
+def setup_deen():
+    # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    home  = '/root/workspace/TMNMT'
+    model = '/root/disk/scratch/model-tmnmt'
+    name  = 'TM2.B7'
+
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/top5k.deen/train.de.top5.shuf.tok',          # source
+                     home + '/.dataset/top5k.deen/train.en.top5.shuf.tok',          # target
+                     home + '/.dataset/top5k.deen/train.de.top5.matched.shuf.tok',  # source-TM
+                     home + '/.dataset/top5k.deen/train.en.top5.matched.shuf.tok'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/top5k.deen/dev.deen.de.tok',
+                           home + '/.dataset/top5k.deen/dev.deen.en.tok',
+                           home + '/.dataset/top5k.deen/devset.de.matched.tok',
+                           home + '/.dataset/top5k.deen/devset.en.matched.tok'
+                           ],
+
+        'dictionaries': [home + '/.dataset/top5k.deen/train.de.top5.shuf.tok.pkl',
+                         home + '/.dataset/top5k.deen/train.en.top5.shuf.tok.pkl',
+                         home + '/.dataset/top5k.deen/train.de.top5.shuf.tok.pkl',
+                         home + '/.dataset/top5k.deen/train.en.top5.shuf.tok.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 50,
+
+        # baseline models
+        'baseline_xy': model + '/baseline_deen.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/top5k.deen/dev.deen.de.tok',
+        'tm_source':  home + '/.dataset/top5k.deen/devset.de.matched.tok',
+        'tm_target':  home + '/.dataset/top5k.deen/devset.en.matched.tok',
+        'trans_ref':  home + '/.dataset/top5k.deen/dev.deen.en.tok',
+        'trans_to':   home + '/.translate/' + name + '.dev.translate'
+    }
+    return config
+
+
+
+
+
+
 def setup_fren():
     # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     home  = '/root/workspace/TMNMT'
@@ -299,6 +347,7 @@ def setup(pair='fren'):
         'reload_':      True,
 
         'use_pretrain': False,
+        'see_pretrain': False,
         'only_train_g': False,
         'diagonal':     True,
         'eye':          True,

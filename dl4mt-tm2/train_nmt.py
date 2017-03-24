@@ -290,6 +290,14 @@ for eidx in xrange(max_epochs):
         if numpy.mod(uidx, sampleFreq) == 0:
             for jj in xrange(numpy.minimum(5, x1.shape[1])):
                 stochastic = True
+
+                print '============================='
+                print 'Target-TM {}: {}'.format(jj, idx2seq(sy2[jj], 3))
+                print 'Source-TM {}: {}'.format(jj, idx2seq(sx2[jj], 2))
+                print 'Source-CR {}: {}'.format(jj, idx2seq(sx1[jj], 0))
+                print 'Target-CR {}: {}'.format(jj, idx2seq(sy1[jj], 1))
+                print '-----------------------------'
+
                 sample, sc, acts, gg = gen_sample_memory(tparams, funcs,
                                                          x1[:, jj][:, None],
                                                          x2[:, jj][:, None],
@@ -301,24 +309,6 @@ for eidx in xrange(max_epochs):
                                                          stochastic=model_options['stochastic'],
                                                          argmax=True)
 
-                sample0, sc0  = gen_sample(tparams_xy0,
-                                           funcs['init_xy0'],
-                                           funcs['next_xy0'],
-                                           x1[:, jj][:, None],
-                                           model_options,
-                                           rng=model_options['rng'],
-                                           k=model_options['beamsize'],
-                                           maxlen=200,
-                                           stochastic=model_options['stochastic'],
-                                           argmax=True)
-
-                print '============================='
-                print 'Target-TM {}: {}'.format(jj, idx2seq(sy2[jj], 3))
-                print 'Source-TM {}: {}'.format(jj, idx2seq(sx2[jj], 2))
-                print 'Source-CR {}: {}'.format(jj, idx2seq(sx1[jj], 0))
-                print 'Target-CR {}: {}'.format(jj, idx2seq(sy1[jj], 1))
-                print '-----------------------------'
-
                 if model_options['stochastic']:
                     ss  = sample
                     act = acts
@@ -328,12 +318,6 @@ for eidx in xrange(max_epochs):
                     ss = sample[sc.argmin()]
                     act = acts[sc.argmin()]
                     gg_ = gg[sc.argmin()]
-
-                if model_options['stochastic']:
-                    ss0 = sample0
-                else:
-                    sc0 /= numpy.array([len(s) for s in sample0]).astype('float32')
-                    ss0  = sample0[sc0.argmin()]
 
                 _ss = []
                 for ii, si in enumerate(ss):
@@ -346,8 +330,29 @@ for eidx in xrange(max_epochs):
                         else:
                             _ss.append(0)
 
-                # print 'Sample-CR {}: {}'.format(jj, idx2seq(_ss, 1))
-                print 'NMT Model {}: {}'.format(jj, idx2seq(ss0, 1))
+
+                if model_options['see_pretrain']:
+                    sample0, sc0  = gen_sample(tparams_xy0,
+                                               funcs['init_xy0'],
+                                               funcs['next_xy0'],
+                                               x1[:, jj][:, None],
+                                               model_options,
+                                               rng=model_options['rng'],
+                                               k=model_options['beamsize'],
+                                               maxlen=200,
+                                               stochastic=model_options['stochastic'],
+                                               argmax=True)
+
+                    if model_options['stochastic']:
+                        ss0 = sample0
+                    else:
+                        sc0 /= numpy.array([len(s) for s in sample0]).astype('float32')
+                        ss0  = sample0[sc0.argmin()]
+
+
+                    # print 'Sample-CR {}: {}'.format(jj, idx2seq(_ss, 1))
+                    print 'NMT Model {}: {}'.format(jj, idx2seq(ss0, 1))
+
                 print 'Copy Prob {}: {}'.format(jj, idx2seq(_ss, 1, act))
                 print 'Copy Gate {}: {}'.format(jj, idx2seq(_ss, 1, gg_))
                 print

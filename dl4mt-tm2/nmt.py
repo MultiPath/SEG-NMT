@@ -604,10 +604,11 @@ def build_networks(options, model=' ', train=True):
     params_xy0 = copy.copy(params_xy)
     print 'Done.'
 
-    print 'load the pretrained NMT-models...'
-    params_xy0  = load_params2(options['baseline_xy'], params_xy0, mode='xy_')
-    tparams_xy0 = init_tparams(params_xy0)  # pre-trained E->F model
-    print 'Done.'
+    if options['see_pretrain']:
+        print 'load the pretrained NMT-models...'
+        params_xy0  = load_params2(options['baseline_xy'], params_xy0, mode='xy_')
+        tparams_xy0 = init_tparams(params_xy0)  # pre-trained E->F model
+        print 'Done.'
 
     # use pre-trained models
     if options['use_pretrain']:
@@ -871,8 +872,9 @@ def build_networks(options, model=' ', train=True):
     print 'build sampler (one-step)'
     f_init_xy, f_next_xy   = build_sampler(tparams_xy, options, options['trng'], 'xy_')
 
-    print 'build old sampler'
-    f_init_xy0, f_next_xy0 = build_sampler(tparams_xy0, options, options['trng'], 'xy_')
+    if options['see_pretrain']:
+        print 'build old sampler'
+        f_init_xy0, f_next_xy0 = build_sampler(tparams_xy0, options, options['trng'], 'xy_')
 
     if train:
         # before any regularizer
@@ -925,8 +927,11 @@ def build_networks(options, model=' ', train=True):
     funcs['init_xy']   = f_init_xy
     funcs['next_xy']   = f_next_xy
     funcs['crit_xy']   = ret_xy11['f_critic']
-    funcs['init_xy0']  = f_init_xy0
-    funcs['next_xy0']  = f_next_xy0
+
+    if options['see_pretrain']:
+        funcs['init_xy0']  = f_init_xy0
+        funcs['next_xy0']  = f_next_xy0
+
     funcs['map']       = f_map
 
     print 'Build Networks... done!'
