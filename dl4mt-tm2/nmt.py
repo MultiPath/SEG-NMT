@@ -936,6 +936,8 @@ def build_networks(options, model=' ', train=True):
 
     print 'Build Networks... done!'
     if train:
-        return funcs, [tparams, tparams_xy0]
-    else:
-        return funcs, tparams
+        if options['see_pretrain']:
+            return funcs, [tparams, tparams_xy0]
+
+    return funcs, tparams
+

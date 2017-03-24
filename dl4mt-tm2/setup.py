@@ -47,9 +47,10 @@ def setup_fren0():
 
 
 def setup_deen():
-    # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
-    home  = '/root/workspace/TMNMT'
-    model = '/root/disk/scratch/model-tmnmt'
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    # home  = '/root/workspace/TMNMT'
+    # model = '/root/disk/scratch/model-tmnmt'
     name  = 'TM2.B7'
 
     config = {
