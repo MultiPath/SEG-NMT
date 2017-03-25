@@ -223,6 +223,6 @@ if __name__ == "__main__":
        config['beamsize'],
        config['normalize'],
        config['d_maxlen'],
-       MM=args.mm, iters=args.i)
+       MM=int(args.mm), iters=args.i)
 
     print 'all done'
