@@ -181,10 +181,10 @@ def setup_fren_bpe():
         'baseline_xy': model + '/baseline_fren.bpe.npz',
 
         # test phase
-        'trans_from': home + '/.dataset/top5k.fren/devset.fr.tok.bpe',
-        'tm_source':  home + '/.dataset/top5k.fren/devset.fr.matched.tok.bpe',
-        'tm_target':  home + '/.dataset/top5k.fren/devset.en.matched.tok.bpe',
-        'trans_ref':  home + '/.dataset/top5k.fren/devset.en.tok.bpe',
+        'trans_from': home + '/.dataset/top5k.fren.bpe/devset.fr.tok.bpe',
+        'tm_source':  home + '/.dataset/top5k.fren.bpe/devset.fr.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/top5k.fren.bpe/devset.en.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/top5k.fren.bpe/devset.en.tok.bpe',
         'trans_to':   home + '/.translate/' + name + '.dev.translate'
     }
     return config

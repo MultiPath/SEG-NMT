@@ -6,6 +6,7 @@ import theano
 import numpy
 import time
 import os
+import itertools
 import cPickle as pkl
 from layer import *
 from nmt import (build_sampler, gen_sample, gen_sample_multi, load_params,
@@ -63,7 +64,9 @@ def translate_model(queue, funcs, tparams, options, k,
             x2 = [map(lambda ii: ii if ii < options['voc_sizes'][2] else 1, sx20) for sx20 in sx2]
             y2 = [map(lambda ii: ii if ii < options['voc_sizes'][3] else 1, sy20) for sy20 in sy2]
             seq, ss, acts, gs = _translate(x1, x2, y2)
-            sseq = map(lambda ii: ii if ii < options['voc_sizes'][1] else sy2[ii-options['voc_sizes'][1]], seq)
+
+            ssy2 = list(itertools.chain.from_iterable(sy2))
+            sseq = map(lambda ii: ii if ii < options['voc_sizes'][1] else ssy2[ii-options['voc_sizes'][1]], seq)
 
         else:
             idx, sx1  = req[0], req[1]
@@ -83,7 +86,7 @@ def translate_model(queue, funcs, tparams, options, k,
 def go(model, dictionary, dictionary_target,
        source_file_x1, source_file_x2, source_file_y2, tm_rank,
        reference_file_y1, saveto,
-       k=5, normalize=False, d_maxlen=200, MM=1, iters=-1):
+       k=5, normalize=False, d_maxlen=200, MM=1, iters=-1, SS=False):
 
     # inter-step
     step_test = 0
@@ -175,6 +178,42 @@ def go(model, dictionary, dictionary_target,
 
         return queue
 
+    def _send_self(fname_x1, fname_y1):
+        queue_x1 = []
+        queue_x2 = []
+        queue_y2 = []
+        queue = []
+        with open(fname_x1, 'r') as f:
+            for idx, line in enumerate(f):
+
+                words = line.strip().split()
+                x1 = map(lambda w: word_dict[w] if w in word_dict else 1, words)
+                x1 += [0]
+                queue_x1.append((idx, x1))
+
+
+        with open(fname_x1, 'r') as f:
+            for idx, line in enumerate(f):
+
+                words = line.strip().split()
+                x1 = map(lambda w: word_dict[w] if w in word_dict else 1, words)
+                x1 += [0]
+                queue_x2.append((idx, [x1]))
+
+
+        with open(fname_y1, 'r') as f:
+            for idx, line in enumerate(f):
+
+                words = line.strip().split()
+                y1 = map(lambda w: word_dict_trg[w] if w in word_dict_trg else 1, words)
+                y1 += [0]
+                queue_y2.append((idx, [y1]))
+
+        for i, (x1, x2, y2) in enumerate(zip(queue_x1, queue_x2, queue_y2)):
+            queue.append((i, x1[1], x2[1], y2[1]))
+
+        return queue
+
 
     if iters > -1:
         model = model[:-4] + '.iter{}.npz'.format(iters)
@@ -182,9 +221,14 @@ def go(model, dictionary, dictionary_target,
     print '[test] build the model...{}'.format(model)
     funcs, tparams = build_networks(options, model, train=False)
 
-    saveto = saveto + '-mm=' + str(MM) + '.multi'
+    if not SS:
+        saveto = saveto + '-mm=' + str(MM) + '.multi'
+        queue = _send_jobs(source_file_x1)
+    else:
+        saveto = saveto + '.multi.SS'
+        queue = _send_self(source_file_x1, reference_file_y1)
+
     print '[test] start translating ', source_file_x1, '...to...', saveto
-    queue = _send_jobs(source_file_x1)
     rets  = translate_model(queue, funcs, tparams, options,
                             k, normalize, 0, d_maxlen, MM)
     sseqs, ss, acts, gs = zip(*rets)
@@ -205,6 +249,7 @@ if __name__ == "__main__":
     parser.add_argument('-m', type=str, default='fren')
     parser.add_argument('-mm', default=0)
     parser.add_argument('-i',  default=-1)
+    parser.add_argument('-ss', action='store_true', default=False)
     args = parser.parse_args()
 
     config = setup(args.m)
@@ -223,6 +268,8 @@ if __name__ == "__main__":
        config['beamsize'],
        config['normalize'],
        config['d_maxlen'],
-       MM=int(args.mm), iters=args.i)
+       MM=int(args.mm),
+       iters=args.i,
+       SS=args.ss)
 
     print 'all done'

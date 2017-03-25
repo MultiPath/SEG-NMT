@@ -7,6 +7,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-m', type=str, default='fren')
+parser.add_argument('-ss', action='store_true', default=False)
 parser.add_argument('-mm', default=0)
 args = parser.parse_args()
 
@@ -14,7 +15,9 @@ config = setup(args.m)
 
 baseline = False
 trans_to = config['trans_to']
-if args.mm > 0:
+if args.ss:
+    trans_to += '.multi.SS'
+elif args.mm > 0:
     trans_to = trans_to + '-mm=' + str(args.mm) + '.multi'
 
 if not baseline:

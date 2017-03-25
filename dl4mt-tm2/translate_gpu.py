@@ -159,7 +159,7 @@ def go(model, dictionary, dictionary_target,
 
     else:
         if monitor is not None:
-            monitor.start_experiment('test.{}'.format(model))
+            monitor.start_experiment('test2.{}'.format(model))
 
         step_test = start_steps
         if step_test == 0:
@@ -202,7 +202,7 @@ def go(model, dictionary, dictionary_target,
 
                 print '[test] compute BLEU score for {} <-> {}'.format(transto, ref)
 
-                # os.system("ed -i 's/@@ //g' {}".format(hyp))
+                os.system("sed -i 's/@@ //g' {}".format(transto))
                 out  = os.popen('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref, transto))
                 bleu = float(out.read().split()[2][:-1])
                 if monitor is not None:
