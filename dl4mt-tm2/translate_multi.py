@@ -21,11 +21,12 @@ def translate_model(queue, funcs, tparams, options, k,
     trng = RandomStreams(19920206)
 
     def _translate(seq_x1, seq_x2, seq_y2):
+
         # sample given an input sequence and obtain scores
         sample, score, action, gating = \
                 gen_sample_multi(tparams, funcs,
                                   numpy.array(seq_x1).reshape([len(seq_x1), 1]),
-                                  [numpy.array(seq_x2).reshape([len(seq_x2), 1])]
+                                  [numpy.array(seq_x2).reshape([len(seq_x2), 1])],
                                   [numpy.array(seq_y2).reshape([len(seq_y2), 1])],
                                   options, rng=trng, m=m, k=k, maxlen=d_maxlen,
                                   stochastic=options['stochastic'], argmax=True)
@@ -64,7 +65,7 @@ def translate_model(queue, funcs, tparams, options, k,
 
 def go(model, dictionary, dictionary_target,
        source_file_x1, source_file_x2, source_file_y2, reference_file_y1,
-       saveto, k=5, normalize=False, d_maxlen=200, MM=1):
+       saveto, k=5, normalize=False, d_maxlen=200, MM=1, iters=-1):
 
     # inter-step
     step_test = 0
@@ -72,6 +73,7 @@ def go(model, dictionary, dictionary_target,
     # load model model_options
     with open('%s.pkl' % model, 'rb') as f:
         options = pkl.load(f)
+        options['see_pretrain'] = False
 
     # load source dictionary and invert
     with open(dictionary, 'rb') as f:
@@ -138,10 +140,13 @@ def go(model, dictionary, dictionary_target,
         return queue
 
 
-    print '[test] build the model'
+    if iters > -1:
+        model = model[:-4] + '.iter{}.npz'.format(iters)
+
+    print '[test] build the model...{}'.format(model)
     funcs, tparams = build_networks(options, model, train=False)
 
-    saveto += 'mm={}.multi'.format(MM)
+    saveto = saveto + 'mm=' + str(MM) + '.multi'
     print '[test] start translating ', source_file_x1, '...to...', saveto
     queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
     rets  = translate_model(queue, funcs, tparams, options, k, normalize, 0, d_maxlen)
@@ -161,20 +166,25 @@ def go(model, dictionary, dictionary_target,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', type=str, default='fren')
+    parser.add_argument('-mm', default=0)
+    parser.add_argument('-i',  default=-1)
     args = parser.parse_args()
 
     config = setup(args.m)
 
     print 'TEST-MODE'
+
     go(config['saveto'],
        config['dictionaries'][0],
        config['dictionaries'][1],
        config['trans_from'],
        config['tm_source'],
        config['tm_target'],
+       config['trans_ref'],
        config['trans_to'],
        config['beamsize'],
        config['normalize'],
-       config['d_maxlen'], MM=1)
+       config['d_maxlen'],
+       MM=args.mm, iters=args.i)
 
     print 'all done'
