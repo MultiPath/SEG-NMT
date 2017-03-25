@@ -42,8 +42,11 @@ for ii, dd in enumerate(model_options['dictionaries']):
 
 
 funcs, tp = build_networks(model_options)
-tparams, tparams_xy0 = tp
 
+if model_options['see_pretrain']:
+    tparams, tparams_xy0 = tp
+else:
+    tparams = tp
 # print 'save the compiled functions/tparams for temperal usage'
 
 

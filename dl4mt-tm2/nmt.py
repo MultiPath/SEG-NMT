@@ -595,6 +595,209 @@ def gen_sample_memory(tparams, funcs,
     return sample, sample_score, action, gating
 
 
+def gen_sample_multi(tparams, funcs,
+                     x1, x2s, y2s,
+                     options, rng=None,
+                     m=0, k=1, maxlen=200,
+                     stochastic=True, argmax=False):
+    l_max = options['voc_sizes'][1-m]
+
+    # masks
+    x1_mask = numpy.array(x1 > 0, dtype='float32')
+    x1_mask[1:] = x1_mask[:-1]
+
+    x2_masks, y2_masks = [], []
+    for x2, y2 in zip(x2s, y2s):
+        x2_mask = numpy.array(x2 > 0, dtype='float32')
+        y2_mask = numpy.array(y2 > 0, dtype='float32')
+
+        x2_mask[1:] = x2_mask[:-1]
+        y2_mask[1:] = y2_mask[:-1]
+
+        x2_masks.append(x2_mask)
+        y2_masks.append(y2_mask)
+
+    # k is the beam size we have
+    if k > 1:
+        assert not stochastic, 'Beam search does not support stochastic sampling'
+
+    sample = []
+    action = []
+    gating = []
+    sample_score = []
+    if stochastic:
+        sample_score = 0
+
+    live_k = 1
+    dead_k = 0
+
+    hyp_samples = [[]] * live_k
+    hyp_actions = [[]] * live_k
+    hyp_gatings = [[]] * live_k
+    hyp_scores  = numpy.zeros(live_k).astype('float32')
+
+    # get initial state of decoder rnn and encoder context for x1
+    ret = funcs['init_xy'](x1)
+    next_state, ctx0 = ret[0], ret[1]  # init-state, contexts
+    next_w = -1 * numpy.ones((1,)).astype('int64')  # bos indicator
+
+    # get attention propagation for translation memory      ==> multiple sentence
+    hids20s, ctx20s = [], []
+    for x2, y2, x2_mask, y2_mask in zip(x2s, y2s, x2_masks, y2_masks):
+        _hids20, _ctxs20, _ = funcs['crit_xy'](x2, x2_mask, y2, y2_mask)
+        hids20s.append(_hids20)
+        ctx20s.append(_ctxs20)
+    hids20  = numpy.concatenate(hids20s, axis=0)
+    ctxs20  = numpy.concatenate(ctx20s,  axis=0)
+    y2_mask = numpy.concatenate(y2_masks, axis=0)
+    y2      = numpy.concatenate(y2s, axis=0)
+
+    # initial coverage vector
+    if options.get('nn_coverage', False):
+        next_cov = numpy.zeros((live_k, y2.shape[0], options['cov_dim']), dtype='float32')
+    else:
+        next_cov = numpy.zeros((live_k, y2.shape[0]), dtype='float32')
+
+    for ii in xrange(maxlen):
+        ctx   = numpy.tile(ctx0,   [live_k, 1])
+        ctxs2 = numpy.tile(ctxs20, [live_k, 1])
+        hids2 = numpy.tile(hids20, [live_k, 1])
+        y2_mask_ = numpy.tile(y2_mask, [live_k])
+
+        # -- mask OOV words as UNK
+        _next_w = (next_w * (next_w < l_max) + 1.0 * (next_w >= l_max)).astype('int64')
+
+        # --generate mode
+        ret = funcs['next_xy'](_next_w, ctx, next_state)
+        next_p, next_w, next_state, ctxs, attsum = ret[0], ret[1], ret[2], ret[3], ret[4]
+
+        # -- compute mapping, gating and copying attention
+        if not options['use_coverage']:
+            outs = funcs['map'](ctxs[None, :, :], ctxs2,
+                                next_state[None, :, :], hids2,
+                                y2_mask_)
+            mapping, gates, copy_p = [o[0] for o in outs]
+
+        else:
+            outs = funcs['map'](ctxs[None, :, :], ctxs2,
+                                next_state[None, :, :], hids2,
+                                y2_mask_, next_cov)
+            mapping, gates, copy_p, next_cov = [o[0] for o in outs]
+
+        # real probabilities
+        next_p *= 1 - gates[:, None]
+        copy_p *= gates[:, None]
+
+        def _merge():
+            temp_p = copy.copy(numpy.concatenate([next_p, copy_p], axis=1))
+
+            for i in range(next_p.shape[0]):
+                for j in range(copy_p.shape[1]):
+                    if y2[j] != 1:
+                        temp_p[i, y2[j]] += copy_p[i, j]
+                        temp_p[i, l_max + j] = 0.
+                temp_p[i, 1] = 0.  # never output UNK
+            return temp_p
+
+        merge_p = _merge()
+
+        if stochastic:
+            if argmax:
+                nw = merge_p[0].argmax()
+                next_w[0] = nw
+            else:
+                nw = rng.multinomial(1, pvals=merge_p[0]).argmax()
+
+            sample.append(nw)
+            gating.append(1 - gates[:, None])
+            if nw >= l_max:
+                action.append(0.0)
+            else:
+                action.append(next_p[0, nw] / merge_p[0, nw])
+
+            # action.append(gates[0])
+            sample_score -= numpy.log(merge_p[0, nw])
+            if nw == 0:
+                break
+        else:
+            # TODO: beam-search is still not ready.
+            cand_scores = hyp_scores[:, None] - numpy.log(merge_p)
+            cand_flat = cand_scores.flatten()
+            ranks_flat = cand_flat.argsort()[:(k - dead_k)]
+
+            voc_size = merge_p.shape[1]
+            trans_indices = ranks_flat / voc_size
+            word_indices = ranks_flat % voc_size
+            costs = cand_flat[ranks_flat]
+
+            new_hyp_samples = []
+            new_hyp_scores  = numpy.zeros(k - dead_k).astype('float32')
+            new_hyp_states  = []
+            new_hyp_covs    = []
+            new_hyp_gatings = []
+            new_hyp_actions = []
+
+            for idx, [ti, wi] in enumerate(zip(trans_indices, word_indices)):
+                new_hyp_samples.append(hyp_samples[ti] + [wi])
+                new_hyp_scores[idx] = copy.copy(costs[idx])
+                new_hyp_states.append(copy.copy(next_state[ti]))
+                new_hyp_covs.append(copy.copy(next_cov[ti]))
+                new_hyp_gatings.append(hyp_gatings[ti] + [1 - gates[ti]])
+                if wi >= l_max:
+                    new_hyp_actions.append(hyp_actions[ti] + [0])
+                else:
+                    new_hyp_actions.append(hyp_actions[ti] + [next_p[0, wi] / merge_p[0, wi]])
+
+            # check the finished samples
+            new_live_k = 0
+            hyp_samples = []
+            hyp_scores  = []
+            hyp_states  = []
+            hyp_covs    = []
+            hyp_gatings = []
+            hyp_actions = []
+
+            for idx in xrange(len(new_hyp_samples)):
+                if new_hyp_samples[idx][-1] == 0:
+                    sample.append(new_hyp_samples[idx])
+                    sample_score.append(new_hyp_scores[idx])
+                    action.append(new_hyp_actions[idx])
+                    gating.append(new_hyp_gatings[idx])
+                    dead_k += 1
+                else:
+                    new_live_k += 1
+                    hyp_samples.append(new_hyp_samples[idx])
+                    hyp_scores.append(new_hyp_scores[idx])
+                    hyp_states.append(new_hyp_states[idx])
+                    hyp_covs.append(new_hyp_covs[idx])
+                    hyp_gatings.append(new_hyp_gatings[idx])
+                    hyp_actions.append(new_hyp_actions[idx])
+
+            hyp_scores = numpy.array(hyp_scores)
+#             hyp_gating = numpy.array(hyp_gating)
+#             hyp_action = numpy.array(hyp_action)
+            live_k = new_live_k
+
+            if new_live_k < 1:
+                break
+            if dead_k >= k:
+                break
+
+            next_w = numpy.array([w[-1] for w in hyp_samples])
+            next_state = numpy.array(hyp_states)
+            next_cov   = numpy.array(hyp_covs)
+
+    if not stochastic:
+        # dump every remaining one
+        if live_k > 0:
+            for idx in xrange(live_k):
+                sample.append(hyp_samples[idx])
+                sample_score.append(hyp_scores[idx])
+                action.append(hyp_actions[idx])
+                gating.append(hyp_gatings[idx])
+
+    return sample, sample_score, action, gating
+
 @Timeit
 def build_networks(options, model=' ', train=True):
     funcs = dict()
@@ -936,6 +1139,8 @@ def build_networks(options, model=' ', train=True):
 
     print 'Build Networks... done!'
     if train:
-        return funcs, [tparams, tparams_xy0]
-    else:
-        return funcs, tparams
+        if options['see_pretrain']:
+            return funcs, [tparams, tparams_xy0]
+
+    return funcs, tparams
+
