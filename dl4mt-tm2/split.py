@@ -2,14 +2,23 @@ from __future__ import division
 import numpy
 import editdistance
 import os
-from setup import setup_fren
+from setup import setup
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-m', type=str, default='fren')
+parser.add_argument('-mm', default=0)
+args = parser.parse_args()
 
-config   = setup_fren()
+config = setup(args.m)
+
 baseline = False
+trans_to = config['trans_to']
+if args.mm > 0:
+    trans_to += 'mm={}.multi'.format(args.mm)
 
 if not baseline:
-    home = config['trans_to'] + '.split'
+    home = trans_to + '.split'
 else:
     home = '../.translate/baseline_fren.valid.split'
 
@@ -63,7 +72,7 @@ with open(config['valid_datasets'][1], 'rb') as f:
 en_trans_list = []
 
 if not baseline:
-    target = config['trans_to']
+    target = trans_to
 else:
     target = '../.translate/baseline_fren.valid'
 

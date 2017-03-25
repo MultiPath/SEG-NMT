@@ -8,7 +8,7 @@ import time
 import os
 import cPickle as pkl
 from layer import *
-from nmt import (build_sampler, gen_sample, gen_sample_memory, load_params,
+from nmt import (build_sampler, gen_sample, gen_sample_multi, load_params,
                  init_params, init_tparams, build_networks)
 from setup import setup
 
@@ -23,10 +23,10 @@ def translate_model(queue, funcs, tparams, options, k,
     def _translate(seq_x1, seq_x2, seq_y2):
         # sample given an input sequence and obtain scores
         sample, score, action, gating = \
-                gen_sample_memory(tparams, funcs,
+                gen_sample_multi(tparams, funcs,
                                   numpy.array(seq_x1).reshape([len(seq_x1), 1]),
-                                  numpy.array(seq_x2).reshape([len(seq_x2), 1]),
-                                  numpy.array(seq_y2).reshape([len(seq_y2), 1]),
+                                  [numpy.array(seq_x2).reshape([len(seq_x2), 1])]
+                                  [numpy.array(seq_y2).reshape([len(seq_y2), 1])],
                                   options, rng=trng, m=m, k=k, maxlen=d_maxlen,
                                   stochastic=options['stochastic'], argmax=True)
 
@@ -64,9 +64,7 @@ def translate_model(queue, funcs, tparams, options, k,
 
 def go(model, dictionary, dictionary_target,
        source_file_x1, source_file_x2, source_file_y2, reference_file_y1,
-       saveto, k=5, normalize=False, d_maxlen=200,
-       steps=None, max_steps=None, start_steps=0, sleep=1000,
-       monitor=None):
+       saveto, k=5, normalize=False, d_maxlen=200, MM=1):
 
     # inter-step
     step_test = 0
@@ -143,117 +141,40 @@ def go(model, dictionary, dictionary_target,
     print '[test] build the model'
     funcs, tparams = build_networks(options, model, train=False)
 
-    if steps is None:
-        print '[test] start translating ', source_file_x1, '...to...', saveto
-        queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
-        rets  = translate_model(queue, funcs, tparams, options, k, normalize, 0, d_maxlen)
-        sseqs, ss, acts, gs = zip(*rets)
+    saveto += 'mm={}.multi'.format(MM)
+    print '[test] start translating ', source_file_x1, '...to...', saveto
+    queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
+    rets  = translate_model(queue, funcs, tparams, options, k, normalize, 0, d_maxlen)
+    sseqs, ss, acts, gs = zip(*rets)
 
-        trans = _seqs2words(sseqs)
-        with open(saveto, 'w') as f:
-            print >>f, '\n'.join(trans)
-        print 'Done'
+    trans = _seqs2words(sseqs)
+    with open(saveto, 'w') as f:
+        print >>f, '\n'.join(trans)
+    print 'Done'
 
-        pkl.dump(rets, open(saveto + '.pkl', 'w'))
-        print 'All Done'
+    pkl.dump(rets, open(saveto + '.pkl', 'w'))
+    print 'All Done'
 
-    else:
-        if monitor is not None:
-            monitor.start_experiment('test.{}'.format(model))
 
-        step_test = start_steps
-        if step_test == 0:
-            step_test += steps
-
-        while step_test < max_steps:
-
-            # check if the check-point is saved
-            checkpoint = '{}.iter{}.npz'.format(os.path.splitext(model)[0], step_test)
-            if not os.path.exists(checkpoint):
-                print '[test] Did not find checkpoint: {}. I want sleep {}s.'.format(checkpoint, sleep)
-
-                time.sleep(sleep)
-
-            else:
-
-                transto = saveto + '.iter={}'.format(step_test)
-                print '[test] start translating ', source_file_x1, '...to...', transto
-
-                if os.path.exists(transto):
-                    print 'we found translated files...skip'
-                else:
-                    print '[test] Load check-point: {}'.format(checkpoint),
-                    zipp(load_params(checkpoint, unzip(tparams)), tparams)
-                    print 'done.'
-
-                    queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
-                    rets = translate_model(queue, funcs, tparams, options, k, normalize, 0, d_maxlen)
-                    sseqs, ss, acts, gs = zip(*rets)
-
-                    trans = _seqs2words(sseqs)
-                    with open(transto, 'w') as f:
-                        print >> f, '\n'.join(trans)
-                    print 'Done'
-
-                    pkl.dump(rets, open(transto + '.pkl', 'w'))
-
-                # compute BLEU score.
-                ref = reference_file_y1
-
-                print '[test] compute BLEU score for {} <-> {}'.format(transto, ref)
-
-                # os.system("ed -i 's/@@ //g' {}".format(hyp))
-                out  = os.popen('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref, transto))
-                bleu = float(out.read().split()[2][:-1])
-                if monitor is not None:
-                    monitor.push({'BLEU': bleu}, step=step_test)
-
-                print 'Done at iter={}, BLEU={}'.format(step_test, bleu)
-                step_test += steps
-
-            pass
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', type=str, default='fren')
-    parser.add_argument('-p', type=str, default='round')
     args = parser.parse_args()
 
     config = setup(args.m)
 
-    if config['remote']:
-        monitor = Monitor(config['address'], config['port'])
-        print 'create a remote monitor!'
-    else:
-        monitor = None
-
-    if args.p == 'round':
-        print 'ROUND-MODE'
-        go(config['saveto'],
-           config['dictionaries'][0],
-           config['dictionaries'][1],
-           config['trans_from'],
-           config['tm_source'],
-           config['tm_target'],
-           config['trans_ref'],
-           config['trans_to'],
-           config['beamsize'],
-           config['normalize'],
-           config['d_maxlen'],
-           steps=2500, max_steps=1000000, start_steps=0,
-           sleep=600, monitor=monitor)
-    else:
-        print 'TEST-MODE'
-        go(config['saveto'],
-           config['dictionaries'][0],
-           config['dictionaries'][1],
-           config['trans_from'],
-           config['tm_source'],
-           config['tm_target'],
-           config['trans_to'],
-           config['beamsize'],
-           config['normalize'],
-           config['d_maxlen'])
+    print 'TEST-MODE'
+    go(config['saveto'],
+       config['dictionaries'][0],
+       config['dictionaries'][1],
+       config['trans_from'],
+       config['tm_source'],
+       config['tm_target'],
+       config['trans_to'],
+       config['beamsize'],
+       config['normalize'],
+       config['d_maxlen'], MM=1)
 
     print 'all done'

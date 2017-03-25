@@ -170,7 +170,7 @@ def setup_fren_bpe():
                          ],
 
         'voc_sizes': [20000, 20000, 20000, 20000],
-        'maxlen': 50,
+        'maxlen': 80,
 
         # baseline models
         'baseline_xy': model + '/baseline_fren.bpe.npz',
