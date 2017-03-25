@@ -135,7 +135,12 @@ def setup_fren():
         'tm_source':  home + '/.dataset/top5k.fren/devset.fr.matched.tok',
         'tm_target':  home + '/.dataset/top5k.fren/devset.en.matched.tok',
         'trans_ref':  home + '/.dataset/top5k.fren/devset.en.tok',
-        'trans_to':   home + '/.translate/' + name + '.dev.translate'
+        'trans_to':   home + '/.translate/' + name + '.dev.translate',
+
+        # multi-tm test
+        'tm_source_full': home + '/.dataset/top5k.fren/train.fr.top1.tok',
+        'tm_target_full': home + '/.dataset/top5k.fren/train.en.top1.tok',
+        'tm_rank': home + '/.dataset/top5k.fren/match_top100.pkl'
     }
     return config
 
