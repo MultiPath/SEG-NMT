@@ -182,7 +182,7 @@ def go(model, dictionary, dictionary_target,
     print '[test] build the model...{}'.format(model)
     funcs, tparams = build_networks(options, model, train=False)
 
-    saveto = saveto + 'mm=' + str(MM) + '.multi'
+    saveto = saveto + '-mm=' + str(MM) + '.multi'
     print '[test] start translating ', source_file_x1, '...to...', saveto
     queue = _send_jobs(source_file_x1)
     rets  = translate_model(queue, funcs, tparams, options,

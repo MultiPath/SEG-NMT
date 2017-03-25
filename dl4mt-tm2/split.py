@@ -15,7 +15,7 @@ config = setup(args.m)
 baseline = False
 trans_to = config['trans_to']
 if args.mm > 0:
-    trans_to = trans_to + 'mm=' + str(args.mm) + '.multi'
+    trans_to = trans_to + '-mm=' + str(args.mm) + '.multi'
 
 if not baseline:
     home = trans_to + '.split'

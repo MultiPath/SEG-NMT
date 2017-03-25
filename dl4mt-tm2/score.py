@@ -11,7 +11,7 @@ config = setup(args.m)
 hyp = config['trans_to']
 ref = config['trans_ref']
 if args.mm > 0:
-    hyp = hyp + 'mm=' + str(args.mm) + '.multi'
+    hyp = hyp + '-mm=' + str(args.mm) + '.multi'
 
 print 'compute BLEU score for {}'.format(hyp)
 # os.system("ed -i 's/@@ //g' {}".format(hyp))
