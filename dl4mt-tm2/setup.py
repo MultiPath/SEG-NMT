@@ -55,36 +55,41 @@ def setup_ende_wmt15():
         # train phase
         'name': name,
         'saveto': model + '/' + name + '_',
-        'datasets': [home + '/.dataset/top5k.deen/train.de.top5.shuf.tok',          # source
-                     home + '/.dataset/top5k.deen/train.en.top5.shuf.tok',          # target
-                     home + '/.dataset/top5k.deen/train.de.top5.matched.shuf.tok',  # source-TM
-                     home + '/.dataset/top5k.deen/train.en.top5.matched.shuf.tok'   # target-TM
+        'datasets': [home + '/.dataset/wmt15.ende/train/train.en.top5.tok.bpe',          # source
+                     home + '/.dataset/wmt15.ende/train/train.de.top5.tok.bpe',          # target
+                     home + '/.dataset/wmt15.ende/train/train.en.top5.matched.tok.bpe',  # source-TM
+                     home + '/.dataset/wmt15.ende/train/train.de.top5.matched.tok.bpe'   # target-TM
                      ],
 
-        'valid_datasets': [home + '/.dataset/top5k.deen/dev.deen.de.tok',
-                           home + '/.dataset/top5k.deen/dev.deen.en.tok',
-                           home + '/.dataset/top5k.deen/devset.de.matched.tok',
-                           home + '/.dataset/top5k.deen/devset.en.matched.tok'
+        'valid_datasets': [home + '/.dataset/wmt15.ende/dev/newstest2013.en.tok.bpe',
+                           home + '/.dataset/wmt15.ende/dev/newstest2013.de.tok.bpe',
+                           home + '/.dataset/wmt15.ende/dev/devset.en.matched.tok.bpe',
+                           home + '/.dataset/wmt15.ende/dev/devset.de.matched.tok.bpe'
                            ],
 
-        'dictionaries': [home + '/.dataset/top5k.deen/train.de.top5.shuf.tok.pkl',
-                         home + '/.dataset/top5k.deen/train.en.top5.shuf.tok.pkl',
-                         home + '/.dataset/top5k.deen/train.de.top5.shuf.tok.pkl',
-                         home + '/.dataset/top5k.deen/train.en.top5.shuf.tok.pkl'
+        'dictionaries': [home + '/.dataset/wmt15.ende/train/all_de-en.en.tok.bpe.word.pkl',
+                         home + '/.dataset/wmt15.ende/train/all_de-en.de.tok.bpe.word.pkl',
+                         home + '/.dataset/wmt15.ende/train/all_de-en.en.tok.bpe.word.pkl',
+                         home + '/.dataset/wmt15.ende/train/all_de-en.de.tok.bpe.word.pkl'
                          ],
 
         'voc_sizes': [20000, 20000, 20000, 20000],
         'maxlen': 50,
 
+        # special care
+        'dim': 1028,
+        'use_pretrain': True,
+        'see_pretrain': True,
+
         # baseline models
-        'baseline_xy': model + '/baseline_deen.npz',
+        'baseline_xy': model + '/model_wmt15_bi_en-de.npz',
 
         # test phase
-        'trans_from': home + '/.dataset/top5k.deen/dev.deen.de.tok',
-        'tm_source':  home + '/.dataset/top5k.deen/devset.de.matched.tok',
-        'tm_target':  home + '/.dataset/top5k.deen/devset.en.matched.tok',
-        'trans_ref':  home + '/.dataset/top5k.deen/dev.deen.en.tok',
-        'trans_to':   home + '/.translate/' + name + '.dev.translate'
+        'trans_from': home + '/.dataset/wmt15.ende/dev/newstest2013.en.tok.bpe',
+        'tm_source':  home + '/.dataset/wmt15.ende/dev/devset.en.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/wmt15.ende/dev/devset.de.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/wmt15.ende/dev/newstest2013.de.tok.bpe',
+        'trans_to':   home + '/.translate/' + name + '.wmt15.dev.translate'
     }
     return config
 
