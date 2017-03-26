@@ -91,8 +91,52 @@ def setup_deen():
     return config
 
 
+def setup_enes_miles():
+    home  = '/home/thoma/work/TMNMT'
+    model = '/home/thoma/scratch/tmnmt'
+    name  = 'TM2.B7'
 
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/top5k.enes/train.en.top5.shuf.tok',          # source
+                     home + '/.dataset/top5k.enes/train.es.top5.shuf.tok',          # target
+                     home + '/.dataset/top5k.enes/train.en.top5.matched.shuf.tok',  # source-TM
+                     home + '/.dataset/top5k.enes/train.es.top5.matched.shuf.tok'   # target-TM
+                     ],
 
+        'valid_datasets': [home + '/.dataset/top5k.enes/dev.enes.en.tok',
+                           home + '/.dataset/top5k.enes/dev.enes.es.tok',
+                           home + '/.dataset/top5k.enes/devset.en.matched.tok',
+                           home + '/.dataset/top5k.enes/devset.es.matched.tok'
+                           ],
+
+        'dictionaries': [home + '/.dataset/top5k.enes/train.en.top5.shuf.tok.pkl',
+                         home + '/.dataset/top5k.enes/train.es.top5.shuf.tok.pkl',
+                         home + '/.dataset/top5k.enes/train.en.top5.shuf.tok.pkl',
+                         home + '/.dataset/top5k.enes/train.es.top5.shuf.tok.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 50,
+
+        # baseline models
+        'baseline_xy': model + '/baseline_enes.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/top5k.enes/dev.enes.en.tok',
+        'tm_source':  home + '/.dataset/top5k.enes/devset.en.matched.tok',
+        'tm_target':  home + '/.dataset/top5k.enes/devset.es.matched.tok',
+        'trans_ref':  home + '/.dataset/top5k.enes/dev.enes.es.tok',
+        'trans_to':   home + '/.translate/' + name + '.enes.dev.translate',
+
+        # multi-tm test
+        'tm_source_full': home + '/.dataset/top5k.enes/train.en.top1.tok',
+        'tm_target_full': home + '/.dataset/top5k.enes/train.es.top1.tok',
+        'tm_rank': home + '/.dataset/top5k.enes/match_top100.pkl'
+    }
+    return config
 
 
 def setup_fren():
