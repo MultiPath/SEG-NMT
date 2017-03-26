@@ -998,8 +998,8 @@ def build_networks(options, model=' ', train=True):
                 tm_ctx2_shape = tm_ctx2.shape
                 tm_ctx2_  = tm_ctx2.reshape((tm_ctx2_shape[0] * tm_ctx2_shape[1], tm_ctx2_shape[2]))
 
-                cur_ctx1  = cur_ctx1[None, :, :]
-                cur_ctx1_ = tensor.repeat(cur_ctx1, tm_ctx2_shape[0], axis=0).reshape(
+                cur_ctx1_ = cur_ctx1[None, :, :]
+                cur_ctx1_ = tensor.repeat(cur_ctx1_, tm_ctx2_shape[0], axis=0).reshape(
                                 (tm_ctx2_shape[0] * tm_ctx2_shape[1], tm_ctx2_shape[2]))
 
                 attens_   = attens.dimshuffle(1, 0)

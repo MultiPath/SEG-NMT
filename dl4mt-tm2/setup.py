@@ -46,6 +46,57 @@ def setup_fren0():
     return config
 
 
+def setup_ende_wmt15():
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    name  = 'TM2.B7'
+
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/wmt15.ende/train/train.en.top5.tok.bpe',          # source
+                     home + '/.dataset/wmt15.ende/train/train.de.top5.tok.bpe',          # target
+                     home + '/.dataset/wmt15.ende/train/train.en.top5.matched.tok.bpe',  # source-TM
+                     home + '/.dataset/wmt15.ende/train/train.de.top5.matched.tok.bpe'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/wmt15.ende/dev/newstest2013.en.tok.bpe',
+                           home + '/.dataset/wmt15.ende/dev/newstest2013.de.tok.bpe',
+                           home + '/.dataset/wmt15.ende/dev/devset.en.matched.tok.bpe',
+                           home + '/.dataset/wmt15.ende/dev/devset.de.matched.tok.bpe'
+                           ],
+
+        'dictionaries': [home + '/.dataset/wmt15.ende/train/all_de-en.en.tok.bpe.word.pkl',
+                         home + '/.dataset/wmt15.ende/train/all_de-en.de.tok.bpe.word.pkl',
+                         home + '/.dataset/wmt15.ende/train/all_de-en.en.tok.bpe.word.pkl',
+                         home + '/.dataset/wmt15.ende/train/all_de-en.de.tok.bpe.word.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 50,
+
+        # special care
+        'dim': 1028,
+        'use_pretrain': True,
+        'see_pretrain': True,
+
+        # baseline models
+        'baseline_xy': model + '/model_wmt15_bi_en-de.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/wmt15.ende/dev/newstest2013.en.tok.bpe',
+        'tm_source':  home + '/.dataset/wmt15.ende/dev/devset.en.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/wmt15.ende/dev/devset.de.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/wmt15.ende/dev/newstest2013.de.tok.bpe',
+        'trans_to':   home + '/.translate/' + name + '.wmt15.dev.translate'
+    }
+    return config
+
+
+
+
+
 def setup_deen():
     home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
@@ -91,8 +142,52 @@ def setup_deen():
     return config
 
 
+def setup_enes_miles():
+    home  = '/home/thoma/work/TMNMT'
+    model = '/home/thoma/scratch/tmnmt'
+    name  = 'TM2.B7'
 
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/top5k.enes/train.en.top5.shuf.tok',          # source
+                     home + '/.dataset/top5k.enes/train.es.top5.shuf.tok',          # target
+                     home + '/.dataset/top5k.enes/train.en.top5.matched.shuf.tok',  # source-TM
+                     home + '/.dataset/top5k.enes/train.es.top5.matched.shuf.tok'   # target-TM
+                     ],
 
+        'valid_datasets': [home + '/.dataset/top5k.enes/dev.enes.en.tok',
+                           home + '/.dataset/top5k.enes/dev.enes.es.tok',
+                           home + '/.dataset/top5k.enes/devset.en.matched.tok',
+                           home + '/.dataset/top5k.enes/devset.es.matched.tok'
+                           ],
+
+        'dictionaries': [home + '/.dataset/top5k.enes/train.en.top5.shuf.tok.pkl',
+                         home + '/.dataset/top5k.enes/train.es.top5.shuf.tok.pkl',
+                         home + '/.dataset/top5k.enes/train.en.top5.shuf.tok.pkl',
+                         home + '/.dataset/top5k.enes/train.es.top5.shuf.tok.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 50,
+
+        # baseline models
+        'baseline_xy': model + '/baseline_enes.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/top5k.enes/dev.enes.en.tok',
+        'tm_source':  home + '/.dataset/top5k.enes/devset.en.matched.tok',
+        'tm_target':  home + '/.dataset/top5k.enes/devset.es.matched.tok',
+        'trans_ref':  home + '/.dataset/top5k.enes/dev.enes.es.tok',
+        'trans_to':   home + '/.translate/' + name + '.enes.dev.translate',
+
+        # multi-tm test
+        'tm_source_full': home + '/.dataset/top5k.enes/train.en.top1.tok',
+        'tm_target_full': home + '/.dataset/top5k.enes/train.es.top1.tok',
+        'tm_rank': home + '/.dataset/top5k.enes/match_top100.pkl'
+    }
+    return config
 
 
 def setup_fren():
@@ -140,7 +235,8 @@ def setup_fren():
         # multi-tm test
         'tm_source_full': home + '/.dataset/top5k.fren/train.fr.top1.tok',
         'tm_target_full': home + '/.dataset/top5k.fren/train.en.top1.tok',
-        'tm_rank': home + '/.dataset/top5k.fren/match_top100.pkl'
+        'tm_rank':   home + '/.dataset/top5k.fren/match_top100.pkl',
+        'tm_record': home + '/.dataset/top5k.fren/match_record.pkl'
     }
     return config
 
@@ -284,7 +380,7 @@ def setup_enfr_nyu():
     home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
     #name  = 'TM2.v1'
-    name  = 'TM2.Pretrain'
+    name  = 'TM2.B8'
 
     config = {
         # train phase
@@ -313,7 +409,7 @@ def setup_enfr_nyu():
 
         # baseline models
         'baseline_xy': model + '/baseline_enfr.bs64.npz',
-        'use_pretrain': True,
+        'nn_coverage':  True,
 
         # test phase
         'trans_from': home + '/.dataset/tm2.enfr/devset.en.tok',
