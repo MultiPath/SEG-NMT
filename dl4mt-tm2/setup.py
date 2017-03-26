@@ -235,7 +235,8 @@ def setup_fren():
         # multi-tm test
         'tm_source_full': home + '/.dataset/top5k.fren/train.fr.top1.tok',
         'tm_target_full': home + '/.dataset/top5k.fren/train.en.top1.tok',
-        'tm_rank': home + '/.dataset/top5k.fren/match_top100.pkl'
+        'tm_rank':   home + '/.dataset/top5k.fren/match_top100.pkl',
+        'tm_record': home + '/.dataset/top5k.fren/match_record.pkl'
     }
     return config
 
