@@ -284,7 +284,7 @@ def setup_enfr_nyu():
     home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
     #name  = 'TM2.v1'
-    name  = 'TM2.Pretrain'
+    name  = 'TM2.B8'
 
     config = {
         # train phase
@@ -313,7 +313,7 @@ def setup_enfr_nyu():
 
         # baseline models
         'baseline_xy': model + '/baseline_enfr.bs64.npz',
-        'use_pretrain': True,
+        'nn_coverage':  True,
 
         # test phase
         'trans_from': home + '/.dataset/tm2.enfr/devset.en.tok',
