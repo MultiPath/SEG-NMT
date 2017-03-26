@@ -684,6 +684,9 @@ def gen_sample_multi(tparams, funcs,
                                 y2_mask_, next_cov)
             mapping, gates, copy_p, next_cov = [o[0] for o in outs]
 
+        # >>>> just for testing
+        # gates = 1 + gates * 0.  # only copy
+
         # real probabilities
         next_p *= 1 - gates[:, None]
         copy_p *= gates[:, None]

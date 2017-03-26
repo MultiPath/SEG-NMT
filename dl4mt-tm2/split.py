@@ -56,17 +56,19 @@ for i in numpy.arange(len(fr_list)):
 
 # print scores
 index =[[] for i in numpy.arange(10)]
-for i in numpy.arange(10):
-    for j in numpy.arange(len(scores)):
-        if i/10 < scores[j] <= (i+1)/10:
-            index[i].append(j)
+for j in numpy.arange(len(scores)):
+    i = int(numpy.ceil(10 * scores[j]))-1
+    if i  == -1:
+        i = 0
+    index[i].append(j)
+
 for i in numpy.arange(10):
     print len(index[i])
 
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> #
 en_list = []
-with open(config['valid_datasets'][1], 'rb') as f:
+with open(config['trans_ref'], 'rb') as f:
     while True:
         ss = f.readline()
         if ss == '':
@@ -85,6 +87,7 @@ with open(target, 'rb') as f:
         if ss == '':
             break
         en_trans_list.append(ss)
+
 en_sort_list = [[] for i in numpy.arange(10)]
 en_trans_sort_list = [[] for i in numpy.arange(10)]
 for i in numpy.arange(len(index)):
@@ -110,6 +113,7 @@ for i in numpy.arange(10):
     ref.append(home + '/en_trans_sort_'+str(i))
 
 for i in numpy.arange(10):
+    os.system("sed -i 's/@@ //g' {}".format(hyp[i]))
     os.system('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref[i], hyp[i]))
 print 'done'
 

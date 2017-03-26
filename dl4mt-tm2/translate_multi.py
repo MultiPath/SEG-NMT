@@ -225,7 +225,7 @@ def go(model, dictionary, dictionary_target,
         saveto = saveto + '-mm=' + str(MM) + '.multi'
         queue = _send_jobs(source_file_x1)
     else:
-        saveto = saveto + '.multi.SS'
+        saveto = saveto + '.multi.SSR'
         queue = _send_self(source_file_x1, reference_file_y1)
 
     print '[test] start translating ', source_file_x1, '...to...', saveto
