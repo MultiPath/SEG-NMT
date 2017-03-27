@@ -237,7 +237,7 @@ def setup_fren():
         'tm_source_full': home + '/.dataset/top5k.fren/train.fr.top1.tok',
         'tm_target_full': home + '/.dataset/top5k.fren/train.en.top1.tok',
         'tm_rank':   home + '/.dataset/top5k.fren/match_top100.pkl',
-        'tm_record': home + '/.dataset/top5k.fren/match_record.pkl'
+        'tm_record': home + '/.dataset/top5k.fren/match_record5.pkl'
     }
     return config
 
