@@ -75,10 +75,11 @@ def setup_ende_wmt15():
 
         'voc_sizes': [20000, 20000, 20000, 20000],
         'maxlen': 50,
+        'batch_size': 64,
 
         # special care
         'dim': 1028,
-        'use_pretrain': True,
+        'use_pretrain': False,
         'see_pretrain': True,
 
         # baseline models
@@ -380,7 +381,7 @@ def setup_enfr_nyu():
     home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
     #name  = 'TM2.v1'
-    name  = 'TM2.B8'
+    name  = 'TM2.B9'
 
     config = {
         # train phase

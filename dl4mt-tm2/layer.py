@@ -323,11 +323,11 @@ def param_init_bglayer(options, params, prefix='bg',
     if not nin2:
         nin2 = nin1
 
-    if not eye:
-        params[_p(prefix, 'M')] = norm_weight(nin1, nin2, scale=0.01, ortho=True)
+    if eye:
+        params[_p(prefix, 'Md')] = numpy.ones((nin1,), dtype='float32')
     else:
-        print 'bg-eye init'
-        params[_p(prefix, 'M')] = numpy.eye(nin1, nin2, dtype='float32')
+        print 'bd-eye init'
+        params[_p(prefix, 'Md')] = norm_weight(nin1, 1, scale=0.01)[:, 0]
 
     if bias:
         params[_p(prefix, 'b')] = numpy.zeros((10,), dtype = 'float32')
@@ -339,16 +339,14 @@ def bglayer(tparams, input1, input2, cov=None, prefix='bg',
             activ='lambda x: tensor.nnet.sigmoid(x)',
             **kwargs):
 
-    # if cov is not None:
-    #     assert (_p(prefix, 'b') in tparams, 'coverage as bias')
-
-    input1 = tensor.dot(input1, tparams[_p(prefix, 'M')])     #1 x batch_size x c_dim
     if input1.ndim == 2:
+        input1 = input1 * tparams[_p(prefix, 'Md')][None, :]
         output = tensor.dot(input1, input2.dimshuffle(1, 0))
     else:
-        output = tensor.batched_dot(input1.dimshuffle(1, 0, 2),   #bs x 1 x c_dim
-                                    input2.dimshuffle(1, 2, 0))    # bs x c_dim x dec_tm
-        output = output.dimshuffle(1, 0, 2)  # 1 x batch_size x dec_tm
+        input1 = input1 * tparams[_p(prefix, 'Md')][None, None, :]
+        output = tensor.batched_dot(input1.dimshuffle(1, 0, 2),
+                                    input2.dimshuffle(1, 2, 0))
+        output = output.dimshuffle(1, 0, 2)  # dec_len x batch_size x enc_len
 
     if cov:    #bs x dec_tm x d
         output += (cov * tparams[_p(prefix, 'b')][None, None, :]).sum(-1)[None, :, :]  # 1 x bs x dec_tm
