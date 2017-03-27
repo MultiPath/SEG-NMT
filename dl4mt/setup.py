@@ -1,13 +1,14 @@
 # setup the training and testing details in this file
 
 def setup_fren_bpe():
-    # home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
     # home   = '/scratch/jg5223/exp/TMNMT'
-    home  = '/root/workspace/TMNMT'
-    model = '/root/disk/scratch/model-tmnmt/' 
+    # home  = '/root/workspace/TMNMT'
+    # model = '/root/disk/scratch/model-tmnmt/'
     config = {
         # train
-        'saveto': model + 'baseline_fren.bpe.npz',
+        'saveto': model + '/baseline_fren.bpe.npz',
         'datasets': [home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',
                      home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf'],
         'valid_datasets': [home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
@@ -18,7 +19,7 @@ def setup_fren_bpe():
         # test
         'trans_from': home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
         'trans_ref':  home + '/.dataset/fren/devset.en.tok',
-        'trans_to':   home + '/.translate/baseline_fren.bpe.valid'
+        'trans_to':   home + '/.translate/baseline_fren.bpe.valid2'
         }
 
     return config
@@ -50,7 +51,7 @@ def setup_fren():
     # home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     # home   = '/scratch/jg5223/exp/TMNMT'
     home  = '/root/workspace/TMNMT'
-    model = '/root/disk/scratch/model-tmnmt/' 
+    model = '/root/disk/scratch/model-tmnmt/'
     config = {
         # train
         'saveto': model + 'baseline_fren.npz',
