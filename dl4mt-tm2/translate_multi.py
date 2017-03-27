@@ -58,7 +58,7 @@ def translate_model(queue, funcs, tparams, options, k,
     rqueue = []
     time1  = time.time()
     for req in queue:
-        if mm > 0:
+        if mm != 0:
             idx, sx1, sx2, sy2 = req[0], req[1], req[2], req[3]
             x1 = map(lambda ii: ii if ii < options['voc_sizes'][0] else 1, sx1)
             x2 = [map(lambda ii: ii if ii < options['voc_sizes'][2] else 1, sx20) for sx20 in sx2]
@@ -115,7 +115,10 @@ def go(model, dictionary, dictionary_target,
     word_idict_trg[1] = 'UNK'
 
     print 'load rank file...',
-    ranks = pkl.load(open(tm_rank, 'r'))
+    if MM == -1:
+        ranks, recalls = pkl.load(open(tm_rank, 'r'))
+    else:
+        ranks = pkl.load(open(tm_rank, 'r'))
 
     print 'load full_source...',
     source_set = open(source_file_x2, 'r').readlines()
@@ -150,11 +153,16 @@ def go(model, dictionary, dictionary_target,
                 x1 += [0]
                 queue_x1.append((idx, x1))
 
-        if MM > 0:
+        if MM != 0:
 
             for idx in range(len(ranks)):
                 x2s = []
-                for jdx in range(MM):
+                if MM > 0:
+                    L = MM
+                else:
+                    L = len(ranks[idx])
+
+                for jdx in range(L):
                     words = source_set[ranks[idx][jdx]].strip().split()
                     x2 = map(lambda w: word_dict[w] if w in word_dict else 1, words)
                     x2 += [0]
@@ -163,7 +171,12 @@ def go(model, dictionary, dictionary_target,
 
             for idx in range(len(ranks)):
                 y2s = []
-                for jdx in range(MM):
+                if MM > 0:
+                    L = MM
+                else:
+                    L = len(ranks[idx])
+
+                for jdx in range(L):
                     words = target_set[ranks[idx][jdx]].strip().split()
                     y2 = map(lambda w: word_dict_trg[w] if w in word_dict_trg else 1, words)
                     y2 += [0]
@@ -225,7 +238,7 @@ def go(model, dictionary, dictionary_target,
         saveto = saveto + '-mm=' + str(MM) + '.multi'
         queue = _send_jobs(source_file_x1)
     else:
-        saveto = saveto + '.multi.SS'
+        saveto = saveto + '.multi.SSR'
         queue = _send_self(source_file_x1, reference_file_y1)
 
     print '[test] start translating ', source_file_x1, '...to...', saveto
@@ -255,6 +268,10 @@ if __name__ == "__main__":
     config = setup(args.m)
 
     print 'TEST-MODE'
+    if args.mm == -1:  # adaptive mode.
+        tm_rank = config['tm_record']
+    else:
+        tm_rank = config['tm_rank']
 
     go(config['saveto'],
        config['dictionaries'][0],
@@ -262,7 +279,7 @@ if __name__ == "__main__":
        config['trans_from'],
        config['tm_source_full'],
        config['tm_target_full'],
-       config['tm_rank'],
+       tm_rank,
        config['trans_ref'],
        config['trans_to'],
        config['beamsize'],
