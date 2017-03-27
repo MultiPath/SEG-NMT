@@ -47,8 +47,8 @@ def translate_model(queue, funcs, tparams, options, k,
         if k > 1:
             if normalize:
                 lengths = numpy.array([len(s) for s in sample])
-                # score  /= lengths
-                score  /= (lengths ** 0.7)
+                score  /= lengths
+                # score  /= (lengths ** 0.7)
 
             sidx   = numpy.argmin(score)
             sample, score, action, gating = \
