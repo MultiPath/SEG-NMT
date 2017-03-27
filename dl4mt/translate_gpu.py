@@ -5,7 +5,8 @@ import argparse
 import theano
 import numpy
 import cPickle as pkl
-
+import os
+from layer import *
 from nmt import (build_sampler, gen_sample, load_params,
                  init_params, init_tparams)
 from setup import setup
@@ -52,8 +53,9 @@ def translate_model(queue, model, options, k, normalize, d_maxlen=200):
     return rqueue
 
 
-def main(model, dictionary, dictionary_target, source_file, saveto, k=5,
-         normalize=False,chr_level=False, d_maxlen=200, *args, **kwargs):
+def main(model, dictionary, dictionary_target, source_file, reference_file,
+         saveto, k=5, normalize=False,chr_level=False, d_maxlen=200,
+         monitor=None, step=-1):
 
     # load model model_options
     with open('%s.pkl' % model, 'rb') as f:
@@ -107,26 +109,69 @@ def main(model, dictionary, dictionary_target, source_file, saveto, k=5,
 
     print 'Translating ', source_file, '...'
     queue = _send_jobs(source_file)
-    trans = _seqs2words(translate_model(queue, model, options, k, normalize, d_maxlen))
-    with open(saveto, 'w') as f:
+
+    if step == -1:
+        model_  = model
+        saveto_ = saveto
+    else:
+        model_  = '{}.iter{}.npz'.format(os.path.splitext(model)[0], step)
+        saveto_ = saveto + '.iter{}'.format(step)
+
+    trans = _seqs2words(translate_model(queue, model_, options, k, normalize, d_maxlen))
+    with open(saveto_, 'w') as f:
         print >>f, '\n'.join(trans)
     print 'Done'
+
+    # compute BLEU score.
+    ref = reference_file
+
+    print '[test] compute BLEU score for {} <-> {}'.format(saveto_, ref)
+
+    os.system("sed -i 's/@@ //g' {}".format(saveto_))
+    out = os.popen('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref, saveto_))
+    bleu = float(out.read().split()[2][:-1])
+    if monitor is not None:
+        monitor.push({'BLEU': bleu}, step=step)
+
+    print 'Done at iter={}, BLEU={}'.format(step, bleu)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', type=str, default='fren')
+    parser.add_argument('-round', action='store_true', default=False)
     args = parser.parse_args()
 
     config = setup(args.m)
+    if args.round:
+        monitor =  Monitor(config['address'], config['port'])
+        monitor.start_experiment('dl4mt.{}'.format(config['saveto']))
 
-    main(config['saveto'],
-         config['dictionaries'][0],
-         config['dictionaries'][1],
-         config['trans_from'],
-         config['trans_to'],
-         config['beamsize'],
-         config['normalize'], False,
-         config['d_maxlen'])
+        print 'create a remote monitor! round-mode: 50k ~ 200k'
+        for step in range(50, 200, 5):
+            main(config['saveto'],
+                 config['dictionaries'][0],
+                 config['dictionaries'][1],
+                 config['trans_from'],
+                 config['trans_ref'],
+                 config['trans_to'],
+                 config['beamsize'],
+                 config['normalize'], False,
+                 config['d_maxlen'],
+                 monitor, step * 1000)
+
+    else:
+        monitor = None
+        step    = -1
+        main(config['saveto'],
+             config['dictionaries'][0],
+             config['dictionaries'][1],
+             config['trans_from'],
+             config['trans_ref'],
+             config['trans_to'],
+             config['beamsize'],
+             config['normalize'], False,
+             config['d_maxlen'],
+             monitor, step)
 
     print 'all done'
