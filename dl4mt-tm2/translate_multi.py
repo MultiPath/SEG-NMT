@@ -47,7 +47,8 @@ def translate_model(queue, funcs, tparams, options, k,
         if k > 1:
             if normalize:
                 lengths = numpy.array([len(s) for s in sample])
-                score  /= lengths
+                # score  /= lengths
+                score  /= (lengths ** 0.7)
 
             sidx   = numpy.argmin(score)
             sample, score, action, gating = \
@@ -115,8 +116,10 @@ def go(model, dictionary, dictionary_target,
     word_idict_trg[1] = 'UNK'
 
     print 'load rank file...',
-    if MM == -1:
-        ranks, recalls = pkl.load(open(tm_rank, 'r'))
+    if MM < 0:
+        print 'adaptive translation memory'
+        ret = pkl.load(open(tm_rank, 'r'))
+        ranks, recalls = ret[0], ret[1]
     else:
         ranks = pkl.load(open(tm_rank, 'r'))
 
@@ -264,11 +267,11 @@ if __name__ == "__main__":
     parser.add_argument('-i',  default=-1)
     parser.add_argument('-ss', action='store_true', default=False)
     args = parser.parse_args()
-
-    config = setup(args.m)
+    args.mm = int(args.mm)
+    config  = setup(args.m)
 
     print 'TEST-MODE'
-    if args.mm == -1:  # adaptive mode.
+    if args.mm < 0:  # adaptive mode.
         tm_rank = config['tm_record']
     else:
         tm_rank = config['tm_rank']
@@ -285,7 +288,7 @@ if __name__ == "__main__":
        config['beamsize'],
        config['normalize'],
        config['d_maxlen'],
-       MM=int(args.mm),
+       MM=args.mm,
        iters=args.i,
        SS=args.ss)
 
