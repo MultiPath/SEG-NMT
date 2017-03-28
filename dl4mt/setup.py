@@ -105,7 +105,13 @@ def setup(pair='fren'):
         # testing details
         'beamsize': 5,
         'normalize': False,
-        'd_maxlen': 200
+        'd_maxlen': 200,
+
+        # remote monitor (tensorboard)
+        'remote':       True,
+        'address':      '147.8.182.14',
+        'port':         8889
+
         }
 
     # get dataset info

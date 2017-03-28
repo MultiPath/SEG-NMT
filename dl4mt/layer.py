@@ -20,6 +20,32 @@ from collections import OrderedDict
 
 from data_iterator import TextIterator
 profile = False
+try:
+    from pycrayon import CrayonClient
+except ImportError:
+    pass
+
+
+class Monitor(object):
+    def __init__(self, address, port):
+        self.cc  = CrayonClient(hostname=address, port=port)
+
+    def start_experiment(self, name, clean=True):
+        exps = self.cc.get_experiment_names()
+        if name in exps:
+            if clean:
+                self.cc.remove_experiment(name)
+                self.exp = self.cc.create_experiment(name)
+                print 'clean and creat a new one'
+            else:
+                self.exp = self.cc.open_experiment(name)
+        else:
+            self.exp = self.cc.create_experiment(name)
+
+    def push(self, data, wall_time=-1, step=-1):
+        self.exp.add_scalar_dict(data, wall_time, step)
+
+
 
 
 # push parameters to Theano shared variables

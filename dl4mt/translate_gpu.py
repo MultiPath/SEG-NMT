@@ -117,10 +117,13 @@ def main(model, dictionary, dictionary_target, source_file, reference_file,
         model_  = '{}.iter{}.npz'.format(os.path.splitext(model)[0], step)
         saveto_ = saveto + '.iter{}'.format(step)
 
-    trans = _seqs2words(translate_model(queue, model_, options, k, normalize, d_maxlen))
-    with open(saveto_, 'w') as f:
-        print >>f, '\n'.join(trans)
-    print 'Done'
+    if not os.path.exists(saveto_):
+        print 'start translate'
+
+        trans = _seqs2words(translate_model(queue, model_, options, k, normalize, d_maxlen))
+        with open(saveto_, 'w') as f:
+            print >>f, '\n'.join(trans)
+        print 'Done'
 
     # compute BLEU score.
     ref = reference_file
@@ -145,7 +148,7 @@ if __name__ == "__main__":
     config = setup(args.m)
     if args.round:
         monitor =  Monitor(config['address'], config['port'])
-        monitor.start_experiment('dl4mt.{}'.format(config['saveto']))
+        monitor.start_experiment('{}'.format(config['saveto']))
 
         print 'create a remote monitor! round-mode: 50k ~ 200k'
         for step in range(50, 200, 5):
