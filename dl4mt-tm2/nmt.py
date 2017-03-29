@@ -810,7 +810,7 @@ def build_networks(options, model=' ', train=True):
     params_xy0 = copy.copy(params_xy)
     print 'Done.'
 
-    if options['see_pretrain']:
+    if options.get('see_pretrain', False):
         print 'load the pretrained NMT-models...'
         params_xy0  = load_params2(options['baseline_xy'], params_xy0, mode='xy_')
         tparams_xy0 = init_tparams(params_xy0)  # pre-trained E->F model
@@ -1078,7 +1078,7 @@ def build_networks(options, model=' ', train=True):
     print 'build sampler (one-step)'
     f_init_xy, f_next_xy   = build_sampler(tparams_xy, options, options['trng'], 'xy_')
 
-    if options['see_pretrain']:
+    if options.get('see_pretrain', False):
         print 'build old sampler'
         f_init_xy0, f_next_xy0 = build_sampler(tparams_xy0, options, options['trng'], 'xy_')
 
@@ -1134,7 +1134,7 @@ def build_networks(options, model=' ', train=True):
     funcs['next_xy']   = f_next_xy
     funcs['crit_xy']   = ret_xy11['f_critic']
 
-    if options['see_pretrain']:
+    if options.get('see_pretrain', False):
         funcs['init_xy0']  = f_init_xy0
         funcs['next_xy0']  = f_next_xy0
 
@@ -1142,7 +1142,7 @@ def build_networks(options, model=' ', train=True):
 
     print 'Build Networks... done!'
     if train:
-        if options['see_pretrain']:
+        if options.get('see_pretrain', False):
             return funcs, [tparams, tparams_xy0]
 
     return funcs, tparams

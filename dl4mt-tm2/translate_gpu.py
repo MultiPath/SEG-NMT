@@ -144,22 +144,42 @@ def go(model, dictionary, dictionary_target,
     funcs, tparams = build_networks(options, model, train=False)
 
     if steps is None:
-        print '[test] start translating ', source_file_x1, '...to...', saveto
-        queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
-        rets  = translate_model(queue, funcs, tparams, options, k, normalize, 0, d_maxlen)
-        sseqs, ss, acts, gs = zip(*rets)
+        if os.path.exists(saveto):
+            print 'we found translated files...skip'
+        else:
+            print '[test] start translating ', source_file_x1, '...to...', saveto
+            queue = _send_jobs(source_file_x1, source_file_x2, source_file_y2)
 
-        trans = _seqs2words(sseqs)
-        with open(saveto, 'w') as f:
-            print >>f, '\n'.join(trans)
-        print 'Done'
+            if max_steps is not None:
+                checkpoint = '{}.iter{}.npz'.format(os.path.splitext(model)[0], max_steps)
+                print '[test] Load check-point: {}'.format(checkpoint),
+                zipp(load_params(checkpoint, unzip(tparams)), tparams)
+                print 'done.'
 
-        pkl.dump(rets, open(saveto + '.pkl', 'w'))
-        print 'All Done'
+            rets  = translate_model(queue, funcs, tparams, options, k, normalize, 0, d_maxlen)
+            sseqs, ss, acts, gs = zip(*rets)
+
+            trans = _seqs2words(sseqs)
+            with open(saveto, 'w') as f:
+                print >>f, '\n'.join(trans)
+            print 'Done'
+
+            pkl.dump(rets, open(saveto + '.pkl', 'w'))
+            print 'All Done'
+
+        # compute BLEU score.
+        ref = reference_file_y1
+        print '[test] compute BLEU score for {} <-> {}'.format(saveto, ref)
+
+        os.system("sed -i 's/@@ //g' {}".format(saveto))
+        out  = os.popen('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref, saveto))
+        bleu = float(out.read().split()[2][:-1])
+
+        print 'Done at BLEU={}'.format(bleu)
 
     else:
         if monitor is not None:
-            monitor.start_experiment('test2.{}'.format(model))
+            monitor.start_experiment('testx.{}'.format(model))
 
         step_test = start_steps
         if step_test == 0:
@@ -218,9 +238,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', type=str, default='fren')
     parser.add_argument('-p', type=str, default='round')
+    parser.add_argument('-model', type=str, default='')
+    parser.add_argument('-step', type=int, default=-1)
     args = parser.parse_args()
 
     config = setup(args.m)
+    if args.model == '':
+        model = config['saveto'] + '.2.'
+    else:
+        model = args.model
+
+    if args.step == -1:
+        maxstep = None
+    else:
+        maxstep = args.step
 
     if config['remote']:
         monitor = Monitor(config['address'], config['port'])
@@ -230,7 +261,7 @@ if __name__ == "__main__":
 
     if args.p == 'round':
         print 'ROUND-MODE'
-        go(config['saveto'],
+        go(model,
            config['dictionaries'][0],
            config['dictionaries'][1],
            config['trans_from'],
@@ -245,15 +276,16 @@ if __name__ == "__main__":
            sleep=600, monitor=monitor)
     else:
         print 'TEST-MODE'
-        go(config['saveto'],
+        go(model,
            config['dictionaries'][0],
            config['dictionaries'][1],
            config['trans_from'],
            config['tm_source'],
            config['tm_target'],
+           config['trans_ref'],
            config['trans_to'],
            config['beamsize'],
            config['normalize'],
-           config['d_maxlen'])
+           config['d_maxlen'], max_steps=maxstep)
 
     print 'all done'
