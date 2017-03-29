@@ -244,7 +244,7 @@ if __name__ == "__main__":
 
     config = setup(args.m)
     if args.model == '':
-        model = config['saveto'] + '.2.'
+        model = config['saveto']
     else:
         model = args.model
 
