@@ -15,11 +15,11 @@ parser.add_argument('-m', type=str, default='fren')
 args = parser.parse_args()
 
 model_options = setup(args.m)
-# if model_options['remote']:
-#     monitor = Monitor(model_options['address'], model_options['port'])
-#     print 'create a remote monitor'
-# else:
-#     monitor = None
+if model_options['remote']:
+    monitor = Monitor(model_options['address'], model_options['port'])
+    print 'create a remote monitor'
+else:
+    monitor = None
 
 pprint(model_options)
 
@@ -76,8 +76,8 @@ bleuFreq     = model_options['bleuFreq']
 saveto       = model_options['saveto']
 overwrite    = model_options['overwrite']
 
-# if monitor:
-#     monitor.start_experiment('{}'.format(model_options['saveto']))
+if monitor:
+    monitor.start_experiment('train.{}'.format(model_options['saveto']))
 
 # ----------------------------------------------- #
 
@@ -254,7 +254,7 @@ for eidx in xrange(max_epochs):
         if numpy.mod(uidx, validFreq) == 0:
             # use_noise.set_value(0.)
             valid_errs = validate(funcs, model_options, valid, False)
-            valid_err  = valid_errs.mean()
+            valid_err  = float(valid_errs.mean())
             history_errs.append(valid_err)
 
             if numpy.isnan(valid_err):
@@ -262,8 +262,8 @@ for eidx in xrange(max_epochs):
                 sys.exit(-1)
 
             print 'Valid ', valid_err
-            # if monitor:
-            #     monitor.push({'valid loss': float(valid_err)}, step=uidx)
+            if monitor:
+                monitor.push({'valid': valid_err}, step=uidx)
 
 
         # training

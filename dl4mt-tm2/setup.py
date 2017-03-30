@@ -571,6 +571,7 @@ def setup(pair='fren'):
         'use_coverage': True,
         'nn_coverage':  False,
         'cov_dim':      10,
+        'option':       'advanced', # 'normal'
 
         'stochastic':   False,
         'build_gate':   True,

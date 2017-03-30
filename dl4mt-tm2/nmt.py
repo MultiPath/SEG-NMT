@@ -887,7 +887,10 @@ def build_networks(options, model=' ', train=True):
                                              nin=4 * options['dim'] + 1,
                                              dim=options['cov_dim'])
 
-    params_map['tau'] = numpy.float32(1.0)  # 1.0   # temperature for copy
+    if options.get('option', 'normal') == 'normal':
+        params_map['tau'] = numpy.float32(1.0)  # 1.0   # temperature for copy
+    elif options.get('option', 'normal') == 'advanced':
+        params_map['tau'] = numpy.float32(0.5)
 
     # params for gating
     params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',

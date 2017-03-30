@@ -292,7 +292,10 @@ def param_init_bllayer(options, params, prefix='bi',
         params[_p(prefix, 'M')] = numpy.eye(nin1, nin2, dtype='float32')
 
     if bias:
-        params[_p(prefix, 'b')] = numpy.float32(0.)
+        if options.get('option', 'normal') == 'normal':
+            params[_p(prefix, 'b')] = numpy.float32(0.)
+        elif options.get('option', 'normal') == 'advanced':
+            params[_p(prefix, 'b')] = numpy.float32(-2.)
 
     return params
 
@@ -330,7 +333,10 @@ def param_init_bglayer(options, params, prefix='bg',
         params[_p(prefix, 'Md')] = norm_weight(nin1, 1, scale=0.01)[:, 0]
 
     if bias:
-        params[_p(prefix, 'b')] = numpy.zeros((10,), dtype = 'float32')
+        if options.get('option', 'normal') == 'normal':
+            params[_p(prefix, 'b')] = numpy.zeros((10,), dtype = 'float32')
+        elif options.get('option', 'normal') == 'advanced':
+            params[_p(prefix, 'b')] = numpy.random.random((10,), dtype='float32') * 0.01
 
     return params
 
@@ -367,7 +373,10 @@ def param_init_bdlayer(options, params, prefix='bd',
 
 
     if bias:
-        params[_p(prefix, 'b')] = numpy.float32(0.0)  # 0.0
+        if options.get('option', 'normal') == 'normal':
+            params[_p(prefix, 'b')] = numpy.float32(0.)
+        elif options.get('option', 'normal') == 'advanced':
+            params[_p(prefix, 'b')] = numpy.float32(-2.)
 
     return params
 
