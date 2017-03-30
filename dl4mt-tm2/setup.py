@@ -55,10 +55,10 @@ def setup_ende_wmt15():
         # train phase
         'name': name,
         'saveto': model + '/' + name + '_',
-        'datasets': [home + '/.dataset/wmt15.ende/train/train.en.top5.tok.bpe',          # source
-                     home + '/.dataset/wmt15.ende/train/train.de.top5.tok.bpe',          # target
-                     home + '/.dataset/wmt15.ende/train/train.en.top5.matched.tok.bpe',  # source-TM
-                     home + '/.dataset/wmt15.ende/train/train.de.top5.matched.tok.bpe'   # target-TM
+        'datasets': [home + '/.dataset/wmt15.ende/train_copy/train.en.top5.copy.tok.bpe',          # source
+                     home + '/.dataset/wmt15.ende/train_copy/train.de.top5.copy.tok.bpe',          # target
+                     home + '/.dataset/wmt15.ende/train_copy/train.en.top5.copy.matched.tok.bpe',  # source-TM
+                     home + '/.dataset/wmt15.ende/train_copy/train.de.top5.copy.matched.tok.bpe'   # target-TM
                      ],
 
         'valid_datasets': [home + '/.dataset/wmt15.ende/dev/newstest2013.en.tok.bpe',
@@ -79,7 +79,7 @@ def setup_ende_wmt15():
 
         # special care
         'dim': 1028,
-        'use_pretrain': False,
+        'use_pretrain': True,
         'see_pretrain': True,
 
         # baseline models
