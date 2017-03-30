@@ -1,0 +1,27 @@
+\begin{thebibliography}{}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{Aho and Ullman(1972)}]{Aho:72}
+Alfred~V. Aho and Jeffrey~D. Ullman. 1972.
+\newblock {\em The Theory of Parsing, Translation and Compiling\/}, volume~1.
+\newblock Prentice-Hall, Englewood Cliffs, NJ.
+
+\bibitem[{{American Psychological Association}(1983)}]{APA:83}
+{American Psychological Association}. 1983.
+\newblock {\em Publications Manual\/}.
+\newblock American Psychological Association, Washington, DC.
+
+\bibitem[{Chandra et~al.(1981)Chandra, Kozen, and Stockmeyer}]{Chandra:81}
+Ashok~K. Chandra, Dexter~C. Kozen, and Larry~J. Stockmeyer. 1981.
+\newblock \href{https://doi.org/10.1145/322234.322243}{Alternation}.
+\newblock {\em Journal of the Association for Computing Machinery\/}
+  28(1):114--133.
+\newblock
+  \href{https://doi.org/10.1145/322234.322243}{https://doi.org/10.1145/322234.322243}.
+
+\bibitem[{Gusfield(1997)}]{Gusfield:97}
+Dan Gusfield. 1997.
+\newblock {\em Algorithms on Strings, Trees and Sequences\/}.
+\newblock Cambridge University Press, Cambridge, UK.
+
+\end{thebibliography}
