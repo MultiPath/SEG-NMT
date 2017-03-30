@@ -77,7 +77,7 @@ saveto       = model_options['saveto']
 overwrite    = model_options['overwrite']
 
 if monitor:
-    monitor.start_experiment('train.{}'.format(model_options['saveto']))
+    monitor.start_experiment('trainx.{}'.format(model_options['saveto']))
 
 # ----------------------------------------------- #
 

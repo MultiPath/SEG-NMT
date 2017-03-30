@@ -396,6 +396,58 @@ def setup_enfr_bpe():
     return config
 
 
+def setup_enfr_bpe_nyu():
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    # home  = '/root/workspace/TMNMT'
+    # model = '/root/disk/scratch/model-tmnmt'
+    name  = 'TM2.B10.bpe'
+
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/top5k.enfr.bpe/train.en.top5.reshuf.tok.bpe',          # source
+                     home + '/.dataset/top5k.enfr.bpe/train.fr.top5.reshuf.tok.bpe',          # target
+                     home + '/.dataset/top5k.enfr.bpe/train.en.top5.matched.reshuf.tok.bpe',  # source-TM
+                     home + '/.dataset/top5k.enfr.bpe/train.fr.top5.matched.reshuf.tok.bpe'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/top5k.enfr.bpe/devset.en.tok.bpe',
+                           home + '/.dataset/top5k.enfr.bpe/devset.fr.tok.bpe',
+                           home + '/.dataset/top5k.enfr.bpe/devset.en.matched.tok.bpe',
+                           home + '/.dataset/top5k.enfr.bpe/devset.fr.matched.tok.bpe'
+                           ],
+
+        'dictionaries': [home + '/.dataset/top5k.enfr.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.enfr.bpe/train.fr.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.enfr.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.enfr.bpe/train.fr.top5.shuf.tok.bpe.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 80,
+
+        # baseline models
+        'baseline_xy': model + '/baseline_enfr.bpe.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/top5k.enfr.bpe/devset.en.tok.bpe',
+        'tm_source':  home + '/.dataset/top5k.enfr.bpe/devset.en.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/top5k.enfr.bpe/devset.fr.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/top5k.enfr.bpe/devset.fr.tok',
+        'trans_to':   home + '/.translate/' + name + '.dev.translate',
+
+        # multi-tm test
+        'tm_source_full': home + '/.dataset/top5k.fren.bpe/train.en.top1.tok.bpe',
+        'tm_target_full': home + '/.dataset/top5k.fren.bpe/train.fr.top1.tok.bpe',
+        'tm_rank':   home + '/.dataset/top5k.fren/match_top100.pkl',
+        'tm_record': home + '/.dataset/top5k.fren/match_record5.pkl'
+
+    }
+    return config
+
+
 
 def setup_fren_cc():
     home  = '/home/thoma/work/TMNMT'
