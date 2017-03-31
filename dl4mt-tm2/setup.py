@@ -49,7 +49,7 @@ def setup_fren0():
 def setup_ende_wmt15():
     home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
-    name  = 'TM2.B77'
+    name  = 'TM2.B7.copy_scratch'
 
     config = {
         # train phase
@@ -76,11 +76,11 @@ def setup_ende_wmt15():
         'voc_sizes': [20000, 20000, 20000, 20000],
         'maxlen': 50,
         'batch_size': 64,
-        'lrate':      0.000002, # try this very small learning rate.
+        'lrate':      0.0001, # try this very small learning rate.
 
         # special care
         'dim': 1028,
-        'use_pretrain': True,
+        'use_pretrain': False,
         'see_pretrain': True,
 
         # baseline models
