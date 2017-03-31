@@ -623,6 +623,7 @@ def setup(pair='fren'):
         'cos_sim':      False,
         'use_coverage': True,
         'nn_coverage':  False,
+        'gate_coverage':True,
         'cov_dim':      10,
         'option':       'advanced', # 'normal'
 
