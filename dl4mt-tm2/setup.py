@@ -49,7 +49,7 @@ def setup_fren0():
 def setup_ende_wmt15():
     home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
-    name  = 'TM2.B7'
+    name  = 'TM2.B77'
 
     config = {
         # train phase
