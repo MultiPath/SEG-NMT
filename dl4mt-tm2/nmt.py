@@ -887,7 +887,10 @@ def build_networks(options, model=' ', train=True):
                                              nin=4 * options['dim'] + 1,
                                              dim=options['cov_dim'])
 
-    params_map['tau'] = numpy.float32(1.0)  # 1.0   # temperature for copy
+    if options.get('option', 'normal') == 'normal':
+        params_map['tau'] = numpy.float32(1.0)  # 1.0   # temperature for copy
+    elif options.get('option', 'normal') == 'advanced':
+        params_map['tau'] = numpy.float32(0.5)
 
     # params for gating
     params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',
@@ -978,7 +981,7 @@ def build_networks(options, model=' ', train=True):
                                                    prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
 
                 attens    = softmax(mapping * tparams_map['tau'], mask=tm_mask)
-                coverage  = prev_att + attens
+
 
                 att_tmh   = tensor.batched_dot(attens[:, None, :],            # bs x dec_tm
                                            tm_hids.dimshuffle(1, 0, 2))    # dec_tm x bs x hid_dim
@@ -988,6 +991,12 @@ def build_networks(options, model=' ', train=True):
                 gates     = get_layer('ff')[1](tparams_map,
                                                concatenate([cur_hid, att_tmh, cur_ctx1], axis=1),
                                                options, prefix='map_ff', activ='softmax')[:, 0]
+
+                if options.get('gate_coverage', False):
+                    coverage = prev_att + attens * gates
+                else:
+                    coverage = prev_att + attens
+
             else:
 
                 mapping  = get_layer('bg')[1](tparams_map, cur_ctx1[None, :, :],

@@ -49,16 +49,16 @@ def setup_fren0():
 def setup_ende_wmt15():
     home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
-    name  = 'TM2.B7'
+    name  = 'TM2.B7.copy_scratch'
 
     config = {
         # train phase
         'name': name,
         'saveto': model + '/' + name + '_',
-        'datasets': [home + '/.dataset/wmt15.ende/train/train.en.top5.tok.bpe',          # source
-                     home + '/.dataset/wmt15.ende/train/train.de.top5.tok.bpe',          # target
-                     home + '/.dataset/wmt15.ende/train/train.en.top5.matched.tok.bpe',  # source-TM
-                     home + '/.dataset/wmt15.ende/train/train.de.top5.matched.tok.bpe'   # target-TM
+        'datasets': [home + '/.dataset/wmt15.ende/train_copy/train.en.top5.copy.tok.bpe',          # source
+                     home + '/.dataset/wmt15.ende/train_copy/train.de.top5.copy.tok.bpe',          # target
+                     home + '/.dataset/wmt15.ende/train_copy/train.en.top5.copy.matched.tok.bpe',  # source-TM
+                     home + '/.dataset/wmt15.ende/train_copy/train.de.top5.copy.matched.tok.bpe'   # target-TM
                      ],
 
         'valid_datasets': [home + '/.dataset/wmt15.ende/dev/newstest2013.en.tok.bpe',
@@ -76,6 +76,7 @@ def setup_ende_wmt15():
         'voc_sizes': [20000, 20000, 20000, 20000],
         'maxlen': 50,
         'batch_size': 64,
+        'lrate':      0.0001, # try this very small learning rate.
 
         # special care
         'dim': 1028,
@@ -89,7 +90,7 @@ def setup_ende_wmt15():
         'trans_from': home + '/.dataset/wmt15.ende/dev/newstest2013.en.tok.bpe',
         'tm_source':  home + '/.dataset/wmt15.ende/dev/devset.en.matched.tok.bpe',
         'tm_target':  home + '/.dataset/wmt15.ende/dev/devset.de.matched.tok.bpe',
-        'trans_ref':  home + '/.dataset/wmt15.ende/dev/newstest2013.de.tok.bpe',
+        'trans_ref':  home + '/.dataset/wmt15.ende/dev/newstest2013.de.tok',
         'trans_to':   home + '/.translate/' + name + '.wmt15.dev.translate'
     }
     return config
@@ -396,6 +397,58 @@ def setup_enfr_bpe():
     return config
 
 
+def setup_enfr_bpe_nyu():
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    # home  = '/root/workspace/TMNMT'
+    # model = '/root/disk/scratch/model-tmnmt'
+    name  = 'TM2.B10.bpe'
+
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/top5k.enfr.bpe/train.en.top5.reshuf.tok.bpe',          # source
+                     home + '/.dataset/top5k.enfr.bpe/train.fr.top5.reshuf.tok.bpe',          # target
+                     home + '/.dataset/top5k.enfr.bpe/train.en.top5.matched.reshuf.tok.bpe',  # source-TM
+                     home + '/.dataset/top5k.enfr.bpe/train.fr.top5.matched.reshuf.tok.bpe'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/top5k.enfr.bpe/devset.en.tok.bpe',
+                           home + '/.dataset/top5k.enfr.bpe/devset.fr.tok.bpe',
+                           home + '/.dataset/top5k.enfr.bpe/devset.en.matched.tok.bpe',
+                           home + '/.dataset/top5k.enfr.bpe/devset.fr.matched.tok.bpe'
+                           ],
+
+        'dictionaries': [home + '/.dataset/top5k.enfr.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.enfr.bpe/train.fr.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.enfr.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.enfr.bpe/train.fr.top5.shuf.tok.bpe.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 80,
+
+        # baseline models
+        'baseline_xy': model + '/baseline_enfr.bpe.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/top5k.enfr.bpe/devset.en.tok.bpe',
+        'tm_source':  home + '/.dataset/top5k.enfr.bpe/devset.en.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/top5k.enfr.bpe/devset.fr.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/top5k.enfr.bpe/devset.fr.tok',
+        'trans_to':   home + '/.translate/' + name + '.dev.translate',
+
+        # multi-tm test
+        'tm_source_full': home + '/.dataset/top5k.fren.bpe/train.en.top1.tok.bpe',
+        'tm_target_full': home + '/.dataset/top5k.fren.bpe/train.fr.top1.tok.bpe',
+        'tm_rank':   home + '/.dataset/top5k.fren/match_top100.pkl',
+        'tm_record': home + '/.dataset/top5k.fren/match_record5.pkl'
+
+    }
+    return config
+
+
 
 def setup_fren_cc():
     home  = '/home/thoma/work/TMNMT'
@@ -570,7 +623,9 @@ def setup(pair='fren'):
         'cos_sim':      False,
         'use_coverage': True,
         'nn_coverage':  False,
+        'gate_coverage':True,
         'cov_dim':      10,
+        'option':       'advanced', # 'normal'
 
         'stochastic':   False,
         'build_gate':   True,

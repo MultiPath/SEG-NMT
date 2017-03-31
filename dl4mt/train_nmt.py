@@ -48,6 +48,10 @@ def train(dim_word=100,  # word vector dimensionality
           run_BLEU=False,
           *args, **kwargs):
 
+    print 'create a remote monitor'
+    monitor = Monitor('147.8.182.14', 8889)
+
+
     # Model options
     model_options = locals().copy()
 
@@ -179,6 +183,9 @@ def train(dim_word=100,  # word vector dimensionality
     BleuFreq  = 2000
     #BleuPoint = 20000
 
+    print 'monitor start'
+    monitor.start_experiment('baseline.' + saveto)
+
     for eidx in xrange(max_epochs):
         n_samples = 0
 
@@ -287,7 +294,7 @@ def train(dim_word=100,  # word vector dimensionality
                 use_noise.set_value(0.)
                 valid_errs = pred_probs(f_log_probs, prepare_data,
                                         model_options, valid)
-                valid_err = valid_errs.mean()
+                valid_err = float(valid_errs.mean())
                 history_errs.append(valid_err)
 
                 if uidx == 0 or valid_err <= numpy.array(history_errs).min():
@@ -305,6 +312,7 @@ def train(dim_word=100,  # word vector dimensionality
                     ipdb.set_trace()
 
                 print 'Valid ', valid_err
+                monitor.push({'valid': valid_err}, step=uidx)
 
 
             # validate model with BLEU

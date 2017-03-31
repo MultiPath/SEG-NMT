@@ -179,7 +179,7 @@ def go(model, dictionary, dictionary_target,
 
     else:
         if monitor is not None:
-            monitor.start_experiment('testz.{}'.format(model))
+            monitor.start_experiment('testxx.{}'.format(model))
 
         step_test = start_steps
         if step_test == 0:
