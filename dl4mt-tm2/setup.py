@@ -349,16 +349,16 @@ def setup_fren_bpe():
 def setup_enfr_bpe():
     home  = '/root/workspace/TMNMT'
     model = '/root/disk/scratch/model-tmnmt'
-    name  = 'TM2.B7.bpe'
+    name  = 'TM2.B7.bper'
 
     config = {
         # train phase
         'name': name,
         'saveto': model + '/' + name + '_',
-        'datasets': [home + '/.dataset/top5k.enfr.bpe/train.en.top5.shuf.tok.bpe',          # source
-                     home + '/.dataset/top5k.enfr.bpe/train.fr.top5.shuf.tok.bpe',          # target
-                     home + '/.dataset/top5k.enfr.bpe/train.en.top5.matched.shuf.tok.bpe',  # source-TM
-                     home + '/.dataset/top5k.enfr.bpe/train.fr.top5.matched.shuf.tok.bpe'   # target-TM
+        'datasets': [home + '/.dataset/top5k.enfr.bpe/train.en.top5.reshuf.tok.bpe',          # source
+                     home + '/.dataset/top5k.enfr.bpe/train.fr.top5.reshuf.tok.bpe',          # target
+                     home + '/.dataset/top5k.enfr.bpe/train.en.top5.matched.reshuf.tok.bpe',  # source-TM
+                     home + '/.dataset/top5k.enfr.bpe/train.fr.top5.matched.reshuf.tok.bpe'   # target-TM
                      ],
 
         'valid_datasets': [home + '/.dataset/top5k.enfr.bpe/devset.en.tok.bpe',
@@ -383,8 +383,8 @@ def setup_enfr_bpe():
         'trans_from': home + '/.dataset/top5k.enfr.bpe/devset.en.tok.bpe',
         'tm_source':  home + '/.dataset/top5k.enfr.bpe/devset.en.matched.tok.bpe',
         'tm_target':  home + '/.dataset/top5k.enfr.bpe/devset.fr.matched.tok.bpe',
-        'trans_ref':  home + '/.dataset/top5k.enfr/devset.fr.tok',
-        'trans_to':   home + '/.translate/' + name + '.dev.translate',
+        'trans_ref':  home + '/.dataset/top5k.fren/devset.fr.tok',
+        'trans_to':   home + '/.translate/' + name + '.enfr.dev.translate',
 
         # multi-tm test
         'tm_source_full': home + '/.dataset/top5k.fren.bpe/train.en.top1.tok.bpe',
