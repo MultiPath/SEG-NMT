@@ -76,6 +76,7 @@ def setup_ende_wmt15():
         'voc_sizes': [20000, 20000, 20000, 20000],
         'maxlen': 50,
         'batch_size': 64,
+        'lrate':      0.000002, # try this very small learning rate.
 
         # special care
         'dim': 1028,
@@ -89,7 +90,7 @@ def setup_ende_wmt15():
         'trans_from': home + '/.dataset/wmt15.ende/dev/newstest2013.en.tok.bpe',
         'tm_source':  home + '/.dataset/wmt15.ende/dev/devset.en.matched.tok.bpe',
         'tm_target':  home + '/.dataset/wmt15.ende/dev/devset.de.matched.tok.bpe',
-        'trans_ref':  home + '/.dataset/wmt15.ende/dev/newstest2013.de.tok.bpe',
+        'trans_ref':  home + '/.dataset/wmt15.ende/dev/newstest2013.de.tok',
         'trans_to':   home + '/.translate/' + name + '.wmt15.dev.translate'
     }
     return config
