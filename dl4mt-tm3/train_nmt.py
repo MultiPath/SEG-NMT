@@ -122,7 +122,7 @@ def idx2seq(x, ii, pp=None):
 def execute(inps, lrate, info):
     eidx, uidx = info
     rets = funcs['cost'](*inps)
-    cost, g2 = rets[0], rets[1], rets[2]
+    cost, g2 = rets[0], rets[1]
     print 'Epoch {}: update {},'.format(eidx, uidx),
     print 'cost {:.2f}, g-norm {:.1f}'.format(float(cost), float(g2)),
 
