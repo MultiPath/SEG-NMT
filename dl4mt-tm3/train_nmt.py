@@ -144,11 +144,10 @@ def validate(funcs, options, iterator, verbose=False):
         y1, y1_mask = prepare_data(sy1, 200, options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, 200, options['voc_sizes'][2])
         y2, y2_mask = prepare_data(sy2, 200, options['voc_sizes'][3])
-        ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
+#         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
 
         inps = [x1, x1_mask, y1, y1_mask,
-                x2, x2_mask, y2, y2_mask,
-                ty12, ty12_mask]
+                x2, x2_mask, y2, y2_mask]
         if options['use_coverage']:
             if not options.get('nn_coverage', False):
                 inps += [numpy.zeros((y2.shape[1], y2.shape[0]), dtype='float32')]
@@ -255,11 +254,10 @@ for eidx in xrange(max_epochs):
         y1, y1_mask = prepare_data(sy1, model_options['maxlen'], model_options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, model_options['maxlen'], model_options['voc_sizes'][2])
         y2, y2_mask = prepare_data(sy2, model_options['maxlen'], model_options['voc_sizes'][3])
-        ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
+#         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
 
         inps = [x1, x1_mask, y1, y1_mask,
-                x2, x2_mask, y2, y2_mask,
-                ty12, ty12_mask]
+                x2, x2_mask, y2, y2_mask]
 
         if model_options['use_coverage']:
             if not model_options.get('nn_coverage', False):

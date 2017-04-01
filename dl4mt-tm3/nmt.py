@@ -488,7 +488,7 @@ def gen_sample_memory(tparams, funcs,
 
         # new read-out vector
         read1 = read1 * (1 - gates[:, None])
-        read2 = (read2 * copy_p[:, None])
+        read2 = (read2 * gates[:, None])
 
 
         # real probabilities
