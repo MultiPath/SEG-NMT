@@ -631,10 +631,6 @@ def build_networks(options, model=' ', train=True):
     y2 = tensor.matrix('y2', dtype='int64')
     y2_mask = tensor.matrix('y2_mask', dtype='float32')
 
-    # TM-rxyerence index
-    txy12 = tensor.matrix('xy12', dtype='int64')
-    txy12_mask = tensor.matrix('xy12_mask', dtype='float32')
-
     print 'build forward-attention models (2 models simultaneously)...'
     ret_xy11 = build_model(tparams_xy, [x1, x1_mask, y1, y1_mask], options, 'xy_', False, True)   # X->Y curr
     ret_xy22 = build_model(tparams_xy, [x2, x2_mask, y2, y2_mask], options, 'xy_', False, False)  # X->Y tm
