@@ -488,7 +488,7 @@ def gen_sample_memory(tparams, funcs,
 
         # new read-out vector & prob
         read    = read1 * (1 - gates[:, None]) + (read2 * (copy_p.T)[:, :, None]).sum(axis=0) * gates[:, None]
-        merge_p = funcs['pred_xy'](read[None, :, :])[0]
+        merge_p = funcs['pred_xy'](read[None, :, :])[1][0]
 
         if stochastic:
             if argmax:
@@ -516,7 +516,7 @@ def gen_sample_memory(tparams, funcs,
 
             voc_size = merge_p.shape[1]
             trans_indices = ranks_flat / voc_size
-            word_indices = ranks_flat % voc_size
+            word_indices  = ranks_flat % voc_size
             costs = cand_flat[ranks_flat]
 
             new_hyp_samples = []
@@ -525,8 +525,8 @@ def gen_sample_memory(tparams, funcs,
             new_hyp_covs    = []
             new_hyp_gatings = []
             new_hyp_actions = []
-            print trans_indices
-            print word_indices
+            # print trans_indices
+            # print word_indices
             for idx, [ti, wi] in enumerate(zip(trans_indices, word_indices)):
                 new_hyp_samples.append(hyp_samples[ti] + [wi])
                 new_hyp_scores[idx] = copy.copy(costs[idx])
