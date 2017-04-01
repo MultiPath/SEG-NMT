@@ -487,7 +487,6 @@ def gen_sample_memory(tparams, funcs,
             mapping, gates, copy_p, next_cov = [o[0] for o in outs]
 
         # new read-out vector & prob
-        next_p  = funcs['pred_xy'](read1[None, :, :])[0]
         read    = read1 * (1 - gates[:, None]) + (read2 * (copy_p.T)[:, :, None]).sum(axis=0) * gates[:, None]
         merge_p = funcs['pred_xy'](read[None, :, :])[0]
 
@@ -526,7 +525,8 @@ def gen_sample_memory(tparams, funcs,
             new_hyp_covs    = []
             new_hyp_gatings = []
             new_hyp_actions = []
-
+            print trans_indices
+            print word_indices
             for idx, [ti, wi] in enumerate(zip(trans_indices, word_indices)):
                 new_hyp_samples.append(hyp_samples[ti] + [wi])
                 new_hyp_scores[idx] = copy.copy(costs[idx])
