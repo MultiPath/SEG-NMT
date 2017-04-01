@@ -14,6 +14,12 @@ parser.add_argument('-m', type=str, default='fren')
 args = parser.parse_args()
 
 model_options = setup(args.m)
+if model_options['remote']:
+    monitor = Monitor(model_options['address'], model_options['port'])
+    print 'create a remote monitor'
+else:
+    monitor = None
+
 pprint(model_options)
 
 # add random seed
@@ -65,6 +71,11 @@ validFreq    = model_options['validFreq']
 bleuFreq     = model_options['bleuFreq']
 saveto       = model_options['saveto']
 overwrite    = model_options['overwrite']
+
+if monitor:
+    import datetime
+    timestamp = datetime.datetime.now().strftime("%m-%d_%H:%M")
+    monitor.start_experiment('train.{}.{}'.format(timestamp, model_options['saveto']))
 
 # ----------------------------------------------- #
 
@@ -144,7 +155,6 @@ def validate(funcs, options, iterator, verbose=False):
         y1, y1_mask = prepare_data(sy1, 200, options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, 200, options['voc_sizes'][2])
         y2, y2_mask = prepare_data(sy2, 200, options['voc_sizes'][3])
-#         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
 
         inps = [x1, x1_mask, y1, y1_mask,
                 x2, x2_mask, y2, y2_mask]
@@ -254,7 +264,6 @@ for eidx in xrange(max_epochs):
         y1, y1_mask = prepare_data(sy1, model_options['maxlen'], model_options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, model_options['maxlen'], model_options['voc_sizes'][2])
         y2, y2_mask = prepare_data(sy2, model_options['maxlen'], model_options['voc_sizes'][3])
-#         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
 
         inps = [x1, x1_mask, y1, y1_mask,
                 x2, x2_mask, y2, y2_mask]
@@ -274,7 +283,6 @@ for eidx in xrange(max_epochs):
         # generate some samples with the model and display them
         if numpy.mod(uidx, sampleFreq) == 0:
             for jj in xrange(numpy.minimum(5, x1.shape[1])):
-                stochastic = True
                 sample, sc, acts, gg = gen_sample_memory(tparams, funcs,
                                                          x1[:, jj][:, None],
                                                          x2[:, jj][:, None],

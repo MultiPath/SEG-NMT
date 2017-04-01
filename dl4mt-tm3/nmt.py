@@ -162,12 +162,12 @@ def build_model(tparams, inps, options, pix='', return_cost=False, with_compile=
         f_critic = theano.function(inps, [opt_ret['hids'], opt_ret['ctxs'], opt_ret['readout']],
                                    name='f_critic', profile=profile)
 
-        # print 'Build f_predict...',
-        # f_predict = theano.function([opt_ret['readout']], [opt_ret['logit'], opt_ret['probs']],
-        #                             name='f_perdict', profile=profile)
+        print 'Build f_predict...',
+        f_predict = theano.function([opt_ret['readout']], [opt_ret['logit'], opt_ret['probs']],
+                                    name='f_perdict', profile=profile)
 
         opt_ret['f_critic']  = f_critic
-        # opt_ret['f_predict'] = f_predict
+        opt_ret['f_predict'] = f_predict
         print 'Done'
 
     return opt_ret
@@ -463,7 +463,7 @@ def gen_sample_memory(tparams, funcs,
         ctx   = numpy.tile(ctx0,   [live_k, 1])
         ctxs2 = numpy.tile(ctxs20, [live_k, 1])
         hids2 = numpy.tile(hids20, [live_k, 1])
-        read2 = numpy.tile(read20, [live_k, 1])
+        read2 = numpy.tile(read20, [live_k, 1])  # tm_seq x live_k x out_dim
         y2_mask_ = numpy.tile(y2_mask, [live_k])
 
         # -- mask OOV words as UNK
@@ -486,27 +486,10 @@ def gen_sample_memory(tparams, funcs,
                                 y2_mask_, next_cov)
             mapping, gates, copy_p, next_cov = [o[0] for o in outs]
 
-        # new read-out vector
-        read1 = read1 * (1 - gates[:, None])
-        read2 = (read2 * gates[:, None])
-
-
-        # real probabilities
-        next_p *= 1 - gates[:, None]
-        copy_p *= gates[:, None]
-
-        def _merge():
-            temp_p = copy.copy(numpy.concatenate([next_p, copy_p], axis=1))
-
-            for i in range(next_p.shape[0]):
-                for j in range(copy_p.shape[1]):
-                    if y2[j] != 1:
-                        temp_p[i, y2[j]] += copy_p[i, j]
-                        temp_p[i, l_max + j] = 0.
-                temp_p[i, 1] = 0.  # never output UNK
-            return temp_p
-
-        merge_p = _merge()
+        # new read-out vector & prob
+        next_p  = funcs['pred_xy'](read1)
+        read    = read1 * (1 - gates[:, None]) + (read2 * (copy_p.T)[:, :, None]).sum(axis=0) * gates[:, None]
+        merge_p = funcs['pred_xy'](read)
 
         if stochastic:
             if argmax:
@@ -718,6 +701,9 @@ def build_networks(options, model=' ', train=True):
     inps = []
     outs = []
 
+    tau  = tparams_map['tau']
+    tau  = tensor.clip(tau, 0, 1)
+
     if not options['use_coverage']:
 
         inps += [ret_xy11['ctxs'], ret_xy22['ctxs'], ret_xy11['hids'], ret_xy22['hids'], y2_mask]
@@ -732,7 +718,7 @@ def build_networks(options, model=' ', train=True):
 
         # copy: alternative
         tm_mask = y2_mask.T
-        attens  = softmax(mapping * tparams_map['tau'], mask=tm_mask[None, :, :])
+        attens  = softmax(mapping * tau, mask=tm_mask[None, :, :])
 
         # gate: alternative
         # gates   = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
@@ -780,10 +766,9 @@ def build_networks(options, model=' ', train=True):
                                                    prev_att[None, :, :],
                                                    prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
 
-                attens    = softmax(mapping * tparams_map['tau'], mask=tm_mask)
-                coverage  = prev_att + attens
+                attens    = softmax(mapping * tau, mask=tm_mask)
 
-                att_tmh   = tensor.batched_dot(attens[:, None, :],            # bs x dec_tm
+                att_tmh   = tensor.batched_dot(attens[:, None, :],         # bs x dec_tm
                                            tm_hids.dimshuffle(1, 0, 2))    # dec_tm x bs x hid_dim
                                                                            # bs x 1 x hid_dim
                 att_tmh   = att_tmh[:, 0, :]                                   # bs x hid_dim
@@ -791,12 +776,14 @@ def build_networks(options, model=' ', train=True):
                 gates     = get_layer('ff')[1](tparams_map,
                                                concatenate([cur_hid, att_tmh, cur_ctx1], axis=1),
                                                options, prefix='map_ff', activ='softmax')[:, 0]
+                coverage  = prev_att + attens * gates[:, None]  # very important, here
+
             else:
 
                 mapping  = get_layer('bg')[1](tparams_map, cur_ctx1[None, :, :],
                                               tm_ctx2, prev_att,
                                               prefix='map_bg', activ='lambda x: x')[0]  # # 1 x bs x dec_tm
-                attens   = softmax(mapping * tparams_map['tau'], mask=tm_mask)
+                attens   = softmax(mapping * tau, mask=tm_mask)
 
                 tm_ctx2_shape = tm_ctx2.shape
                 tm_ctx2_  = tm_ctx2.reshape((tm_ctx2_shape[0] * tm_ctx2_shape[1], tm_ctx2_shape[2]))

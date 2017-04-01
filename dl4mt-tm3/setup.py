@@ -134,49 +134,53 @@ def setup_enfr():
     return config
 
 
-
-
-
-
-def setup_fren_bpe():
+def setup_fren_bpe_fusion():
     home  = '/root/workspace/TMNMT'
     model = '/root/disk/scratch/model-tmnmt'
-    # home = '/home/thoma/work/TMNMT'
-    # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    name  = 'TM2.B7.bpe.fusion'
+
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
         # train phase
-        'saveto': model + '/tmv2_',
-        'datasets': [home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',  # source
-                     home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf',  # target
-                     home + '/.dataset/fren.bpe/train.fr.tok.bpe.shuf',  # source-TM
-                     home + '/.dataset/fren.bpe/train.en.tok.bpe.shuf'   # target-TM
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/top5k.fren.bpe/train.fr.top5.shuf.tok.bpe',          # source
+                     home + '/.dataset/top5k.fren.bpe/train.en.top5.shuf.tok.bpe',          # target
+                     home + '/.dataset/top5k.fren.bpe/train.fr.top5.matched.shuf.tok.bpe',  # source-TM
+                     home + '/.dataset/top5k.fren.bpe/train.en.top5.matched.shuf.tok.bpe'   # target-TM
                      ],
 
-        'valid_datasets': [home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
-                           home + '/.dataset/fren.bpe/devset.en.tok.bpe',
-                           home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
-                           home + '/.dataset/fren.bpe/devset.en.tok.bpe'
+        'valid_datasets': [home + '/.dataset/top5k.fren.bpe/devset.fr.tok.bpe',
+                           home + '/.dataset/top5k.fren.bpe/devset.en.tok.bpe',
+                           home + '/.dataset/top5k.fren.bpe/devset.fr.matched.tok.bpe',
+                           home + '/.dataset/top5k.fren.bpe/devset.en.matched.tok.bpe'
                            ],
 
-        'dictionaries': [home + '/.dataset/fren.bpe/train.fr.tok.bpe.pkl',
-                         home + '/.dataset/fren.bpe/train.en.tok.bpe.pkl',
-                         home + '/.dataset/fren.bpe/train.fr.tok.bpe.pkl',
-                         home + '/.dataset/fren.bpe/train.en.tok.bpe.pkl'
+        'dictionaries': [home + '/.dataset/top5k.fren.bpe/train.fr.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.fren.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.fren.bpe/train.fr.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.fren.bpe/train.en.top5.shuf.tok.bpe.pkl'
                          ],
 
         'voc_sizes': [20000, 20000, 20000, 20000],
         'maxlen': 80,
 
         # baseline models
-        'baseline_ef': model + '/baseline_fren.bpe.npz',
-        'baseline_fe': model + '/baseline_enfr.bpe.npz',
+        'baseline_xy': model + '/baseline_fren.bpe.npz',
 
-        # TODO: test phase is not ready
         # test phase
-        'trans_from': home + '/.dataset/fren.bpe/devset.fr.tok.bpe',
-        'trans_ref': home + '/.dataset/fren/devset.en.tok',
-        'trans_to': home + '/.translate/tmv1_fren.bpe.valid'
+        'trans_from': home + '/.dataset/top5k.fren.bpe/devset.fr.tok.bpe',
+        'tm_source':  home + '/.dataset/top5k.fren.bpe/devset.fr.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/top5k.fren.bpe/devset.en.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/top5k.fren/devset.en.tok',
+        'trans_to':   home + '/.translate/' + name + '.dev.translate',
+
+        # multi-tm test
+        'tm_source_full': home + '/.dataset/top5k.fren.bpe/train.fr.top1.tok.bpe',
+        'tm_target_full': home + '/.dataset/top5k.fren.bpe/train.en.top1.tok.bpe',
+        'tm_rank':   home + '/.dataset/top5k.fren/match_top100.pkl',
+        'tm_record': home + '/.dataset/top5k.fren/match_record5.pkl'
+
     }
     return config
 
