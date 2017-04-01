@@ -917,6 +917,9 @@ def build_networks(options, model=' ', train=True):
 
     inps = []
     outs = []
+    tau  = tparams_map['tau']
+    if options.get('option', 'normal') == 'advanced':
+        tau = tensor.clip(tau, 0, 1)
 
     if not options['use_coverage']:
 
@@ -932,7 +935,7 @@ def build_networks(options, model=' ', train=True):
 
         # copy: alternative
         tm_mask = y2_mask.T
-        attens  = softmax(mapping * tparams_map['tau'], mask=tm_mask[None, :, :])
+        attens  = softmax(mapping * tau, mask=tm_mask[None, :, :])
 
         # gate: alternative
         # gates   = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
@@ -980,7 +983,7 @@ def build_networks(options, model=' ', train=True):
                                                    prev_att[None, :, :],
                                                    prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
 
-                attens    = softmax(mapping * tparams_map['tau'], mask=tm_mask)
+                attens    = softmax(mapping * tau, mask=tm_mask)
 
 
                 att_tmh   = tensor.batched_dot(attens[:, None, :],            # bs x dec_tm
@@ -993,7 +996,7 @@ def build_networks(options, model=' ', train=True):
                                                options, prefix='map_ff', activ='softmax')[:, 0]
 
                 if options.get('gate_coverage', False):
-                    coverage = prev_att + attens * gates
+                    coverage = prev_att + attens * gates[:, None]
                 else:
                     coverage = prev_att + attens
 
@@ -1002,7 +1005,7 @@ def build_networks(options, model=' ', train=True):
                 mapping  = get_layer('bg')[1](tparams_map, cur_ctx1[None, :, :],
                                               tm_ctx2, prev_att,
                                               prefix='map_bg', activ='lambda x: x')[0]  # # 1 x bs x dec_tm
-                attens   = softmax(mapping * tparams_map['tau'], mask=tm_mask)
+                attens   = softmax(mapping * tau, mask=tm_mask)
 
                 tm_ctx2_shape = tm_ctx2.shape
                 tm_ctx2_  = tm_ctx2.reshape((tm_ctx2_shape[0] * tm_ctx2_shape[1], tm_ctx2_shape[2]))

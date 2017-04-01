@@ -350,7 +350,7 @@ def setup_fren_bpe():
 def setup_enfr_bpe():
     home  = '/root/workspace/TMNMT'
     model = '/root/disk/scratch/model-tmnmt'
-    name  = 'TM2.B7.bper'
+    name  = 'TM2.B7.bpe2'
 
     config = {
         # train phase
@@ -625,7 +625,7 @@ def setup(pair='fren'):
         'nn_coverage':  False,
         'gate_coverage':True,
         'cov_dim':      10,
-        'option':       'advanced', # 'normal'
+        'option':       'normal', # 'normal'
 
         'stochastic':   False,
         'build_gate':   True,

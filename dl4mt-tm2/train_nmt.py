@@ -77,7 +77,9 @@ saveto       = model_options['saveto']
 overwrite    = model_options['overwrite']
 
 if monitor:
-    monitor.start_experiment('trainx.{}'.format(model_options['saveto']))
+    import datetime
+    timestamp = datetime.datetime.now().strftime("%m-%d_%H:%M")
+    monitor.start_experiment('train.{}.{}'.format(timestamp, model_options['saveto']))
 
 # ----------------------------------------------- #
 
@@ -263,7 +265,7 @@ for eidx in xrange(max_epochs):
 
             print 'Valid ', valid_err
             if monitor:
-                monitor.push({'valid': valid_err}, step=uidx)
+                monitor.push({'valid': float(str(valid_err))}, step=int(uidx))
 
 
         # training
