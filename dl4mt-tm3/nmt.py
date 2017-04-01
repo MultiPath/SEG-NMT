@@ -487,9 +487,9 @@ def gen_sample_memory(tparams, funcs,
             mapping, gates, copy_p, next_cov = [o[0] for o in outs]
 
         # new read-out vector & prob
-        next_p  = funcs['pred_xy'](read1)
+        next_p  = funcs['pred_xy'](read1[None, :, :])[0]
         read    = read1 * (1 - gates[:, None]) + (read2 * (copy_p.T)[:, :, None]).sum(axis=0) * gates[:, None]
-        merge_p = funcs['pred_xy'](read)
+        merge_p = funcs['pred_xy'](read[None, :, :])[0]
 
         if stochastic:
             if argmax:
