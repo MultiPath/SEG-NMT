@@ -155,10 +155,10 @@ def validate(funcs, options, iterator, verbose=False):
 
     n_done = 0
     for k, (sx1, sy1, sx2, sy2) in enumerate(iterator):
-        x1, x1_mask = prepare_data(sx1, 200, options['voc_sizes'][0])
-        y1, y1_mask = prepare_data(sy1, 200, options['voc_sizes'][1])
-        x2, x2_mask = prepare_data(sx2, 200, options['voc_sizes'][2])
-        y2, y2_mask = prepare_data(sy2, 200, options['voc_sizes'][3])
+        x1, x1_mask = prepare_data(sx1, 500, options['voc_sizes'][0])
+        y1, y1_mask = prepare_data(sy1, 500, options['voc_sizes'][1])
+        x2, x2_mask = prepare_data(sx2, 500, options['voc_sizes'][2])
+        y2, y2_mask = prepare_data(sy2, 500, options['voc_sizes'][3])
         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
 
         inps = [x1, x1_mask, y1, y1_mask,
