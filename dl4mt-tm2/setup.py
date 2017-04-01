@@ -96,6 +96,55 @@ def setup_ende_wmt15():
     return config
 
 
+def setup_ende_wmt():
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    name  = 'TM2.B7.new_scratch'
+
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/wmt15.ende/train/train.en.top5.tok.bpe',          # source
+                     home + '/.dataset/wmt15.ende/train/train.de.top5.tok.bpe',          # target
+                     home + '/.dataset/wmt15.ende/train/train.en.top5.matched.tok.bpe',  # source-TM
+                     home + '/.dataset/wmt15.ende/train/train.de.top5.matched.tok.bpe'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/wmt15.ende/dev/newstest2013.en.tok.bpe',
+                           home + '/.dataset/wmt15.ende/dev/newstest2013.de.tok.bpe',
+                           home + '/.dataset/wmt15.ende/dev/devset.en.matched.tok.bpe',
+                           home + '/.dataset/wmt15.ende/dev/devset.de.matched.tok.bpe'
+                           ],
+
+        'dictionaries': [home + '/.dataset/wmt15.ende/train/all_de-en.en.tok.bpe.word.pkl',
+                         home + '/.dataset/wmt15.ende/train/all_de-en.de.tok.bpe.word.pkl',
+                         home + '/.dataset/wmt15.ende/train/all_de-en.en.tok.bpe.word.pkl',
+                         home + '/.dataset/wmt15.ende/train/all_de-en.de.tok.bpe.word.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 50,
+        'batch_size': 64,
+        'lrate':      0.0001, # try this very small learning rate.
+
+        # special care
+        'dim': 1028,
+        'use_pretrain': False,
+        'see_pretrain': True,
+
+        # baseline models
+        'baseline_xy': model + '/model_wmt15_bi_en-de.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/wmt15.ende/dev/newstest2013.en.tok.bpe',
+        'tm_source':  home + '/.dataset/wmt15.ende/dev/devset.en.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/wmt15.ende/dev/devset.de.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/wmt15.ende/dev/newstest2013.de.tok',
+        'trans_to':   home + '/.translate/' + name + '.wmt15.dev.translate'
+    }
+    return config
+
 
 
 
@@ -350,7 +399,7 @@ def setup_fren_bpe():
 def setup_fren_bpe_28():
     home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
-    name  = 'TM2.B7.bpe2.28'
+    name  = 'TM2.B7.bpe2'
 
     config = {
         # train phase
