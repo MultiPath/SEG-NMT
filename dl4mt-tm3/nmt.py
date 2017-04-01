@@ -878,8 +878,7 @@ def build_networks(options, model=' ', train=True):
         # before any regularizer
         print 'build Cost Function...',
         inputs = [x1, x1_mask, y1, y1_mask,
-                  x2, x2_mask, y2, y2_mask,
-                  txy12, txy12_mask]
+                  x2, x2_mask, y2, y2_mask]
         if options['use_coverage']:
             inputs += [att0]
 
