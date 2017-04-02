@@ -488,7 +488,8 @@ def gen_sample_memory(tparams, funcs,
 
         # new read-out vector & prob
         read    = read1 * (1 - gates[:, None]) + (read2 * (copy_p.T)[:, :, None]).sum(axis=0) * gates[:, None]
-        merge_p = funcs['pred_xy'](read[None, :, :])[1][0]
+        merge_p = funcs['pred_xy'](read[None, :, :])[1]
+        # print merge_p.shape
 
         if stochastic:
             if argmax:
