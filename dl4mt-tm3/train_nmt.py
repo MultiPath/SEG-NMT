@@ -259,6 +259,12 @@ for eidx in xrange(max_epochs):
 
             print 'Valid ', valid_err
 
+            try:
+                monitor.push({'valid': float(valid_err)}, step=int(uidx))
+            except Exception, e:
+                print 'error catch', e
+
+
         # training
         x1, x1_mask = prepare_data(sx1, model_options['maxlen'], model_options['voc_sizes'][0])
         y1, y1_mask = prepare_data(sy1, model_options['maxlen'], model_options['voc_sizes'][1])
