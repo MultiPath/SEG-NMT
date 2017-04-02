@@ -690,7 +690,7 @@ def build_networks(options, model=' ', train=True):
                                        nin=4 * options['dim'], nout=2)
     else:
         params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',
-                                        nin=4 * options['dim'], nout=options['dim'])
+                                        nin=4 * options['dim'], nout=options['dim_word'])
 
 
     # reload parameters
