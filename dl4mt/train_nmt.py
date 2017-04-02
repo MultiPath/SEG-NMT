@@ -184,7 +184,9 @@ def train(dim_word=100,  # word vector dimensionality
     #BleuPoint = 20000
 
     print 'monitor start'
-    monitor.start_experiment('baseline.' + saveto)
+    import datetime
+    timestamp = datetime.datetime.now().strftime("%m-%d_%H:%M")
+    monitor.start_experiment('baseline.{}.{}'.format(timestamp, saveto))
 
     for eidx in xrange(max_epochs):
         n_samples = 0
@@ -312,8 +314,10 @@ def train(dim_word=100,  # word vector dimensionality
                     ipdb.set_trace()
 
                 print 'Valid ', valid_err
-                monitor.push({'valid': valid_err}, step=uidx)
-
+                try:
+                    monitor.push({'valid': float(valid_err)}, step=int(uidx))
+                except Exception, e:
+                    print e
 
             # validate model with BLEU
             pass

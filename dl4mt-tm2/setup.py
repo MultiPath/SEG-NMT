@@ -193,45 +193,45 @@ def setup_deen():
     return config
 
 
-def setup_enes_miles():
+def setup_enes_bpe_miles():
     home  = '/home/thoma/work/TMNMT'
     model = '/home/thoma/scratch/tmnmt'
-    name  = 'TM2.B7'
+    name  = 'TM2.B7.miles'
 
     config = {
         # train phase
         'name': name,
         'saveto': model + '/' + name + '_',
-        'datasets': [home + '/.dataset/top5k.enes/train.en.top5.shuf.tok',          # source
-                     home + '/.dataset/top5k.enes/train.es.top5.shuf.tok',          # target
-                     home + '/.dataset/top5k.enes/train.en.top5.matched.shuf.tok',  # source-TM
-                     home + '/.dataset/top5k.enes/train.es.top5.matched.shuf.tok'   # target-TM
+        'datasets': [home + '/.dataset/top5k.enes.bpe/train.en.top5.shuf.tok.bpe',          # source
+                     home + '/.dataset/top5k.enes.bpe/train.es.top5.shuf.tok.bpe',          # target
+                     home + '/.dataset/top5k.enes.bpe/train.en.top5.matched.shuf.tok.bpe',  # source-TM
+                     home + '/.dataset/top5k.enes.bpe/train.es.top5.matched.shuf.tok.bpe'   # target-TM
                      ],
 
-        'valid_datasets': [home + '/.dataset/top5k.enes/dev.enes.en.tok',
-                           home + '/.dataset/top5k.enes/dev.enes.es.tok',
-                           home + '/.dataset/top5k.enes/devset.en.matched.tok',
-                           home + '/.dataset/top5k.enes/devset.es.matched.tok'
+        'valid_datasets': [home + '/.dataset/top5k.enes.bpe/devset.en.tok.bpe',
+                           home + '/.dataset/top5k.enes.bpe/devset.es.tok.bpe',
+                           home + '/.dataset/top5k.enes.bpe/devset.en.matched.tok.bpe',
+                           home + '/.dataset/top5k.enes.bpe/devset.es.matched.tok.bpe'
                            ],
 
-        'dictionaries': [home + '/.dataset/top5k.enes/train.en.top5.shuf.tok.pkl',
-                         home + '/.dataset/top5k.enes/train.es.top5.shuf.tok.pkl',
-                         home + '/.dataset/top5k.enes/train.en.top5.shuf.tok.pkl',
-                         home + '/.dataset/top5k.enes/train.es.top5.shuf.tok.pkl'
+        'dictionaries': [home + '/.dataset/top5k.enes.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.enes.bpe/train.es.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.enes.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.enes.bpe/train.es.top5.shuf.tok.bpe.pkl'
                          ],
 
         'voc_sizes': [20000, 20000, 20000, 20000],
-        'maxlen': 50,
+        'maxlen': 80,
 
         # baseline models
         'baseline_xy': model + '/baseline_enes.npz',
 
         # test phase
-        'trans_from': home + '/.dataset/top5k.enes/dev.enes.en.tok',
-        'tm_source':  home + '/.dataset/top5k.enes/devset.en.matched.tok',
-        'tm_target':  home + '/.dataset/top5k.enes/devset.es.matched.tok',
-        'trans_ref':  home + '/.dataset/top5k.enes/dev.enes.es.tok',
-        'trans_to':   home + '/.translate/' + name + '.enes.dev.translate',
+        'trans_from': home + '/.dataset/top5k.enes.bpe/devset.en.tok.bpe',
+        'tm_source':  home + '/.dataset/top5k.enes.bpe/devset.en.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/top5k.enes.bpe/devset.es.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/top5k.enes.bpe/devset.es.tok',
+        'trans_to':   home + '/.translate/' + name + '.enes_bpe.dev.translate',
 
         # multi-tm test
         'tm_source_full': home + '/.dataset/top5k.enes/train.en.top1.tok',

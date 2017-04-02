@@ -47,6 +47,39 @@ def setup_enfr_bpe():
     return config
 
 
+def setup_enes_bpe_miles():
+    home  = '/home/thoma/work/TMNMT'
+    model = '/home/thoma/scratch/tmnmt'
+    name  = 'baseline.miles'
+
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/top5k.enes.bpe/train.en.top5.shuf.tok.bpe',          # source
+                     home + '/.dataset/top5k.enes.bpe/train.es.top5.shuf.tok.bpe',          # target
+                     ],
+
+        'valid_datasets': [home + '/.dataset/top5k.enes.bpe/devset.en.tok.bpe',
+                           home + '/.dataset/top5k.enes.bpe/devset.es.tok.bpe',
+                           ],
+
+        'dictionaries': [home + '/.dataset/top5k.enes.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.enes.bpe/train.es.top5.shuf.tok.bpe.pkl',
+                         ],
+
+        'maxlen': 80,
+
+        # test phase
+        'trans_from': home + '/.dataset/top5k.enes.bpe/devset.en.tok.bpe',
+        'trans_ref':  home + '/.dataset/top5k.enes.bpe/devset.es.tok',
+        'trans_to':   home + '/.translate/' + name + '.enes_bpe.dev.translate',
+
+    }
+    return config
+
+
+
 def setup_fren():
     # home   = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     # home   = '/scratch/jg5223/exp/TMNMT'
