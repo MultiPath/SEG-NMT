@@ -25,6 +25,33 @@ try:
 except ImportError:
     pass
 
+class flushfile(object):
+    def __getattr__(self,name):
+        return object.__getattribute__(self.f, name)
+    def __init__(self, f):
+        self.f = f
+
+    def write(self, x):
+        self.f.write(x)
+        self.f.flush()
+
+import sys
+sys.stdout = flushfile(sys.stdout)
+
+
+
+
+class Timeit(object):
+    def __init__(self, func):
+        self._wrapped = func
+
+    def __call__(self, *args, **kws):
+        start_t = time.time()
+        result = self._wrapped(*args, **kws)
+        print '{}: elapsed {:.4f} secs.'.format(self._wrapped.__name__,
+                                                time.time() - start_t)
+        return result
+
 
 class Monitor(object):
     def __init__(self, address, port):
