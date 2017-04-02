@@ -487,7 +487,11 @@ def gen_sample_memory(tparams, funcs,
             mapping, gates, copy_p, next_cov = [o[0] for o in outs]
 
         # new read-out vector & prob
-        read    = read1 * (1 - gates[:, None]) + (read2 * (copy_p.T)[:, :, None]).sum(axis=0) * gates[:, None]
+        if not options.get('elem_gates', False):
+            read = read1 * (1 - gates[:, None]) + (read2 * (copy_p.T)[:, :, None]).sum(axis=0) * gates[:, None]
+        else:
+            read = read1 * (1 - gates) + (read2 * (copy_p.T)[:, :, None]).sum(axis=0) * gates
+
         merge_p = funcs['pred_xy'](read[None, :, :])[1]
         # print merge_p.shape
 
@@ -499,7 +503,11 @@ def gen_sample_memory(tparams, funcs,
                 nw = rng.multinomial(1, pvals=merge_p[0]).argmax()
 
             sample.append(nw)
-            gating.append(1 - gates[:, None])
+            if not options.get('elem_gates', False):
+                gating.append(1 - gates[:, None])
+            else:
+                gating.append(1 - gates.mean(axis=1, keepdims=True))
+
             if nw >= l_max:
                 action.append(0.0)
             else:
@@ -533,7 +541,11 @@ def gen_sample_memory(tparams, funcs,
                 new_hyp_scores[idx] = copy.copy(costs[idx])
                 new_hyp_states.append(copy.copy(next_state[ti]))
                 new_hyp_covs.append(copy.copy(next_cov[ti]))
-                new_hyp_gatings.append(hyp_gatings[ti] + [1 - gates[ti]])
+                if not options.get('elem_gates', False):
+                    new_hyp_gatings.append(hyp_gatings[ti] + [1 - gates[ti]])
+                else:
+                    new_hyp_gatings.append(hyp_gatings[ti] + [1 - gates[ti, :].mean()])
+
                 if wi >= l_max:
                     new_hyp_actions.append(hyp_actions[ti] + [0])
                 else:
@@ -673,8 +685,13 @@ def build_networks(options, model=' ', train=True):
     params_map['tau'] = numpy.float32(1.0)  # 1.0   # temperature for copy
 
     # params for gating
-    params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',
-                                    nin=4 * options['dim'], nout=2)
+    if not options.get('elem_gates', False):
+        params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',
+                                       nin=4 * options['dim'], nout=2)
+    else:
+        params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',
+                                        nin=4 * options['dim'], nout=options['dim'])
+
 
     # reload parameters
     if train:
@@ -724,9 +741,14 @@ def build_networks(options, model=' ', train=True):
                                                                             # bs x dec_cur x hid_dim
         att_tmh = att_tmh.dimshuffle(1, 0, 2)
 
-        gates = get_layer('ff')[1](tparams_map,
-                                   concatenate([ret_xy11['hids'], att_tmh, ret_xy11['ctxs']], axis=2),
-                                   options, prefix='map_ff', activ='softmax')[:, :, 0]
+        if not options.get('elem_gates', False):
+            gates = get_layer('ff')[1](tparams_map,
+                                       concatenate([ret_xy11['hids'], att_tmh, ret_xy11['ctxs']], axis=2),
+                                       options, prefix='map_ff', activ='softmax')[:, :, 0]
+        else:
+            gates = get_layer('ff')[1](tparams_map,
+                                       concatenate([ret_xy11['hids'], att_tmh, ret_xy11['ctxs']], axis=2),
+                                       options, prefix='map_ff', activ='sigmoid')
 
         outs += [mapping, gates, attens]
 
@@ -770,10 +792,17 @@ def build_networks(options, model=' ', train=True):
                                                                            # bs x 1 x hid_dim
                 att_tmh   = att_tmh[:, 0, :]                                   # bs x hid_dim
 
-                gates     = get_layer('ff')[1](tparams_map,
+                if not options.get('elem_gates', False):
+                    gates     = get_layer('ff')[1](tparams_map,
+                                                   concatenate([cur_hid, att_tmh, cur_ctx1], axis=1),
+                                                   options, prefix='map_ff', activ='softmax')[:, 0]
+                    coverage  = prev_att + attens * gates[:, None]  # very important, here
+
+                else:
+                    gates = get_layer('ff')[1](tparams_map,
                                                concatenate([cur_hid, att_tmh, cur_ctx1], axis=1),
-                                               options, prefix='map_ff', activ='softmax')[:, 0]
-                coverage  = prev_att + attens * gates[:, None]  # very important, here
+                                               options, prefix='map_ff', activ='sigmoid')
+                    coverage = prev_att + attens
 
             else:
 
@@ -832,7 +861,12 @@ def build_networks(options, model=' ', train=True):
         # attens:    dec_cu x batch-size x dec_tm
         readouts2_ = tensor.batched_dot(attens.dimshuffle(1, 0, 2),
                                         readouts2.dimshuffle(1, 0, 2)).dimshuffle(1, 0, 2)
-        readouts = readouts1 * (1 - g[:, :, None]) + readouts2_ * g[:, :, None]
+
+        if not options.get('elem_gates', False):
+            readouts = readouts1 * (1 - g[:, :, None]) + readouts2_ * g[:, :, None]
+        else:
+            readouts = readouts1 * (1 - g) + readouts2_ * g
+
         logit = get_layer('ff')[1](tparams_xy, readouts, options,
                                    prefix='xy_ff_logit', activ='linear')
         logit_shp = logit.shape
