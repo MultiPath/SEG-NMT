@@ -241,7 +241,60 @@ def setup_fren_bpe_fusion2():
     return config
 
 
+def setup_fren_bpe_fusion3():
+    # home  = '/root/workspace/TMNMT'
+    # model = '/root/disk/scratch/model-tmnmt'
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    name  = 'TM2.B7.bpe.fusion'
 
+    # home   = '/scratch/jg5223/exp/TMNMT'
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/top5k.fren.bpe/train.fr.top5.shuf.tok.bpe',          # source
+                     home + '/.dataset/top5k.fren.bpe/train.en.top5.shuf.tok.bpe',          # target
+                     home + '/.dataset/top5k.fren.bpe/train.fr.top5.matched.shuf.tok.bpe',  # source-TM
+                     home + '/.dataset/top5k.fren.bpe/train.en.top5.matched.shuf.tok.bpe'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/top5k.fren.bpe/devset.fr.tok.bpe',
+                           home + '/.dataset/top5k.fren.bpe/devset.en.tok.bpe',
+                           home + '/.dataset/top5k.fren.bpe/devset.fr.matched.tok.bpe',
+                           home + '/.dataset/top5k.fren.bpe/devset.en.matched.tok.bpe'
+                           ],
+
+        'dictionaries': [home + '/.dataset/top5k.fren.bpe/train.fr.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.fren.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.fren.bpe/train.fr.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/top5k.fren.bpe/train.en.top5.shuf.tok.bpe.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 80,
+        'use_pretrain': True,
+        'elem_gates': True,
+
+
+        # baseline models
+        'baseline_xy': model + '/baseline_fren.bpe.iter200000.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/top5k.fren.bpe/devset.fr.tok.bpe',
+        'tm_source':  home + '/.dataset/top5k.fren.bpe/devset.fr.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/top5k.fren.bpe/devset.en.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/top5k.fren/devset.en.tok',
+        'trans_to':   home + '/.translate/' + name + '.dev.translate',
+
+        # multi-tm test
+        'tm_source_full': home + '/.dataset/top5k.fren.bpe/train.fr.top1.tok.bpe',
+        'tm_target_full': home + '/.dataset/top5k.fren.bpe/train.en.top1.tok.bpe',
+        'tm_rank':   home + '/.dataset/top5k.fren/match_top100.pkl',
+        'tm_record': home + '/.dataset/top5k.fren/match_record5.pkl'
+
+    }
+    return config
 
 
 def setup(pair='fren'):
@@ -278,9 +331,12 @@ def setup(pair='fren'):
         'diagonal':     True,
         'eye':          True,
         'cos_sim':      False,
+
         'use_coverage': True,
         'nn_coverage':  False,
         'cov_dim':      10,
+
+        'elem_gates':   False,
 
         'stochastic':   False,
         'build_gate':   True,
