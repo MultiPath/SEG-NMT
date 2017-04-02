@@ -159,7 +159,9 @@ def go(model, dictionary, dictionary_target,
 
     else:
         if monitor is not None:
-            monitor.start_experiment('test.{}'.format(model))
+            import datetime
+            timestamp = datetime.datetime.now().strftime("%m-%d_%H:%M")
+            monitor.start_experiment('test.{}.{}'.format(timestamp, model))
 
         step_test = start_steps
         if step_test == 0:
