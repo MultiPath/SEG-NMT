@@ -541,7 +541,11 @@ def gen_sample_memory(tparams, funcs,
                 new_hyp_scores[idx] = copy.copy(costs[idx])
                 new_hyp_states.append(copy.copy(next_state[ti]))
                 new_hyp_covs.append(copy.copy(next_cov[ti]))
-                new_hyp_gatings.append(hyp_gatings[ti] + [1 - gates[ti]])
+                if not options.get('elem_gates', False):
+                    new_hyp_gatings.append(hyp_gatings[ti] + [1 - gates[ti]])
+                else:
+                    new_hyp_gatings.append(hyp_gatings[ti] + [1 - gates[ti, :].mean()])
+
                 if wi >= l_max:
                     new_hyp_actions.append(hyp_actions[ti] + [0])
                 else:
