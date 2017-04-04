@@ -247,6 +247,10 @@ for eidx in xrange(max_epochs):
     for k, (sx1, sy1, sx2, sy2) in enumerate(train):
         uidx += 1
 
+        _skip =  model_options.get('skip', 0)
+        if uidx < _skip:
+            continue
+
         # save the best model so far, in addition, save the latest model
         # into a separate file with the iteration number for external eval
         if numpy.mod(uidx, saveFreq) == 0:

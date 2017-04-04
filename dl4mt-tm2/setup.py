@@ -196,7 +196,7 @@ def setup_deen():
 def setup_enes_bpe_miles():
     home  = '/home/thoma/work/TMNMT'
     model = '/home/thoma/scratch/tmnmt'
-    name  = 'TM2.B7.miles'
+    name  = 'TM2.B7.miles2'
 
     config = {
         # train phase
@@ -222,6 +222,7 @@ def setup_enes_bpe_miles():
 
         'voc_sizes': [20000, 20000, 20000, 20000],
         'maxlen': 80,
+        'skip': 5000,
 
         # baseline models
         'baseline_xy': model + '/baseline_enes.npz',
