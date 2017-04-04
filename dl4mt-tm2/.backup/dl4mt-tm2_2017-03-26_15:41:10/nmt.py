@@ -684,9 +684,6 @@ def gen_sample_multi(tparams, funcs,
                                 y2_mask_, next_cov)
             mapping, gates, copy_p, next_cov = [o[0] for o in outs]
 
-        # >>>> just for testing
-        # gates = 1 + gates * 0.  # only copy
-
         # real probabilities
         next_p *= 1 - gates[:, None]
         copy_p *= gates[:, None]
@@ -810,7 +807,7 @@ def build_networks(options, model=' ', train=True):
     params_xy0 = copy.copy(params_xy)
     print 'Done.'
 
-    if options.get('see_pretrain', False):
+    if options['see_pretrain']:
         print 'load the pretrained NMT-models...'
         params_xy0  = load_params2(options['baseline_xy'], params_xy0, mode='xy_')
         tparams_xy0 = init_tparams(params_xy0)  # pre-trained E->F model
@@ -887,10 +884,7 @@ def build_networks(options, model=' ', train=True):
                                              nin=4 * options['dim'] + 1,
                                              dim=options['cov_dim'])
 
-    if options.get('option', 'normal') == 'normal':
-        params_map['tau'] = numpy.float32(1.0)  # 1.0   # temperature for copy
-    elif options.get('option', 'normal') == 'advanced':
-        params_map['tau'] = numpy.float32(0.5)
+    params_map['tau'] = numpy.float32(1.0)  # 1.0   # temperature for copy
 
     # params for gating
     params_map = get_layer('ff')[0](options, params_map, prefix='map_ff',
@@ -917,9 +911,6 @@ def build_networks(options, model=' ', train=True):
 
     inps = []
     outs = []
-    tau  = tparams_map['tau']
-    # if options.get('option', 'normal') == 'advanced':
-    tau = tensor.clip(tau, 0, 1)
 
     if not options['use_coverage']:
 
@@ -935,7 +926,7 @@ def build_networks(options, model=' ', train=True):
 
         # copy: alternative
         tm_mask = y2_mask.T
-        attens  = softmax(mapping * tau, mask=tm_mask[None, :, :])
+        attens  = softmax(mapping * tparams_map['tau'], mask=tm_mask[None, :, :])
 
         # gate: alternative
         # gates   = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
@@ -983,8 +974,8 @@ def build_networks(options, model=' ', train=True):
                                                    prev_att[None, :, :],
                                                    prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
 
-                attens    = softmax(mapping * tau, mask=tm_mask)
-
+                attens    = softmax(mapping * tparams_map['tau'], mask=tm_mask)
+                coverage  = prev_att + attens
 
                 att_tmh   = tensor.batched_dot(attens[:, None, :],            # bs x dec_tm
                                            tm_hids.dimshuffle(1, 0, 2))    # dec_tm x bs x hid_dim
@@ -994,18 +985,12 @@ def build_networks(options, model=' ', train=True):
                 gates     = get_layer('ff')[1](tparams_map,
                                                concatenate([cur_hid, att_tmh, cur_ctx1], axis=1),
                                                options, prefix='map_ff', activ='softmax')[:, 0]
-
-                if options.get('gate_coverage', False):
-                    coverage = prev_att + attens * gates[:, None]
-                else:
-                    coverage = prev_att + attens
-
             else:
 
                 mapping  = get_layer('bg')[1](tparams_map, cur_ctx1[None, :, :],
                                               tm_ctx2, prev_att,
                                               prefix='map_bg', activ='lambda x: x')[0]  # # 1 x bs x dec_tm
-                attens   = softmax(mapping * tau, mask=tm_mask)
+                attens   = softmax(mapping * tparams_map['tau'], mask=tm_mask)
 
                 tm_ctx2_shape = tm_ctx2.shape
                 tm_ctx2_  = tm_ctx2.reshape((tm_ctx2_shape[0] * tm_ctx2_shape[1], tm_ctx2_shape[2]))
@@ -1090,7 +1075,7 @@ def build_networks(options, model=' ', train=True):
     print 'build sampler (one-step)'
     f_init_xy, f_next_xy   = build_sampler(tparams_xy, options, options['trng'], 'xy_')
 
-    if options.get('see_pretrain', False):
+    if options['see_pretrain']:
         print 'build old sampler'
         f_init_xy0, f_next_xy0 = build_sampler(tparams_xy0, options, options['trng'], 'xy_')
 
@@ -1146,7 +1131,7 @@ def build_networks(options, model=' ', train=True):
     funcs['next_xy']   = f_next_xy
     funcs['crit_xy']   = ret_xy11['f_critic']
 
-    if options.get('see_pretrain', False):
+    if options['see_pretrain']:
         funcs['init_xy0']  = f_init_xy0
         funcs['next_xy0']  = f_next_xy0
 
@@ -1154,7 +1139,7 @@ def build_networks(options, model=' ', train=True):
 
     print 'Build Networks... done!'
     if train:
-        if options.get('see_pretrain', False):
+        if options['see_pretrain']:
             return funcs, [tparams, tparams_xy0]
 
     return funcs, tparams

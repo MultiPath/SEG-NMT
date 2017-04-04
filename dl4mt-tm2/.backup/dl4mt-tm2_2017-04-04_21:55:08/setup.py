@@ -196,7 +196,7 @@ def setup_deen():
 def setup_enes_bpe_miles():
     home  = '/home/thoma/work/TMNMT'
     model = '/home/thoma/scratch/tmnmt'
-    name  = 'TM2.B7.miles3'
+    name  = 'TM2.B7.miles2'
 
     config = {
         # train phase
