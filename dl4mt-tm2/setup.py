@@ -434,7 +434,7 @@ def setup_fren_bpe_28():
         'trans_from': home + '/.dataset/top5k.28.fren.bpe/devset.fr.tok.bpe',
         'tm_source':  home + '/.dataset/top5k.28.fren.bpe/devset.fr.matched.tok.bpe',
         'tm_target':  home + '/.dataset/top5k.28.fren.bpe/devset.en.matched.tok.bpe',
-        'trans_ref':  home + '/.dataset/top5k.fren/devset.en.tok',
+        'trans_ref':  home + '/.dataset/top5k.fren.bpe/devset.en.tok',
         'trans_to':   home + '/.translate/' + name + '.dev.translate',
 
         # multi-tm test
