@@ -120,6 +120,7 @@ p(Y|X) = \prod_{t=1}^T p(y_t | y_{<t}, X).
 \end{equation}
 Each term on the r.h.s. of the equation above is modeled as a parametric function:
 \begin{equation}
+\label{eq.prob}
 p(y_t|y_{<t}, X)\propto \exp\left(g\left(y_t, z_t; \theta_g\right)\right),
 \end{equation}
 where 
@@ -130,6 +131,7 @@ $f$ is a recurrent function that compresses all the previous target words $y_{<t
 \paragraph{Attention Mechanism}
 In default, $c_t(X)$ is implemented as a bidirectional recurrent network encoder of the source sentence coupled with an attention mechanism. We use $h_\tau$ as the concatenation of the states produced by the backward and forward encoder for each input word $x_\tau$, and compute the context as the weighted sum of the encoder states,
 \begin{equation}
+\label{eq.attention}
 c_t = \sum_{\tau=1}^{T_s}\alpha_{t\tau}h_\tau
 \end{equation}
 where $\alpha_{t\tau} \propto \exp\left[\phi_{att}\left(h_\tau, z_{t-1}\right)\right]$ are the attention weights, and $\phi_{att}$ is a scoring function. Naturally, the attention summarizes the relatedness between the source words and the target translation, which indicates the context vector $c_t$ has a identity correspondence to the target word $y_t$, as shown in Fig.~\ref{fig.nmt}, 
@@ -174,7 +176,7 @@ In this section, we discuss about the method using search engine to retrieve sim
 \vspace{-8pt}
 \end{figure}
 \paragraph{Choice of $s$}
-It depends on what level of the information we adopt, which can be either lexical-level matching scores (count-vector cosine-similarity, Edit-distance, BLEU, etc.) or the semantically relatedness computed by a neural network~\cite{hu2014convolutional}. However, as human searches the related translation examples to help doing translation, it is more natural to match shallow features of language usage other than understanding the semantic meanings of sentences. Considering on this, we use two types of non-parameterized metrics in our experiments: the edit distance $s_{edit}$ and the BLEU score $s_{bleu}$. Following the previous work~\cite{li2016phrase}, we also constrain $s_{edit}$ in $[0, 1]$ by defining the fuzzy matching score as follows:
+It depends on what level of the information we adopt, which can be either lexical-level matching scores (count-vector cosine-similarity, Edit-distance, BLEU, etc.) or the semantically relatedness computed by a neural network~\cite{hu2014convolutional}. However, as human searches the related translation examples to help doing translation, it is more natural to match shallow features of language usage other than understanding the semantic meanings of sentences. Considering on this, we use two types of non-parameterized metrics in our experiments: the edit distance $s_{edit}$ and the BLEU score $s_{bleu}$. Following the previous work~\cite{li2016phrase}, we also constrain $s_{edit}\in[0, 1]$ by defining the fuzzy matching score as follows:
 \begin{equation}
 s_{fuzzy}(X, X') = 1 - \frac{s_{edit}(X, X')}{\max\left(|X|, |X'|\right)}
 \end{equation}
@@ -184,7 +186,7 @@ Alternatively, it is possible to design a light-weight similarity function to se
 \begin{figure*}[htpb]
 \label{framework}
 \includegraphics[width=\linewidth]{figures/framework1.pdf}
-\caption{The whole architecture of the proposed TM-NMT model}
+\caption{\label{fig.tmnmt}The whole architecture of the proposed TM-NMT model}
 \end{figure*}
 
 \paragraph{Return}
@@ -193,11 +195,59 @@ A heuristic algorithm here
 
 \subsection{Translation Phase}
 The standard Attention-based Neural MT model is modified to incorporate the retrieved translation pairs into translation. 
-\paragraph{Challenge}
-When translating words given $X$ and $X', Y'$, a natural flow of ``attention'' will go through $X \xrightarrow{\nearrow X'^{\rightarrow}Y' \searrow} Y$ so that the model knows ``where and how the source words can be translated in the example'' and merges that information with the original Neural MT system. One closely related topic is \textit{Copying Mechanism}~\cite{gu2016incorporating,gulcehre2016pointing}, which can be easily extend to our situation by \textit{copying} words from $Y'$ to $Y$. Yet, different from the existing models which directly $copys$ the source words (or linked rare words) into the target side,
+\paragraph{Challenges}
+When translating words given $X$ and $X', Y'$, a natural flow of ``attention'' will go through $X \xrightarrow{\nearrow X'^{\rightarrow}Y' \searrow} Y$ so that the model knows ``where and how the source words can be translated in the example'' and merges that information with the original Neural MT system. One closely related topic is \textit{Copying Mechanism}~\cite{gu2016incorporating,gulcehre2016pointing}, which can be easily extend to our problem by allowing \textit{copying} from $Y'$ to $Y$. Different from the existing models which is a \textit{one-step matching}  from the source words (or associated rare words) to the target side,  what in our case requires using $X$ to match $X'$ (keys) , but choosing the most proper words from $Y'$ (values).  Therefore, we need to solve a problem of \textit{multi-step matching} as both $X \& Y$ and $X' \& Y'$ typically do not have clear alignments, making the modelling and computation complicated.
 
-Note that, due to the data sparsity, the memory $\mathcal{M}$ cannot make sure always return the most desired translation pairs for the model to look at. Thus, the design of the translation model should be flexible to handle bad 
-\paragraph{Attention Mechanism as Key Generation}
+On the other hand, due to the data sparsity, the memory $\mathcal{M}$ cannot make sure always return the most desired translation pairs for the model to look at. Thus, the design of the translation model should be flexible so that the bad memory information will break down the original translation model. As shown in Fig.~\ref{fig.tmnmt}, we propose the TM-NMT model  targeting on these challenges as following steps. 
+\paragraph{Dynamic Key Generation}
+Firstly, we  run a separate Neural MT model $\theta'$ over $Y'$, given $X'$ as the source sentence , and collect the context vector for each target word $y'\in Y'$ following the attention mechanism in Eq.~\ref{eq.attention}. The generated context vectors are stored as keys before translation starts.  We use $c'_t$ to denote the key associated with $y'_t$.  
+In the same way with Eq.~\ref{eq.attention}, we can also generate the key $c_t$  for translating $y_t$ using the current translation model $\theta$, which can be further used for matching. Note here we mentioned to use two Neural MT models ($\theta$, $\theta'$), and in practise we use $\theta=\theta'$.
+
+Generating context vectors from attention mechanism as keys is reasonable for some reasons. Most importantly,  $c_t (c'_t)$ is the weighted sum of the hidden states of the source words encoder, and is explained as the attention result to produce the target word $y_t (y'_t)$, which nicely fits our intention to use the source information as keys, in the meantime, transforms the problem into \textit{one-step matching}.  As we can pre-compute and store the keys offline for each target word in the translation memory, we can still keep the on-line translation relatively efficient even with a large memory.
+% we can easily extend this method to multiple-memory setting by stacking the pre-computed ``key-target" pairs together without effecting the on-line translation speed too much.
+
+\paragraph{Matching} 
+The matching scores of the query $c_t$ and memory keys $\{c'_t\}_{t=1}^{T'}$ consider the two things:
+\begin{itemize}
+	\vspace{-5pt}
+	\item Similarity: inner product
+	\vspace{-5pt}
+	\item Coverage: as discussed in \cite{tu2016modeling}, we also noticed that
+	\vspace{-5pt}
+\end{itemize}
+Thus, we propose the matching function as
+\begin{equation}
+\begin{split}
+	&E_{\psi}(c_t, c'_\tau) = c_t^TMc'_\tau - \lambda \beta_t\\
+	&q_{t, \tau}  = \frac{\exp(E_{\psi}(c_t, c'_\tau)/\eta)}{\sum_{\tau'} \exp(E_{\psi}(c_t, c'_{\tau'})/\eta)}
+\end{split}
+\end{equation}
+where  $\beta_t$ is the cumulative coverage term. To keep the translation phase differentiable for end-to-end training, we use a ``soft match" as $q_{t,\tau}$, where $\eta \geq 1$ is the temperature to control the distribution. 
+
+\paragraph{Incorporation} Once we obtain the a matching result between the query $c_t$ and the retrieved translation pair, it is possible to use the matched information to help the current translation. In our implementation, two modes are designed to incorporate the information of memory into translation:
+\begin{itemize}
+	\vspace{-5pt}
+	\item \textbf{copy mode}: we directly use the ``soft-match" as $q_{t,\tau}=p_{\text{copy}}(y_t =y'_\tau)$ over the target words. Obviously, $p_{\text{copy}}(y) = 0, \forall y \notin Y'$. Thus we rewrite the output probability as:
+	\begin{equation}
+	\label{eq.copy}
+		p(y_t|\cdot) = \zeta_t \cdot p_{\text{copy}} + (1 -\zeta_t) \cdot p_{\text{gen}}   
+	\end{equation}
+	where $p_{\text{gen}}$ is denoted as the distribution of the original Neural MT model (Eq.~\ref{eq.prob}).
+	\vspace{-5pt}
+	\item \textbf{fusion mode}: we can also use a fusion model by treating the ``soft-match" as the weights over the decoder states of the TM target words, that is, 
+	%\begin{equation}
+		$\tilde{z}_t = \sum_{\tau=1}^{T'} q_{t, \tau} \cdot z'_\tau$, and compute the weighted hidden state together with the state $z_t$ of the original model:
+		\begin{equation}
+		\label{eq.fusion}
+		z_{\text{fusion}} = \zeta_t \cdot \tilde{z}_t + (1 -\zeta_t) \cdot z_t 
+		\end{equation}
+where we use the fused state $z_{\text{fusion}}$ to replace $z_t$ in Eq.~\ref{eq.prob} to get the output distribution.	
+\vspace{-5pt}
+\end{itemize}
+Both the 	``copy mode" and the ``fusion mode" are trying to bias the original distribution with the information from translation memory. However, they work in very different ways. 
+\paragraph{Gating} It is also notable that in both Eq.~\ref{eq.copy} and~\ref{eq.fusion}, an additional scalar $\zeta_t \in [0, 1]$ is used as a gate to control the information flow between the original Neural MT system and the translation memory. In our implementation, the gate is computed by a neural network $\zeta_t = f_{\text{gate}}(c_t, z_t, \tilde{z}_t)$, with both $z_t$ and $\tilde{z}_t$ in the input. In this way, the gate is supposed to be closed ($=0$) if the retrieved memory does not contain any useful information. In such case, the model will use the original model for translation; In contrast, 
+
+
 \subsection{Discussion}
 \begin{itemize}
 \item \textbf{Long term memory}~ plain text, never forgetting, e.g. translation memory
