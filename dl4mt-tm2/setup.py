@@ -292,6 +292,59 @@ def setup_enes_bpe_miles():
     return config
 
 
+def setup_enes_bpe_latest():
+    home  = '/root/workspace/TMNMT'
+    model = '/root/disk/scratch/model-tmnmt'
+    name  = 'TM2.B7.latest4'
+
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/latest3.enes.bpe/train.en.top5.shuf.tok.bpe',          # source
+                     home + '/.dataset/latest3.enes.bpe/train.es.top5.shuf.tok.bpe',          # target
+                     home + '/.dataset/latest3.enes.bpe/train.en.top5.matched.shuf.tok.bpe',  # source-TM
+                     home + '/.dataset/latest3.enes.bpe/train.es.top5.matched.shuf.tok.bpe'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/latest3.enes.bpe/devset.en.tok.bpe',
+                           home + '/.dataset/latest3.enes.bpe/devset.es.tok.bpe',
+                           home + '/.dataset/latest3.enes.bpe/devset.en.matched.tok.bpe',
+                           home + '/.dataset/latest3.enes.bpe/devset.es.matched.tok.bpe'
+                           ],
+
+        'dictionaries': [home + '/.dataset/latest3.enes.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/latest3.enes.bpe/train.es.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/latest3.enes.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/latest3.enes.bpe/train.es.top5.shuf.tok.bpe.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 80,
+        'skip': 5000 / 32,
+        'address': '147.8.182.14',
+
+        # baseline models
+        'baseline_xy': model + '/baseline_enes.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/latest3.enes.bpe/devset.en.tok.bpe',
+        'tm_source':  home + '/.dataset/latest3.enes.bpe/devset.en.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/latest3.enes.bpe/devset.es.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/latest3.enes.bpe/dev.enes.es.tok',
+        'trans_to':   home + '/.translate/' + name + '.enes_bpe.dev.translate',
+
+        # multi-tm test
+        'tm_source_full': home + '/.dataset/top5k.enes/train.en.top1.tok',
+        'tm_target_full': home + '/.dataset/top5k.enes/train.es.top1.tok',
+        'tm_rank': home + '/.dataset/top5k.enes/match_top100.pkl'
+    }
+    return config
+
+
+
+
+
 def setup_fren():
     # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     home  = '/root/workspace/TMNMT'
@@ -504,7 +557,7 @@ def setup_fren_bpe_28():
 def setup_enfr_bpe():
     home  = '/root/workspace/TMNMT'
     model = '/root/disk/scratch/model-tmnmt'
-    name  = 'TM2.B7.bpe2'
+    name  = 'TM2.B7.bpe.test'
 
     config = {
         # train phase
@@ -530,6 +583,7 @@ def setup_enfr_bpe():
 
         'voc_sizes': [20000, 20000, 20000, 20000],
         'maxlen': 80,
+        # 'skip': 4000/32,
 
         # baseline models
         'baseline_xy': model + '/baseline_enfr.bpe.npz',
