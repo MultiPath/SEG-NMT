@@ -16,8 +16,12 @@ args = parser.parse_args()
 
 model_options = setup(args.m)
 if model_options['remote']:
-    monitor = Monitor(model_options['address'], model_options['port'])
-    print 'create a remote monitor'
+    try:
+        monitor = Monitor(model_options['address'], model_options['port'])
+        print 'create a remote monitor'
+    except Exception, e:
+        print 'error to create a monitor', e
+        monitor = None
 else:
     monitor = None
 
