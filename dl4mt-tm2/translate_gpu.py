@@ -192,9 +192,12 @@ def go(model, dictionary, dictionary_target,
             # check if the check-point is saved
             checkpoint = '{}.iter{}.npz'.format(os.path.splitext(model)[0], step_test)
             if not os.path.exists(checkpoint):
-                print '[test] Did not find checkpoint: {}. I want sleep {}s.'.format(checkpoint, sleep)
-
-                time.sleep(sleep)
+                if sleep > 0:
+                    print '[test] Did not find checkpoint: {}. I want sleep {}s.'.format(checkpoint, sleep)
+                    time.sleep(sleep)
+                else:
+                    print '[test] Didi not find checkpoint {}, go for next one...'.format(checkpoint)
+                    step_test += steps
 
             else:
 
@@ -276,6 +279,24 @@ if __name__ == "__main__":
            config['d_maxlen'],
            steps=2500, max_steps=1000000, start_steps=0,
            sleep=600, monitor=monitor)
+
+    elif args.p == 'progress':
+        print 'PROGRESS-MODE'
+        go(model,
+           config['dictionaries'][0],
+           config['dictionaries'][1],
+           config['trans_from'],
+           config['tm_source'],
+           config['tm_target'],
+           config['trans_ref'],
+           config['trans_to'],
+           config['beamsize'],
+           config['normalize'],
+           config['d_maxlen'],
+           steps=2500, max_steps=1000000, start_steps=0,
+           sleep=-1, monitor=monitor)
+
+
     else:
         print 'TEST-MODE'
         go(model,
