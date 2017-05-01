@@ -129,10 +129,16 @@ def main(model, dictionary, dictionary_target, source_file, reference_file,
     ref = reference_file
 
     print '[test] compute BLEU score for {} <-> {}'.format(saveto_, ref)
+    try:
+        os.system("sed -i 's/@@ //g' {}".format(saveto_))
+        out = os.popen('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref, saveto_))
+        bleu = float(out.read().split()[2][:-1])
+    except Exception as e:
+        print e
+        bleu = 0.
 
-    os.system("sed -i 's/@@ //g' {}".format(saveto_))
-    out = os.popen('perl ./data/multi-bleu.perl {0} < {1} | tee {1}.score'.format(ref, saveto_))
-    bleu = float(out.read().split()[2][:-1])
+
+
     if monitor is not None:
         monitor.push({'BLEU': bleu}, step=step)
 
@@ -147,11 +153,15 @@ if __name__ == "__main__":
 
     config = setup(args.m)
     if args.round:
+        print 'round mode'
+        import datetime
+
         monitor =  Monitor(config['address'], config['port'])
-        monitor.start_experiment('{}'.format(config['saveto']))
+        timestp = datetime.datetime.now().strftime('%m-%d_%H:%M')
+        monitor.start_experiment('{}.{}'.format(timestp, config['saveto']))
 
         print 'create a remote monitor! round-mode: 50k ~ 200k'
-        for step in range(50, 200, 5):
+        for step in range(1, 200):
             main(config['saveto'],
                  config['dictionaries'][0],
                  config['dictionaries'][1],

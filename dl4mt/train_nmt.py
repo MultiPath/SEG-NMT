@@ -227,7 +227,7 @@ def train(dim_word=100,  # word vector dimensionality
 
             # save the best model so far, in addition, save the latest model
             # into a separate file with the iteration number for external eval
-            if False: #numpy.mod(uidx, saveFreq) == 0:
+            if numpy.mod(uidx, saveFreq) == 0:
                 print 'Saving the best model...',
                 if best_p is not None:
                     params = best_p
