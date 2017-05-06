@@ -331,8 +331,110 @@ def setup_esen_bpe_latest():
         'trans_from': home + '/.dataset/latest4.esen.bpe/devset.es.tok.bpe',
         'tm_source':  home + '/.dataset/latest4.esen.bpe/devset.es.matched.tok.bpe',
         'tm_target':  home + '/.dataset/latest4.esen.bpe/devset.en.matched.tok.bpe',
-        'trans_ref':  home + '/.dataset/latest4.esen.bpe/dev.enes.en.tok',
+        'trans_ref':  home + '/.dataset/latest4.esen.bpe/dev.esen.en.tok',
         'trans_to':   home + '/.translate/' + name + '.esen_bpe.dev.translate',
+
+        # multi-tm test
+        'tm_source_full': home + '/.dataset/top5k.enes/train.en.top1.tok',
+        'tm_target_full': home + '/.dataset/top5k.enes/train.es.top1.tok',
+        'tm_rank': home + '/.dataset/top5k.enes/match_top100.pkl'
+    }
+    return config
+
+
+def setup_deen_bpe_latest():
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    name  = 'TM2.B7.latest4'
+
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/latest4.deen.bpe/train.de.top5.shuf.tok.bpe',          # source
+                     home + '/.dataset/latest4.deen.bpe/train.en.top5.shuf.tok.bpe',          # target
+                     home + '/.dataset/latest4.deen.bpe/train.de.top5.matched.shuf.tok.bpe',  # source-TM
+                     home + '/.dataset/latest4.deen.bpe/train.en.top5.matched.shuf.tok.bpe'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/latest4.deen.bpe/devset.de.tok.bpe',
+                           home + '/.dataset/latest4.deen.bpe/devset.en.tok.bpe',
+                           home + '/.dataset/latest4.deen.bpe/devset.de.matched.tok.bpe',
+                           home + '/.dataset/latest4.deen.bpe/devset.en.matched.tok.bpe'
+                           ],
+
+        'dictionaries': [home + '/.dataset/latest4.deen.bpe/train.de.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/latest4.deen.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/latest4.deen.bpe/train.de.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/latest4.deen.bpe/train.en.top5.shuf.tok.bpe.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 80,
+        'skip': 5000 / 32,
+        'address': '147.8.182.14',
+
+        # baseline models
+        'baseline_xy': model + '/baseline_enes.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/latest4.deen.bpe/devset.de.tok.bpe',
+        'tm_source':  home + '/.dataset/latest4.deen.bpe/devset.de.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/latest4.deen.bpe/devset.en.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/latest4.deen.bpe/dev.ende.en.tok',
+        'trans_to':   home + '/.translate/' + name + '.deen_bpe.dev.translate',
+
+
+        # multi-tm test
+        'tm_source_full': home + '/.dataset/top5k.enes/train.en.top1.tok',
+        'tm_target_full': home + '/.dataset/top5k.enes/train.es.top1.tok',
+        'tm_rank': home + '/.dataset/top5k.enes/match_top100.pkl'
+    }
+    return config
+
+
+def setup_ende_bpe_latest():
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    name  = 'TM2.B7.latest4_real'
+
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/latest4.deen.bpe/train.en.top5.shuf.tok.bpe',          # source
+                     home + '/.dataset/latest4.deen.bpe/train.de.top5.shuf.tok.bpe',          # target
+                     home + '/.dataset/latest4.deen.bpe/train.en.top5.matched.shuf.tok.bpe',  # source-TM
+                     home + '/.dataset/latest4.deen.bpe/train.de.top5.matched.shuf.tok.bpe'   # target-TM
+                     ],
+
+        'valid_datasets': [home + '/.dataset/latest4.deen.bpe/devset.en.tok.bpe',
+                           home + '/.dataset/latest4.deen.bpe/devset.de.tok.bpe',
+                           home + '/.dataset/latest4.deen.bpe/devset.en.matched.tok.bpe',
+                           home + '/.dataset/latest4.deen.bpe/devset.de.matched.tok.bpe'
+                           ],
+
+        'dictionaries': [home + '/.dataset/latest4.deen.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/latest4.deen.bpe/train.de.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/latest4.deen.bpe/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/latest4.deen.bpe/train.de.top5.shuf.tok.bpe.pkl'
+                         ],
+
+        'voc_sizes': [20000, 20000, 20000, 20000],
+        'maxlen': 80,
+        'skip': 5000 / 32,
+        'address': '147.8.182.14',
+
+        # baseline models
+        'baseline_xy': model + '/baseline_enes.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/latest4.deen.bpe/devset.en.tok.bpe',
+        'tm_source':  home + '/.dataset/latest4.deen.bpe/devset.en.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/latest4.deen.bpe/devset.de.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/latest4.deen.bpe/dev.ende.de.tok',
+        'trans_to':   home + '/.translate/' + name + '.ende_bpe.dev.translate',
+
 
         # multi-tm test
         'tm_source_full': home + '/.dataset/top5k.enes/train.en.top1.tok',
@@ -383,7 +485,7 @@ def setup_enes_bpe_latest():
         'trans_from': home + '/.dataset/latest3.enes.bpe/devset.en.tok.bpe',
         'tm_source':  home + '/.dataset/latest3.enes.bpe/devset.en.matched.tok.bpe',
         'tm_target':  home + '/.dataset/latest3.enes.bpe/devset.es.matched.tok.bpe',
-        'trans_ref':  home + '/.dataset/latest3.enes.bpe/dev.enes.es.tok',
+        'trans_ref':  home + '/.dataset/latest3.enes.bpe/dev.esen.es.tok',
         'trans_to':   home + '/.translate/' + name + '.enes_bpe.dev.translate',
 
         # multi-tm test
@@ -394,10 +496,10 @@ def setup_enes_bpe_latest():
     return config
 
 
-def setup_ende_bpe_latest():
+def setup_ende_bpe_latest2():
     home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
     model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
-    name  = 'TM2.B7.latest4'
+    name  = 'TM2.B7.latest5'
 
     config = {
         # train phase
@@ -423,7 +525,7 @@ def setup_ende_bpe_latest():
 
         'voc_sizes': [20000, 20000, 20000, 20000],
         'maxlen': 80,
-        'skip': 5000 / 32,
+        # 'skip': 5000 / 32,
         'address': '147.8.182.14',
 
         # baseline models
