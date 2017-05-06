@@ -171,7 +171,7 @@ if __name__ == "__main__":
                  config['beamsize'],
                  config['normalize'], False,
                  config['d_maxlen'],
-                 monitor, step * 1000)
+                 monitor, step * 10000)
 
     else:
         monitor = None
