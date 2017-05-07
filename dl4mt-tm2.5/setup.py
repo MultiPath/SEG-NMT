@@ -2,9 +2,8 @@
 
 
 def setup_fren_bpe():
-    # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
-    home  = '/root/workspace/TMNMT'
-    model = '/root/disk/scratch/model-tmnmt'
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
     name  = 'TM2.B7.bpe'
 
     # home   = '/scratch/jg5223/exp/TMNMT'
@@ -36,7 +35,7 @@ def setup_fren_bpe():
                          home + '/.dataset/data_fren_new5_top2/train.en.top5.shuf.tok.bpe.pkl',
                          ],
 
-        'voc_sizes': [20000, 20000, 20000, 20000],
+        'voc_sizes': [20000, 20000, 20000, 20000, 20000, 20000],  # must be the same, as model sharing.
         'maxlen': 80,
 
         # baseline models

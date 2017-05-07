@@ -7,6 +7,7 @@ from data_iterator import TextIterator, prepare_data, prepare_cross
 from termcolor import colored as clr
 from translate_gpu import go
 
+import itertools
 import threading
 import argparse
 
@@ -33,6 +34,8 @@ model_options['trng'] = RandomStreams(model_options['rng'].randint(0, 2**32-1))
 model_options['n_words_src'] = model_options['voc_sizes'][0]
 model_options['n_words'] = model_options['voc_sizes'][1]
 
+# the number of TM
+model_options['n_inputs'] = len(model_options['datasets'])
 
 # load dictionaries and invert them
 worddicts   = [None] * len(model_options['dictionaries'])
@@ -55,9 +58,11 @@ else:
 
 
 print 'Loading data'
-train = TextIterator(model_options['datasets'], model_options['dictionaries'], [0, 0, 0, 0],
+train = TextIterator(model_options['datasets'], model_options['dictionaries'],
+                     [0 for _ in range(model_options['n_inputs'])],
                      batch_size=model_options['batch_size'], maxlen=model_options['maxlen'])
-valid = TextIterator(model_options['valid_datasets'], model_options['dictionaries'], [0, 0, 0, 0],
+valid = TextIterator(model_options['valid_datasets'], model_options['dictionaries'],
+                     [0 for _ in range(model_options['n_inputs'])],
                      batch_size=model_options['batch_size'], maxlen=500)
 
 
@@ -156,7 +161,10 @@ def validate(funcs, options, iterator, verbose=False):
     probs = []
 
     n_done = 0
-    for k, (sx1, sy1, sx2, sy2) in enumerate(iterator):
+    for k, inputs in enumerate(iterator):
+        xs, xs_mask = zip(*[prepare_data(inputs[k], 500, options['voc_sizes'][k])
+                            for k in range(0, options['n_inputs'])])
+
         x1, x1_mask = prepare_data(sx1, 500, options['voc_sizes'][0])
         y1, y1_mask = prepare_data(sy1, 500, options['voc_sizes'][1])
         x2, x2_mask = prepare_data(sx2, 500, options['voc_sizes'][2])
@@ -246,7 +254,7 @@ print 'start the main loop...'
 for eidx in xrange(max_epochs):
     n_samples = 0
 
-    for k, (sx1, sy1, sx2, sy2) in enumerate(train):
+    for k, inputs in enumerate(train):
         uidx += 1
 
         _skip =  model_options.get('skip', 0)
@@ -255,43 +263,56 @@ for eidx in xrange(max_epochs):
 
         # save the best model so far, in addition, save the latest model
         # into a separate file with the iteration number for external eval
-        if numpy.mod(uidx, saveFreq) == 0:
-            savemodel(uidx)
+        # if numpy.mod(uidx, saveFreq) == 0:
+        #     savemodel(uidx)
+        #
+        # # validate model on validation set and early stop if necessary
+        # if numpy.mod(uidx, validFreq) == 0:
+        #     # use_noise.set_value(0.)
+        #     valid_errs = validate(funcs, model_options, valid, False)
+        #     valid_err  = float(valid_errs.mean())
+        #     history_errs.append(valid_err)
+        #
+        #     if numpy.isnan(valid_err):
+        #         print 'NaN detected'
+        #         sys.exit(-1)
+        #
+        #     print 'Valid ', valid_err
+        #     if monitor:
+        #         try:
+        #             monitor.push({'valid': float(str(valid_err))}, step=int(uidx))
+        #         except Exception, e:
+        #             print e
 
-        # validate model on validation set and early stop if necessary
-        if numpy.mod(uidx, validFreq) == 0:
-            # use_noise.set_value(0.)
-            valid_errs = validate(funcs, model_options, valid, False)
-            valid_err  = float(valid_errs.mean())
-            history_errs.append(valid_err)
+        xs, xs_mask = zip(*[prepare_data(inputs[k], 500, model_options['voc_sizes'][k])
+                            for k in range(0, model_options['n_inputs'], 2)])
+        ys, ys_mask = zip(*[prepare_data(inputs[k], 500, model_options['voc_sizes'][k])
+                            for k in range(1, model_options['n_inputs'], 2)])
 
-            if numpy.isnan(valid_err):
-                print 'NaN detected'
-                sys.exit(-1)
+        tys, tys_mask = zip(*[prepare_cross(inputs[1], inputs[k], ys[0].shape[0])
+                            for k in range(3, model_options['n_inputs'], 2)])
+        tys = list(tys)
 
-            print 'Valid ', valid_err
-            if monitor:
-                try:
-                    monitor.push({'valid': float(str(valid_err))}, step=int(uidx))
-                except Exception, e:
-                    print e
+        # additional process --> add an off-set...
+        lens = 0
+        for k in range(len(tys)):
+            tys[k] += lens
+            lens += tys[k].shape[0]
 
-        # training
-        x1, x1_mask = prepare_data(sx1, model_options['maxlen'], model_options['voc_sizes'][0])
-        y1, y1_mask = prepare_data(sy1, model_options['maxlen'], model_options['voc_sizes'][1])
-        x2, x2_mask = prepare_data(sx2, model_options['maxlen'], model_options['voc_sizes'][2])
-        y2, y2_mask = prepare_data(sy2, model_options['maxlen'], model_options['voc_sizes'][3])
-        ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
-
-        inps = [x1, x1_mask, y1, y1_mask,
-                x2, x2_mask, y2, y2_mask,
-                ty12, ty12_mask]
+        inps = []
+        for k in range(len(xs)):
+            inps += [xs[k], xs_mask[k], ys[k], ys_mask[k]]
+        for k in range(len(tys)):
+            inps += [tys[k], tys_mask[k]]
 
         if model_options['use_coverage']:
             if not model_options.get('nn_coverage', False):
-                inps += [numpy.zeros((y2.shape[1], y2.shape[0]), dtype='float32')]
+                lens = 0
+                for k in range(1, len(ys)):
+                    lens += ys[k].shape[0]
+                inps += [numpy.zeros((ys[1].shape[1], lens), dtype='float32')]  # initial coverage
             else:
-                inps += [numpy.zeros((y2.shape[1], y2.shape[0], model_options['cov_dim']), dtype='float32')]
+                raise NotImplementedError
 
         try:
             execute(inps, lrate, [eidx, uidx])  # train one step.
@@ -301,26 +322,30 @@ for eidx in xrange(max_epochs):
 
         # generate some samples with the model and display them
         if numpy.mod(uidx, sampleFreq) == 0:
-            for jj in xrange(numpy.minimum(5, x1.shape[1])):
+            for jj in xrange(numpy.minimum(5, xs[0].shape[1])):
                 stochastic = True
 
                 print '============================='
-                print 'Target-TM {}: {}'.format(jj, idx2seq(sy2[jj], 3))
-                print 'Source-TM {}: {}'.format(jj, idx2seq(sx2[jj], 2))
-                print 'Source-CR {}: {}'.format(jj, idx2seq(sx1[jj], 0))
-                print 'Target-CR {}: {}'.format(jj, idx2seq(sy1[jj], 1))
-                print '-----------------------------'
+                K = model_options['n_inputs']
+                for k in range(2, K, 2):
+                    print 'Source-TM {}: {}'.format(k, idx2seq(inputs[k], k))
+                    print 'Target-TM {}: {}'.format(k, idx2seq(inputs[k + 1], k + 1))
 
-                sample, sc, acts, gg = gen_sample_memory(tparams, funcs,
-                                                         x1[:, jj][:, None],
-                                                         x2[:, jj][:, None],
-                                                         y2[:, jj][:, None],
-                                                         model_options,
-                                                         rng=model_options['rng'],
-                                                         m=0, k=model_options['beamsize'],
-                                                         maxlen=200,
-                                                         stochastic=model_options['stochastic'],
-                                                         argmax=True)
+                print 'Source-CR: {}'.format(idx2seq(inputs[0], 0))
+                print 'Target-CR: {}'.format(idx2seq(inputs[1], 1))
+                print '----------------------------------------------------------------------------'
+
+                xss = [xs[k][:, jj][:, None] for k in range(1, K/2)]
+                yss = [ys[k][:, jj][:, None] for k in range(1, K / 2)]
+                sample, sc, acts, gg = gen_sample_multi(tparams, funcs,
+                                                        xs[0][:, jj][:, None],
+                                                        xss, yss,
+                                                        model_options,
+                                                        rng=model_options['rng'],
+                                                        m=0, k=model_options['beamsize'],
+                                                        maxlen=200,
+                                                        stochastic=model_options['stochastic'],
+                                                        argmax=True)
 
                 if model_options['stochastic']:
                     ss  = sample
@@ -332,14 +357,15 @@ for eidx in xrange(max_epochs):
                     act = acts[sc.argmin()]
                     gg_ = gg[sc.argmin()]
 
+                _yss = list(itertools.chain.from_iterable([inputs[k] for k in range(3, K, 2)]))
                 _ss = []
                 for ii, si in enumerate(ss):
                     if si < model_options['voc_sizes'][1]:
                         _ss.append(si)
                     else:
                         offset = si - model_options['voc_sizes'][1]
-                        if offset < len(sy2[jj]):
-                            _ss.append(sy2[jj][offset])
+                        if offset < len(_yss[jj]):
+                            _ss.append(_yss[jj][offset])
                         else:
                             _ss.append(0)
 
@@ -347,7 +373,7 @@ for eidx in xrange(max_epochs):
                     sample0, sc0  = gen_sample(tparams_xy0,
                                                funcs['init_xy0'],
                                                funcs['next_xy0'],
-                                               x1[:, jj][:, None],
+                                               xs[0][:, jj][:, None],
                                                model_options,
                                                rng=model_options['rng'],
                                                k=model_options['beamsize'],
