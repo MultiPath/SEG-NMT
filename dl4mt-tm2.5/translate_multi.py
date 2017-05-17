@@ -115,7 +115,7 @@ def go(model, dictionary, dictionary_target,
     word_idict_trg[0] = '<eos>'
     word_idict_trg[1] = 'UNK'
 
-    print 'load rank file...',
+    print 'load rank file...{}'.format(tm_rank),
     if MM < 0:
         print 'adaptive translation memory'
         ret = pkl.load(open(tm_rank, 'r'))
@@ -238,7 +238,7 @@ def go(model, dictionary, dictionary_target,
     funcs, tparams = build_networks(options, model, train=False)
 
     if not SS:
-        saveto = saveto + '-mm=' + str(MM) + '.multi'
+        saveto = saveto + '-mm=' + str(MM) + '.multi2'
         queue = _send_jobs(source_file_x1)
     else:
         saveto = saveto + '.multi.SSR'
@@ -263,6 +263,7 @@ def go(model, dictionary, dictionary_target,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', type=str, default='fren')
+    parser.add_argument('-p', type=str, default='test')
     parser.add_argument('-mm', default=0)
     parser.add_argument('-i',  default=-1)
     parser.add_argument('-ss', action='store_true', default=False)
@@ -270,26 +271,44 @@ if __name__ == "__main__":
     args.mm = int(args.mm)
     config  = setup(args.m)
 
-    print 'TEST-MODE'
     if args.mm < 0:  # adaptive mode.
         tm_rank = config['tm_record']
     else:
         tm_rank = config['tm_rank']
+    print tm_rank
 
-    go(config['saveto'],
-       config['dictionaries'][0],
-       config['dictionaries'][1],
-       config['trans_from'],
-       config['tm_source_full'],
-       config['tm_target_full'],
-       tm_rank,
-       config['trans_ref'],
-       config['trans_to'],
-       config['beamsize'],
-       config['normalize'],
-       config['d_maxlen'],
-       MM=args.mm,
-       iters=args.i,
-       SS=args.ss)
+    # import sys; sys.exit(1)
+    if args.p == 'round':
+        print 'ROUND-MODE'
+        go(config['saveto'],
+           config['dictionaries'][0],
+           config['dictionaries'][1],
+           config['trans_from'],
+           config['tm_source'],
+           config['tm_target'],
+           config['trans_ref'],
+           config['trans_to'],
+           config['beamsize'],
+           config['normalize'],
+           config['d_maxlen'])
+
+    else:
+        print 'TEST-MODE'
+
+        go(config['saveto'],
+           config['dictionaries'][0],
+           config['dictionaries'][1],
+           config['trans_from'],
+           config['tm_source_full'],
+           config['tm_target_full'],
+           tm_rank,
+           config['trans_ref'],
+           config['trans_to'],
+           config['beamsize'],
+           config['normalize'],
+           config['d_maxlen'],
+           MM=args.mm,
+           iters=args.i,
+           SS=args.ss)
 
     print 'all done'

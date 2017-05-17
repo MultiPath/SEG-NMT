@@ -14,4 +14,4 @@ cp -r *.py $backup
 cp -r *.sh $backup
 echo 'backup code ok.'
 
-python ./translate_gpu.py -m $1 -p round | tee $logfile
+python ./translate_multi.py -m $1 -p round -mm $3 -start 0 -end 25000 | tee $logfile

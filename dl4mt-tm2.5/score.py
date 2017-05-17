@@ -14,7 +14,7 @@ ref = config['trans_ref']
 if args.ss:
     hyp += '.multi.SS'
 elif args.mm > 0:
-    hyp += '-mm=' + str(args.mm) + '.multi'
+    hyp += '-mm=' + str(args.mm) + '.multi2'
 
 print 'compute BLEU score for {}'.format(hyp)
 os.system("sed -i 's/@@ //g' {}".format(hyp))

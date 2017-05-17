@@ -2,10 +2,9 @@
 
 
 def setup_fren_bpe():
-    # home = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
-    home  = '/root/workspace/TMNMT'
-    model = '/root/disk/scratch/model-tmnmt'
-    name  = 'TM2.B7.bpe'
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    name  = 'TM25.B7.bpe'
 
     # home   = '/scratch/jg5223/exp/TMNMT'
     config = {
@@ -36,7 +35,7 @@ def setup_fren_bpe():
                          home + '/.dataset/data_fren_new5_top2/train.en.top5.shuf.tok.bpe.pkl',
                          ],
 
-        'voc_sizes': [20000, 20000, 20000, 20000],
+        'voc_sizes': [20000, 20000, 20000, 20000, 20000, 20000],  # must be the same, as model sharing.
         'maxlen': 80,
 
         # baseline models
@@ -46,17 +45,101 @@ def setup_fren_bpe():
         'trans_from': home + '/.dataset/data_fren_new5_top2/devset.fr.tok.bpe',
         'tm_source':  home + '/.dataset/data_fren_new5_top2/devset.fr.matched.tok.bpe',
         'tm_target':  home + '/.dataset/data_fren_new5_top2/devset.en.matched.tok.bpe',
-        'trans_ref':  home + '/.dataset/top5k.fren/devset.en.tok',
+        'trans_ref':  home + '/.dataset/data_fren_new5_top2/dev.fren.en.tok',
+        'trans_to':   home + '/.translate/' + name + '.dev.translate',
+
+
+
+
+        # multi-tm test
+        'tm_source_full': home + '/.dataset/top5k.fren.bpe/train.fr.top1.tok.bpe',
+        'tm_target_full': home + '/.dataset/top5k.fren.bpe/train.en.top1.tok.bpe',
+        'tm_rank': home + '/.dataset/top5k.fren.bpe/match_top100.pkl',
+        'tm_record': home + '/.dataset/top5k.fren.bpe/match_record5.pkl'
+    }
+    return config
+
+
+def setup_fren_bpe4():
+    home  = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT'
+    model = '/misc/kcgscratch1/ChoGroup/thoma_exp/memory/TMNMT/.model'
+    name  = 'TM25.B7.bpe'
+
+    # home   = '/scratch/jg5223/exp/TMNMT'
+    config = {
+        # train phase
+        'name': name,
+        'saveto': model + '/' + name + '_',
+        'datasets': [home + '/.dataset/data_fren_new5_top5/train.fr.top5.shuf.tok.bpe',           # source
+                     home + '/.dataset/data_fren_new5_top5/train.en.top5.shuf.tok.bpe',           # target
+                     home + '/.dataset/data_fren_new5_top5/train.fr.top5.matched.shuf.tok.bpe1',  # source-TM1
+                     home + '/.dataset/data_fren_new5_top5/train.en.top5.matched.shuf.tok.bpe1',  # target-TM1
+                     home + '/.dataset/data_fren_new5_top5/train.fr.top5.matched.shuf.tok.bpe2',  # source-TM2
+                     home + '/.dataset/data_fren_new5_top5/train.en.top5.matched.shuf.tok.bpe2',   # target-TM2
+                     home + '/.dataset/data_fren_new5_top5/train.fr.top5.matched.shuf.tok.bpe3',  # source-TM1
+                     home + '/.dataset/data_fren_new5_top5/train.en.top5.matched.shuf.tok.bpe3',  # target-TM1
+                     home + '/.dataset/data_fren_new5_top5/train.fr.top5.matched.shuf.tok.bpe4',  # source-TM2
+                     home + '/.dataset/data_fren_new5_top5/train.en.top5.matched.shuf.tok.bpe4'   # target-TM2
+                     ],
+
+        'valid_datasets': [home + '/.dataset/data_fren_new5_top5/devset.fr.tok.bpe',
+                           home + '/.dataset/data_fren_new5_top5/devset.en.tok.bpe',
+                           home + '/.dataset/data_fren_new5_top5/devset.fr.matched.tok.bpe1',
+                           home + '/.dataset/data_fren_new5_top5/devset.en.matched.tok.bpe1',
+                           home + '/.dataset/data_fren_new5_top5/devset.fr.matched.tok.bpe2',
+                           home + '/.dataset/data_fren_new5_top5/devset.en.matched.tok.bpe2',
+                           home + '/.dataset/data_fren_new5_top5/devset.fr.matched.tok.bpe3',
+                           home + '/.dataset/data_fren_new5_top5/devset.en.matched.tok.bpe3',
+                           home + '/.dataset/data_fren_new5_top5/devset.fr.matched.tok.bpe4',
+                           home + '/.dataset/data_fren_new5_top5/devset.en.matched.tok.bpe4',
+                           ],
+
+        'dictionaries': [home + '/.dataset/data_fren_new5_top5/train.fr.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/data_fren_new5_top5/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/data_fren_new5_top5/train.fr.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/data_fren_new5_top5/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/data_fren_new5_top5/train.fr.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/data_fren_new5_top5/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/data_fren_new5_top5/train.fr.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/data_fren_new5_top5/train.en.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/data_fren_new5_top5/train.fr.top5.shuf.tok.bpe.pkl',
+                         home + '/.dataset/data_fren_new5_top5/train.en.top5.shuf.tok.bpe.pkl',
+                         ],
+
+        'voc_sizes': [20000, 20000,
+                      20000, 20000,
+                      20000, 20000,
+                      20000, 20000,
+                      20000, 20000,
+                      ],  # must be the same, as model sharing.
+        'maxlen': 80,
+        'batch_size':   20,
+
+        # baseline models
+        'baseline_xy': model + '/baseline_fren.bpe.npz',
+
+        # test phase
+        'trans_from': home + '/.dataset/data_fren_new5_top2/devset.fr.tok.bpe',
+        'tm_source':  home + '/.dataset/data_fren_new5_top2/devset.fr.matched.tok.bpe',
+        'tm_target':  home + '/.dataset/data_fren_new5_top2/devset.en.matched.tok.bpe',
+        'trans_ref':  home + '/.dataset/data_fren_new5_top2/dev.fren.en.tok',
         'trans_to':   home + '/.translate/' + name + '.dev.translate',
 
         # multi-tm test
-        'tm_source_full': home + '/.dataset/data_fren_new5_top2/train.fr.top1.tok.bpe',
-        'tm_target_full': home + '/.dataset/data_fren_new5_top2/train.en.top1.tok.bpe',
-        'tm_rank':   home + '/.dataset/top5k.fren/match_top100.pkl',
-        'tm_record': home + '/.dataset/top5k.fren/match_record5.pkl'
+        'tm_source_full': home + '/.dataset/top5k.fren.bpe/train.fr.top1.tok.bpe',
+        'tm_target_full': home + '/.dataset/top5k.fren.bpe/train.en.top1.tok.bpe',
+        'tm_rank': home + '/.dataset/top5k.fren.bpe/match_top100.pkl',
+        'tm_record': home + '/.dataset/top5k.fren.bpe/match_record5.pkl'
+
+        # 'tm_source_full': home + '/.dataset/data_fren_new5_top2/train.fr.top1.tok.bpe',
+        # 'tm_target_full': home + '/.dataset/data_fren_new5_top2/train.en.top1.tok.bpe',
+        # 'tm_rank': home + '/.dataset/data_fren_new5_top2/dev.fren.top100_preprocess.pkl',
+        # 'tm_record': home + '/.dataset/top5k.fren/dev.fren.top100_preprocess.pkl'
 
     }
     return config
+
+
 
 
 def setup(pair='fren'):

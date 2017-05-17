@@ -840,18 +840,31 @@ def build_networks(options, model=' ', train=True):
     x1_mask = tensor.matrix('x1_mask', dtype='float32')
     y1 = tensor.matrix('y1', dtype='int64')
     y1_mask = tensor.matrix('y1_mask', dtype='float32')
-    x2 = tensor.matrix('x2', dtype='int64')
-    x2_mask = tensor.matrix('x2_mask', dtype='float32')
-    y2 = tensor.matrix('y2', dtype='int64')
-    y2_mask = tensor.matrix('y2_mask', dtype='float32')
+
+    # multiple (possible) translation memory
+    K = options.get('n_inputs', 4)/2 - 1
+
+    xs, xs_mask, ys, ys_mask = [], [], [], []
+    for k in range(K):
+        xs.append(tensor.matrix('x{}'.format(k+1), dtype='int64'))
+        xs_mask.append(tensor.matrix('x{}_mask'.format(k+1), dtype='float32'))
+        ys.append(tensor.matrix('y{}'.format(k+1), dtype='int64'))
+        ys_mask.append(tensor.matrix('y{}_mask'.format(k+1), dtype='float32'))
 
     # TM-rxyerence index
-    txy12 = tensor.matrix('xy12', dtype='int64')
-    txy12_mask = tensor.matrix('xy12_mask', dtype='float32')
+    txy1s, txy1s_mask = [],  []
+    for k in range(K):
+        txy1s.append(tensor.matrix('xy1{}'.format(k+1), dtype='int64'))
+        txy1s_mask.append(tensor.matrix('xy1{}_mask'.format(k+1), dtype='float32'))
 
-    print 'build forward-attention models (2 models simultaneously)...'
+    print 'build forward-attention models ({} models simultaneously)...'.format(options.get('n_inputs', 4)/2)
     ret_xy11 = build_model(tparams_xy, [x1, x1_mask, y1, y1_mask], options, 'xy_', False, True)   # X->Y curr
-    ret_xy22 = build_model(tparams_xy, [x2, x2_mask, y2, y2_mask], options, 'xy_', False, False)  # X->Y tm
+
+    ret_xyss = []
+    for k in range(K):
+        ret_xyss.append(build_model(tparams_xy,
+                                    [xs[k], xs_mask[k], ys[k], ys_mask[k]],
+                                    options, 'xy_', False, False))  # TM
 
     print 'build mapping (bi-linear model)!'
     params_map  = OrderedDict()
@@ -922,40 +935,16 @@ def build_networks(options, model=' ', train=True):
         tau = tensor.clip(tau, 0, 1)
 
     if not options['use_coverage']:
-
-        inps += [ret_xy11['ctxs'], ret_xy22['ctxs'], ret_xy11['hids'], ret_xy22['hids'], y2_mask]
-
-        def build_mapping(ctx1, ctx2):
-            # ctx1 = normalize(ctx1)
-            # ctx2 = normalize(ctx2)
-            return get_layer(bmap)[1](tparams_map, ctx1, ctx2,
-                                      prefix='map_bi', activ='lambda x: x')
-
-        mapping = build_mapping(inps[0], inps[1])
-
-        # copy: alternative
-        tm_mask = y2_mask.T
-        attens  = softmax(mapping * tau, mask=tm_mask[None, :, :])
-
-        # gate: alternative
-        # gates   = sigmoid(tensor.max(mapping, axis=-1) * tparams_map['eta'])
-        att_tmh = tensor.batched_dot(attens.dimshuffle(1, 0, 2),            # dec_cur x bs x dec_tm
-                                     ret_xy22['hids'].dimshuffle(1, 0, 2))  # dec_tm x bs x hid_dim
-                                                                            # bs x dec_cur x hid_dim
-        att_tmh = att_tmh.dimshuffle(1, 0, 2)
-
-        gates = get_layer('ff')[1](tparams_map,
-                                   concatenate([ret_xy11['hids'], att_tmh, ret_xy11['ctxs']], axis=2),
-                                   options, prefix='map_ff', activ='softmax')[:, :, 0]
-
-        outs += [mapping, gates, attens]
+       raise NotImplementedError
 
     else:
+        tm_ctxs = tensor.concatenate([ret['ctxs'] for ret in ret_xyss], axis=0)
+        tm_hids = tensor.concatenate([ret['hids'] for ret in ret_xyss], axis=0)
+        tm_mask = tensor.concatenate(ys_mask, axis=0)
 
-        inps += [ret_xy11['ctxs'], ret_xy22['ctxs'],
-                 ret_xy11['hids'], ret_xy22['hids'],
-                 y2_mask, att0]
-
+        inps += [ret_xy11['ctxs'], tm_ctxs,
+                 ret_xy11['hids'], tm_hids,
+                 tm_mask, att0]
 
         # cur_ctx1: batch_size x context_dim
         # tm_ctx2:  dec_tm x batch_size x context_dim
@@ -965,7 +954,6 @@ def build_networks(options, model=' ', train=True):
                                prev_att,
                                tm_ctx2, tm_hids, tm_mask):
             # normalize
-
             if not options.get('nn_coverage', False):
 
                 if options.get('cos_sim', True):
@@ -983,13 +971,13 @@ def build_networks(options, model=' ', train=True):
                                                    prev_att[None, :, :],
                                                    prefix='map_bi', activ='lambda x: x')[0]  # batchsize x dec_tm
 
-                attens    = softmax(mapping * tau, mask=tm_mask)
+                attens    = softmax(mapping * tau, mask=tm_mask)    # bs x dec_tm
 
 
                 att_tmh   = tensor.batched_dot(attens[:, None, :],            # bs x dec_tm
-                                           tm_hids.dimshuffle(1, 0, 2))    # dec_tm x bs x hid_dim
-                                                                           # bs x 1 x hid_dim
-                att_tmh   = att_tmh[:, 0, :]                                   # bs x hid_dim
+                                           tm_hids.dimshuffle(1, 0, 2))       # dec_tm x bs x hid_dim
+                                                                              # bs x 1 x hid_dim
+                att_tmh   = att_tmh[:, 0, :]                                  # bs x hid_dim
 
                 gates     = get_layer('ff')[1](tparams_map,
                                                concatenate([cur_hid, att_tmh, cur_ctx1], axis=1),
@@ -1037,10 +1025,9 @@ def build_networks(options, model=' ', train=True):
         ret, _ = theano.scan(build_mapping_step,
                              sequences=[ret_xy11['ctxs'], ret_xy11['hids']],
                              outputs_info=[att0, None, None, None],
-                             non_sequences=[ret_xy22['ctxs'], ret_xy22['hids'], y2_mask.T])
+                             non_sequences=[tm_ctxs, tm_hids, tm_mask.T])
 
         coverage, attens, mapping, gates = ret[0], ret[1], ret[2], ret[3]
-
         outs += [mapping, gates, attens, coverage]
 
 
@@ -1048,7 +1035,7 @@ def build_networks(options, model=' ', train=True):
     f_map = theano.function(inps, outs, profile=profile)
     print 'Done.'
 
-    print 'build loss function (w/o gate)'
+    print 'build loss function (w/o gate) ---> A BUG HERE, MAYBE?'
 
     # get the loss function
     def compute_prob(probs, y, y_mask=None):
@@ -1064,28 +1051,25 @@ def build_networks(options, model=' ', train=True):
         return probw
 
     def compute_cost(prob, y, y_mask, att, t, t_mask, g):
-        _y = tensor.eq(y, 1)
-        y_mask *= ((1 - _y) + _y * (1 - t_mask))
+        # _y = tensor.eq(y, 1)
+        # y_mask2 = tensor.clip(y_mask - _y, 0, 1)
 
         # normal loss ---> maybe neumerically unstable
+        loss_gen = compute_prob(prob, y, y_mask)
+        loss_cpy = compute_prob(att, t, t_mask)
+        loss_cpy = loss_cpy.reshape((-1, loss_gen.shape[0], loss_gen.shape[1])).sum(axis=0)
         ccost = -tensor.log(tensor.clip(
-                            compute_prob(prob, y, y_mask) * (1 - g) +
-                            compute_prob(att, t, t_mask) * g, 1e-7, 1 - 1e-7))
-        ccost = (ccost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
+                            loss_gen * (1 - g) +
+                            loss_cpy * g, 1e-7, 1 - 1e-7))
 
-        # alternative loss
-        # ccost = -tensor.log(compute_prob(prob, y)) * (1 - g) * y_mask \
-        #         -tensor.log(compute_prob(att, t))  * g       * t_mask
-        # ccost = ccost.sum(0)
-
-        # gate loss
-        gcost = -(tensor.log(1 - g) * (1 - t_mask) + tensor.log(g) * t_mask)
-        gcost = (gcost * (1 - (1 - y_mask) * (1 - t_mask))).sum(0)
-
-        return ccost, gcost
+        ccost = (ccost * y_mask).sum(0)
+        return ccost
 
     probs = ret_xy11['probs']
-    cost, g_cost = compute_cost(probs, y1, y1_mask, attens, txy12, txy12_mask, gates)
+    txy = tensor.concatenate(txy1s, axis=0)
+    txy_mask = tensor.concatenate(txy1s_mask, axis=0)
+    attenss = tensor.tile(attens, (len(txy1s), 1, 1))
+    cost = compute_cost(probs, y1, y1_mask, attenss, txy, txy_mask, gates)
 
     print 'build sampler (one-step)'
     f_init_xy, f_next_xy   = build_sampler(tparams_xy, options, options['trng'], 'xy_')
@@ -1097,9 +1081,12 @@ def build_networks(options, model=' ', train=True):
     if train:
         # before any regularizer
         print 'build Cost Function...',
-        inputs = [x1, x1_mask, y1, y1_mask,
-                  x2, x2_mask, y2, y2_mask,
-                  txy12, txy12_mask]
+        inputs = [x1, x1_mask, y1, y1_mask]
+        for k in range(K):
+            inputs += [xs[k], xs_mask[k], ys[k], ys_mask[k]]
+        for k in range(K):
+            inputs += [txy1s[k], txy1s_mask[k]]
+
         if options['use_coverage']:
             inputs += [att0]
 
@@ -1109,24 +1096,20 @@ def build_networks(options, model=' ', train=True):
         tparams = dict(tparams_xy.items() + tparams_map.items())
 
         cost   = cost.mean()
-        g_cost = g_cost.mean()
 
         if options['only_train_g']:
             _tparams = tparams_map
         else:
             _tparams = tparams
 
-        if options['gate_loss']:
-            grads, g2 = clip(tensor.grad(cost + options['gate_lambda'] * g_cost,
-                                     wrt=itemlist(_tparams)), options['clip_c'])
-        else:
-            grads0 = tensor.grad(cost, wrt=itemlist(_tparams))
-            grads, g2 = clip(grads0, options['clip_c'])
+
+        grads0 = tensor.grad(cost, wrt=itemlist(_tparams))
+        grads, g2 = clip(grads0, options['clip_c'])
         print 'Done'
 
         # compile the optimizer, the actual computational graph is compiled here
         lr = tensor.scalar(name='lr')
-        outputs = [cost, g_cost, tensor.sqrt(g2)]
+        outputs = [cost, tensor.sqrt(g2)]
 
 
         print 'Building Optimizers...',
