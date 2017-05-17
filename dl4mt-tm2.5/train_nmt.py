@@ -264,7 +264,7 @@ print 'start the main loop...'
 for eidx in xrange(max_epochs):
     n_samples = 0
 
-    for inputs in train:
+    for k, inputs in enumerate(train):
         uidx += 1
 
         _skip =  model_options.get('skip', 0)
