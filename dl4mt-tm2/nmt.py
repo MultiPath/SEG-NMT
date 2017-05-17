@@ -919,7 +919,7 @@ def build_networks(options, model=' ', train=True):
     outs = []
     tau  = tparams_map['tau']
     if options.get('option', 'normal') == 'advanced':
-        tau = tensor.clip(tau, 0, 1)
+        tau = tensor.clip(tau, 0, 1.5)
 
     if not options['use_coverage']:
 

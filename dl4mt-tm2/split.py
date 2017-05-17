@@ -13,7 +13,7 @@ args = parser.parse_args()
 
 config = setup(args.m)
 
-baseline = False
+baseline = True
 trans_to = config['trans_to']
 if args.ss:
     trans_to += '.multi.SS'
@@ -23,7 +23,7 @@ elif args.mm > 0:
 if not baseline:
     home = trans_to + '.split'
 else:
-    home = '../.translate/baseline_fren.valid.split'
+    home = '../.translate/baseline_fren.bpe.valid2.iter175000.split'
 
 if not os.path.exists(home):
     os.makedirs(home)
@@ -79,7 +79,8 @@ en_trans_list = []
 if not baseline:
     target = trans_to
 else:
-    target = '../.translate/baseline_fren.valid'
+    #target = '../.translate/baseline_fren.valid'
+    target = '../.translate/baseline_fren.bpe.valid2.iter175000'
 
 with open(target, 'rb') as f:
     while True:

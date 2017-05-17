@@ -285,6 +285,12 @@ for eidx in xrange(max_epochs):
         y2, y2_mask = prepare_data(sy2, model_options['maxlen'], model_options['voc_sizes'][3])
         ty12, ty12_mask = prepare_cross(sy1, sy2, y1.shape[0])
 
+        v = model_options.get('drop', 1)
+        if v < 1:
+            drops = (model_options['rng'].rand(ty12_mask.shape[1]) < v)[None, :].astype('float32')
+            ty12_mask *= drops
+            print 'drop {} retrieved pairs'.format(drops.sum()),
+
         inps = [x1, x1_mask, y1, y1_mask,
                 x2, x2_mask, y2, y2_mask,
                 ty12, ty12_mask]

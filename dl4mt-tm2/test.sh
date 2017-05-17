@@ -5,8 +5,8 @@ timestamp=$(date +"%Y-%m-%d_%T")
 logfile=./.log/test_$timestamp.log # print timestamp
 echo $logfile
 
-export THEANO_FLAGS=device=gpu,floatX=float32
+export THEANO_FLAGS=device=gpu0,floatX=float32
 
-python ./translate_gpu.py -m fren | tee $logfile
-python ./score.py -m fren | tee -a $logfile
+python ./translate_gpu.py -m $1 -p test -step $2 | tee $logfile
+python ./score.py -m $1 | tee -a $logfile
 python ./split.py | tee -a $logfile
